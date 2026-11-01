@@ -1,24 +1,29 @@
 // Which screen shows, and the running and finish screens themselves.
 
 import * as E from './engine.js';
+import * as P from './plan.js';
 import { getNote, setNote } from './store.js';
-import { mode, session, settings, saveSettings } from './state.js';
+import { mode, plan, view, session, settings, saveSettings, newDay } from './state.js';
 import { $, body, fmtClock, fmtShort, fmtLeft } from './ui.js';
 import { renderSetup, labelChips, showRibbon, showError } from './setup.js';
-import { startSession, endSession, suggestedMinutes, syncWake } from './session.js';
+import { startPlanItem, extendSession, endSession, suggestedMinutes, syncWake } from './session.js';
 import { tick, faceName, faceSetting } from './draw.js';
 import { canFloatWindow, canFloatVideo } from './float.js';
 import { renderFloatText } from './pip.js';
+import { renderPlan } from './planscreen.js';
 
 const { MIN, MAX_MINUTES } = E;
 
 /* ---------- Screens ---------- */
 
-const screenFor = () => (!session ? 'setup' : session.finishedAt ? 'landing' : 'run');
+// The plan screen opens over any of the others, except in Simple mode.
+const screenFor = () => (view === 'plan' && mode !== 'simple' ? 'plan'
+  : !session ? 'setup' : session.finishedAt ? 'landing' : 'run');
 
 let shownScreen = null;
 
 export function render() {
+  newDay();
   const screen = screenFor();
   const changed = shownScreen !== null && shownScreen !== screen;
   shownScreen = screen;
@@ -29,6 +34,9 @@ export function render() {
   renderSetup();
   if (session && !session.finishedAt) renderRun();
   if (session && session.finishedAt) renderLanding();
+  if (screen === 'plan') renderPlan();
+  $('plan-btn').hidden = mode === 'simple';
+  $('plan-btn').textContent = screen === 'plan' ? 'Back' : 'Plan';
   $('float-btn').hidden = !(session && !session.finishedAt && (canFloatWindow() || canFloatVideo()));
   tick();
   syncWake();
@@ -43,7 +51,7 @@ function focusScreen(screen) {
   if (active && active !== body && active.getClientRects().length) return;
   const target = screen === 'setup'
     ? (mode === 'simple' ? $('s-chips').firstElementChild : $('setup-heading'))
-    : screen === 'run' ? $('r-title') : $('l-title');
+    : screen === 'run' ? $('r-title') : screen === 'plan' ? $('plan-heading') : $('l-title');
   target.focus();
 }
 
@@ -88,8 +96,10 @@ export function renderRun(now = Date.now()) {
   // Work mode: desk clock and schedule.
   $('w-now-when').textContent = `${fmtShort(s.endAt - s.totalMs)}–${fmtShort(s.endAt)}`;
   $('w-now-what').textContent = s.title || 'Current';
+  // The next row's time comes from the plan, so an event shows its own time.
+  const nextRow = P.schedule(plan, now).find(r => r.state === 'next');
   $('w-next-row').hidden = !s.next;
-  $('w-next-when').textContent = fmtShort(s.endAt);
+  $('w-next-when').textContent = fmtShort(nextRow ? nextRow.start : s.endAt);
   $('w-next-what').textContent = s.next;
   for (const d of document.querySelectorAll('[data-face]')) d.setAttribute('aria-pressed', String(d.dataset.face === faceName()));
   $('faces-switch').setAttribute('aria-label', mode === 'work' ? 'Clock style' : 'Picture');
@@ -127,7 +137,11 @@ function renderLanding() {
   showRibbon('l-ribbon', 'l-ribbon-text', hasNext ? s.next : '');
 
   $('l-start').hidden = !hasNext;
-  if (hasNext) $('l-main').dataset.min = suggestedMinutes(s.next);
+  const next = P.upcoming(plan)[0];
+  // An event runs to its own end time when that is still ahead.
+  const toEventEnd = next?.kind === 'event' && next.at != null ? next.at + next.plannedMs - Date.now() : 0;
+  if (hasNext) $('l-main').dataset.min = toEventEnd >= MIN ? Math.round(toEventEnd / MIN)
+    : next?.plannedMs ? Math.round(next.plannedMs / MIN) : suggestedMinutes(s.next);
   labelMain(Date.now());
   $('l-start-label').textContent = work ? 'Or until' : 'Or another length';
   labelChips(Date.now());
@@ -146,7 +160,9 @@ function renderLanding() {
 for (const c of $('l-chips').children) {
   c.addEventListener('click', () => startNext(+c.dataset.min));
 }
-$('l-main').addEventListener('click', () => startNext(+$('l-main').dataset.min));
+// A planned length (or an event's own end) is used as it is; an unsized next
+// item takes the suggested one.
+$('l-main').addEventListener('click', () => startNext(P.upcoming(plan)[0]?.plannedMs ? undefined : +$('l-main').dataset.min));
 $('l-form').addEventListener('submit', e => {
   e.preventDefault();
   const m = parseInt($('l-minutes').value, 10);
@@ -157,13 +173,11 @@ $('l-form').addEventListener('submit', e => {
 });
 $('l-minutes').addEventListener('input', () => showError('l-error'));
 function startNext(minutes) {
-  startSession({ title: session.next, totalMs: minutes * MIN });
+  const next = P.upcoming(plan)[0];
+  if (next) startPlanItem(next.id, minutes);
 }
 for (const b of document.querySelectorAll('[data-extend]')) {
-  b.addEventListener('click', () => {
-    const s = session;
-    startSession({ title: s.title, next: s.next, step: s.step, totalMs: +b.dataset.extend * MIN, kind: 'extension' });
-  });
+  b.addEventListener('click', () => extendSession(+b.dataset.extend));
 }
 $('l-done').addEventListener('click', endSession);
 

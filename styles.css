@@ -135,7 +135,11 @@ button { cursor: pointer; -webkit-user-select: none; user-select: none; touch-ac
 .mode-switch .seg-btn { padding: 0 var(--s3); font-size: 12px; }
 /* On a phone the switch takes the date's place. */
 @media (max-width: 560px) { .bar-date { display: none; } }
-.bar-tools { display: flex; gap: var(--s4); }
+.bar-tools { display: flex; gap: var(--s4); margin-left: auto; }
+/* On the narrowest phones the tools wrap to their own line rather than
+   running into the mode switch. */
+.bar { flex-wrap: wrap; row-gap: 0; }
+@media (max-width: 400px) { .bar, .bar-tools { column-gap: var(--s3); } }
 
 main { max-width: var(--measure); margin: 0 auto; }
 
@@ -283,12 +287,37 @@ body[data-screen="setup"][data-mode="simple"] #setup-simple,
 body[data-screen="run"] #run,
 body[data-screen="landing"] #landing { display: block; }
 body[data-screen="setup"]:not([data-mode="simple"]) #setup { display: flex; flex-direction: column; }
+body[data-screen="plan"] #plan { display: block; }
 
 .only-full, .only-work, .only-simple { display: none; }
 body[data-mode="full"] .only-full,
 body[data-mode="work"] .only-work,
 body[data-mode="simple"] .only-simple { display: inline; }
 body[data-mode="simple"] .not-simple { display: none; }
+
+/* ---------- Day plan ---------- */
+.plan-heading { margin: 0 0 var(--s5); font: var(--type-next); font-style: normal; }
+.plan-group { margin-bottom: var(--s6); }
+.plan-group > .label { margin-bottom: var(--s2); }
+/* The schedule's grid: a clock column, then the activity, then its actions. */
+.plan-list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--ink); }
+.plan-row { display: grid; grid-template-columns: 7.5em minmax(0, 1fr); column-gap: var(--s3); align-items: baseline; padding: var(--s3) 0 var(--s2); border-bottom: 1px solid var(--rule); }
+.plan-when { font-size: 12px; color: var(--ink-soft); }
+.plan-what { grid-column: 2; font-size: 19px; overflow-wrap: anywhere; }
+.plan-row:not(.is-now) .plan-title { color: var(--ink-soft); }
+#plan-next .plan-title { color: var(--ink); }
+.plan-kind, .plan-len { font-size: 12px; color: var(--ink-soft); white-space: nowrap; }
+/* Work mode never shows a duration on screen. */
+body[data-mode="work"] .plan-len { display: none; }
+.plan-clash { grid-column: 2; margin: var(--s1) 0 0; }
+.plan-clash:empty { display: none; }
+.plan-acts { grid-column: 2; display: flex; flex-wrap: wrap; gap: 0 var(--s4); }
+#carry-list .plan-row { grid-template-columns: minmax(0, 1fr); }
+#carry-list .plan-what, #carry-list .plan-acts { grid-column: 1; }
+.plan-form { border-top: 1px solid var(--ink); padding-top: var(--s3); margin-bottom: var(--s6); }
+.plan-form > .label { margin-bottom: var(--s3); }
+.plan-form-row { display: flex; flex-wrap: wrap; gap: var(--s3) var(--s5); margin-bottom: var(--s3); }
+@media (max-width: 400px) { .plan-row { grid-template-columns: minmax(0, 1fr); } .plan-what, .plan-clash, .plan-acts { grid-column: 1; } }
 
 /* ---------- Running ---------- */
 .run-text { margin-bottom: var(--s4); }

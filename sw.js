@@ -1,10 +1,10 @@
 // Tidemark service worker: the whole app is cached on first visit so it works offline.
-const CACHE = 'tidemark-1';
+const CACHE = 'tidemark-2';
 const SHELL = [
   './', './index.html', './styles.css', './manifest.webmanifest',
   './js/app.js', './js/state.js', './js/ui.js', './js/setup.js', './js/session.js', './js/screens.js',
-  './js/draw.js', './js/pip.js', './js/menu.js',
-  './js/engine.js', './js/store.js', './js/sound.js', './js/faces.js', './js/float.js',
+  './js/draw.js', './js/pip.js', './js/menu.js', './js/planscreen.js',
+  './js/engine.js', './js/plan.js', './js/store.js', './js/sound.js', './js/faces.js', './js/float.js',
   './fonts/newsreader-roman.woff2', './fonts/newsreader-italic.woff2',
   './fonts/plex-mono-400.woff2', './fonts/plex-mono-500.woff2',
   './icons/icon.svg', './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png',

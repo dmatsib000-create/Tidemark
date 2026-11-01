@@ -2,9 +2,10 @@
 // the cues along the way, and keeping the screen awake meanwhile.
 
 import * as E from './engine.js';
+import * as P from './plan.js';
 import { load, save, noteKey } from './store.js';
 import { unlockAudio, chime, speak } from './sound.js';
-import { mode, session, setSession, settings, persist } from './state.js';
+import { mode, plan, session, settings, persist, clone, setView } from './state.js';
 import { $, fmtLeft, toast, announce } from './ui.js';
 import { resetForm } from './setup.js';
 import { render } from './screens.js';
@@ -25,39 +26,70 @@ function rememberLength(opts) {
   save('lengths', lengths);
 }
 
-export function startSession(opts) {
-  unlockAudio();
-  rememberLength(opts);
-  $('toast').hidden = true;
-  setSession(E.createSession(opts));
+function started() {
   persist();
+  setView('main');
   resetForm();
   render();
   frame.force = true;
 }
 
+// A quick start (the setup form, Simple mode, a preset): a one-item plan, put
+// before whatever the plan has next.
+export function startSession(opts) {
+  unlockAudio();
+  rememberLength(opts);
+  $('toast').hidden = true;
+  if (P.startNow(plan, opts, Date.now())) started();
+}
+
+// Starts an item from the plan; `minutes` is a length chosen at the handoff.
+export function startPlanItem(id, minutes) {
+  const item = P.byId(plan, id);
+  if (!item) return;
+  unlockAudio();
+  const totalMs = minutes ? minutes * MIN : undefined;
+  if (P.startItem(plan, id, Date.now(), { totalMs, fallbackMs: suggestedMinutes(item.title) * MIN })) {
+    rememberLength({ title: item.title, totalMs: item.run.totalMs });
+    $('toast').hidden = true;
+    started();
+  }
+}
+
+// More time on what just finished: a short new segment of the same activity.
+export function extendSession(minutes) {
+  $('toast').hidden = true;
+  if (P.extend(plan, minutes * MIN, Date.now())) started();
+}
+
+// Stopping keeps the time spent as part of the day; Undo puts the run back.
 function stopSession() {
-  const prev = session;
-  setSession(null);
+  const item = P.current(plan);
+  if (!item) return;
+  const before = clone(item), index = plan.items.indexOf(item), day = plan.day;
+  P.closeCurrent(plan, Date.now(), 'stopped');
   persist();
   resetForm();
   closeFloat();
   render();
   toast('Session stopped', () => {
-    if (session) return;
-    setSession(prev);
+    // Not once another session has started, or the day has turned over.
+    if (session || plan.day !== day) return;
+    P.restoreItem(plan, before, index);
+    persist();
     E.settle(session);
     persist();
     render();
   });
 }
 
-// Done on the finish screen: back to a clean setup, with no undo.
+// Done on the finish screen. With more planned, the plan comes up next.
 export function endSession() {
-  setSession(null);
+  P.closeCurrent(plan, Date.now());
   persist();
   closeFloat();
   resetForm();
+  if (mode !== 'simple' && P.upcoming(plan).length) setView('plan');
   render();
 }
 

@@ -3,12 +3,13 @@
 
 import * as E from './engine.js';
 import { palette, drawFace, paintWarmth, SERIF } from './faces.js';
-import { mode, session, settings, persist } from './state.js';
+import { mode, session, settings, persist, newDay } from './state.js';
 import { $, body, dateFmt, fmtClock, fmtShort, fmtLeft } from './ui.js';
 import { labelChips } from './setup.js';
 import { playCue, onFinished, syncWake } from './session.js';
-import { renderRun, labelMain } from './screens.js';
+import { render, renderRun, labelMain } from './screens.js';
 import { floatDoc, renderFloatText } from './pip.js';
+import { refreshPlanTimes } from './planscreen.js';
 
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 const LIGHT_GAIN = { subtle: 0.6, normal: 1, strong: 1.6 };
@@ -35,6 +36,9 @@ export function tick() {
   $('w-time').textContent = $('s-clock').textContent = fmtClock(now);
   if (body.dataset.screen !== 'run') { labelChips(now); if (mode === 'work') labelMain(now); }
   if (body.dataset.screen === 'landing') renderFloatText(now);
+  // Past midnight, an idle plan turns into a new day's.
+  if (newDay(now)) render();
+  if (body.dataset.screen === 'plan') refreshPlanTimes(now);
   if (session) {
     const wasFinished = !!session.finishedAt;
     const firedBefore = JSON.stringify(session.fired);

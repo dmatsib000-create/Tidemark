@@ -406,6 +406,28 @@ Every button below is a native `<button type="button">` (or `type="submit"` in a
 <ul class="schedule"><li class="sched-row is-now"><span class="mono sched-when">2:00</span><span class="sched-what">Clinic notes</span></li></ul>
 ```
 
+The next row's time comes from the day plan, so an event shows its own fixed time.
+
+### Plan list — `.plan-list`, `.plan-row`
+
+**Description.** The plan screen's rows: the schedule's 7.5em mono clock column, the serif title with an optional mono kind ("Break", "Event", "More time") and length, then a row of text-button actions. Grouped under mono labels Now, Next, Later and From yesterday, each list opened by an ink rule; Done today sits in a `.details`. Below 400px the clock goes above the title.
+
+| State | Visual |
+|---|---|
+| Now (`.is-now`) and Next | Ink title |
+| Later, done | `--ink-soft` title |
+| Break | Italic title |
+| Event the plan runs into | `.hint.mono` line under the title naming the clock time the plan before it runs to |
+| Work mode | `.plan-len` hidden: clock times only |
+
+**Behaviour.** Actions appear only where they can be used: Start on upcoming items when nothing is running, Up hidden on the first upcoming item and Down on the last, nothing on the current or done items. Remove and Not today offer Undo in the toast. Moving keeps keyboard focus on the moved item's arrow. Times refresh with the clock without rebuilding the list.
+
+**Accessibility.** Plain `<ul>`s under `<h2>` labels. Each action's spoken name includes the item ("Move Email up", "Remove Email").
+
+```html
+<li class="plan-row" data-id="i3"><span class="mono plan-when">1:45–2:15</span><span class="plan-what"><span class="plan-title">Email</span> <span class="mono plan-len">30 min</span></span><p class="hint mono plan-clash"></p><span class="plan-acts"><button type="button" class="text-btn mono" aria-label="Start Email">Start</button></span></li>
+```
+
 ### Face switch — `.dot`
 
 **Description.** The choice of face in Work and Full modes: 44px buttons, each drawing an 8px circle. Work shows Level, Sun and Planner (the Disc dot is hidden, since a shrinking disc reads as a timer); Full adds Disc last, so the first three dots sit in the same places in both modes. Each mode remembers its own choice (`settings.face`, `settings.fullFace`, looked up through `faceSetting()` in draw.js). Simple has no switch and always shows the disc. In Full the dots sit under the time figures; in phone landscape they left-align with the other controls.
@@ -509,7 +531,8 @@ Every button below is a native `<button type="button">` (or `type="submit"` in a
 | Setup form | field, line input, seg, chips, inline field, select, error, primary + text buttons | Optional fields are labeled, not starred. Enter moves between word fields. No validation until submit. |
 | Running screen | title, next line, ribbon, face, figures, next card, controls | One thing of primary importance. Controls sit under an ink rule; the next card comes above them. |
 | Handoff (finish screen) | label, display title, landing-main primary, chips, inline start form, note field, extend controls | The next activity takes the title position; one tap starts it. |
-| Undo instead of confirm | toast + text button | Stopping and removing a preset never ask first; Undo stays for 10 seconds. |
+| Undo instead of confirm | toast + text button | Stopping, removing a preset or a plan item, and setting aside yesterday's leftovers never ask first; Undo stays for 10 seconds. |
+| Plan screen | heading, plan lists, seg, line input, box inputs, error, small primary | Opened by Plan in the top bar ("Back" while open), over any screen except in Simple mode. An event's time field shows only when Event is chosen. |
 | Live announcements | one `aria-live="polite"` region | Speaks the warning, the finish and keyboard mode switches; never each minute. Work mode says "Session finished" only. |
 | Mode-specific content | `.only-full`, `.only-work`, `.only-simple`, `.not-simple` | Swap words per mode inside one element rather than duplicating elements. |
 | Floating window | `body.pip`, `.pip-*` | Sized in `vmin`. Drops controls, then figures, then the next line before the face shrinks. |
