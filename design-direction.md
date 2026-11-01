@@ -24,15 +24,16 @@ This sets the visual language. It does not set the time metaphors: the discreet 
 
 ### Design tokens
 
-All colors are CSS custom properties on `:root`, redefined for dark mode under `@media (prefers-color-scheme: dark)`. Seven color values per mode; adding an eighth needs a reason.
+All colors are CSS custom properties on `:root`, redefined for dark mode under `@media (prefers-color-scheme: dark)`. Eight color values per mode. `--rule-strong` is the eighth, added so controls meet the 3:1 boundary contrast that `--rule` can't.
 
 | Token | Light | Dark | Use |
 |---|---|---|---|
 | `--paper` | `#EFEAE0` | `#1E1C19` | Page background |
 | `--paper-raised` | `#F6F2EA` | `#26231F` | Input fields, the next-activity card |
-| `--rule` | `#D6CFC1` | `#3A362F` | Hairlines, dividers, field borders |
+| `--rule` | `#D6CFC1` | `#3A362F` | Decorative hairlines and dividers |
+| `--rule-strong` | `#8A8275` | `#7A7366` | Borders of fields and buttons (3:1 against the paper) |
 | `--ink` | `#2B2A26` | `#E6DFD2` | Primary text, icons, controls |
-| `--ink-soft` | `#625E55` | `#A39C8E` | Secondary text, labels, clock times |
+| `--ink-soft` | `#5A564E` | `#A39C8E` | Secondary text, labels, clock times |
 | `--ochre` | `#B8875A` | `#C9965F` | Time shading and warning light only, never text |
 | `--ochre-ink` | `#7A5230` | `#D9A86F` | Focus underline, the bookmark ribbon, time-related text that must meet contrast |
 
@@ -85,7 +86,7 @@ With `prefers-reduced-motion`, drop the press and fade transitions; keep the tim
 | Finished | Warmth at 1, the next activity in the title position, a one-tap start, the left-off note prompt if not yet written. Discreet mode says "Session finished." |
 | Extension | A new, short, full-size segment with its own visual; warmth resets to the warning curve for that segment. |
 | Paused | Warmth and time visual freeze; a mono "Paused" label replaces the end time. No dimming or greying. |
-| Stopped | Back to Setup, clean. No confirmation for a timer under one minute old; otherwise a single undo for 5 s rather than a dialog. |
+| Stopped | Back to Setup, clean. No confirmation for a timer under one minute old; otherwise a single undo for 10 s rather than a dialog. |
 
 ### Surfaces
 

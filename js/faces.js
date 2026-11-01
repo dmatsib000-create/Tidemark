@@ -66,16 +66,19 @@ function drawDisc(ctx, w, h, m, p) {
     circle(ctx, cx, cy, R * Math.sqrt(m.warnFrac));
     ctx.setLineDash([2, 5]);
     ctx.strokeStyle = p.inkSoft;
-    ctx.globalAlpha = 0.6;
+    ctx.lineWidth = 1.25;
     ctx.stroke();
     ctx.setLineDash([]);
-    ctx.globalAlpha = 1;
   }
 
+  // The wash is soft, so its edge is drawn in ochre ink to read at a glance (3:1 or better).
   if (m.frac > 0) {
     circle(ctx, cx, cy, R * Math.sqrt(m.frac));
     ctx.fillStyle = alpha(p.ochre, m.paused ? p.wash * 0.55 : p.wash + 0.15 * m.warnP);
     ctx.fill();
+    ctx.strokeStyle = p.ochreInk;
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
   }
 }
 
@@ -152,8 +155,8 @@ function drawLevel(ctx, cx, cy, R, m, p) {
   if (m.frac > 0) {
     ctx.fillStyle = alpha(p.ochre, m.paused ? p.wash * 0.55 : p.wash + 0.1 * m.warnP);
     ctx.fillRect(cx - R, top, 2 * R, cy + R - top);
-    ctx.strokeStyle = alpha(p.ochre, 0.9);
-    ctx.lineWidth = 1;
+    ctx.strokeStyle = p.ochreInk;
+    ctx.lineWidth = 1.5;
     ctx.beginPath();
     ctx.moveTo(cx - R, top);
     ctx.lineTo(cx + R, top);
@@ -294,6 +297,9 @@ function drawPlanner(ctx, w, h, m, p) {
   if (by1 > ny) {
     ctx.fillStyle = alpha(p.ochre, m.paused ? p.wash * 0.5 : p.wash * 0.85 + 0.12 * m.warnP);
     ctx.fillRect(x0, ny, x1 - x0, by1 - ny);
+    // Where the time left ends: a firm ochre-ink line at the bottom of the wash.
+    ctx.fillStyle = p.ochreInk;
+    ctx.fillRect(x0, Math.round(by1) - 1.5, x1 - x0, 1.5);
   }
   if (by1 > by0) {
     ctx.strokeStyle = p.rule;

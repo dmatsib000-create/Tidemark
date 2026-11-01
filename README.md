@@ -24,7 +24,7 @@ Switch modes from **Menu** at any time without touching a running session. **Ope
 
 ## Stop, finish, reset
 
-- **Stop** discards the session and returns to a clean setup. Undo is offered for five seconds.
+- **Stop** discards the session and returns to a clean setup. Undo is offered for ten seconds.
 - **Finish now** ends early and goes to the handoff.
 - Taking time off is as easy as adding it. Taking off more than is left finishes quietly; cues it skips past don't play.
 - Setup is always clean after a session. Nothing is pre-filled.

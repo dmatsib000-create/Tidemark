@@ -77,19 +77,51 @@ function fmtLeft(ms) {
 
 const screenFor = () => (!session ? 'setup' : session.finishedAt ? 'landing' : 'run');
 
+let shownScreen = null;
+
 function render() {
+  const screen = screenFor();
+  const changed = shownScreen !== null && shownScreen !== screen;
+  shownScreen = screen;
   body.dataset.mode = mode;
-  body.dataset.screen = screenFor();
-  if (body.dataset.screen !== 'run') body.classList.remove('edit-open', 'note-open');
+  body.dataset.screen = screen;
+  if (screen !== 'run') body.classList.remove('edit-open', 'note-open');
   renderSetup();
   if (session && !session.finishedAt) renderRun();
   if (session && session.finishedAt) renderLanding();
   $('float-btn').hidden = !(session && !session.finishedAt && (canFloatWindow() || canFloatVideo()));
   tick();
   syncWake();
+  if (changed) focusScreen(screen);
+}
+
+// After Start, Finish, Stop or Done, focus is left on a button the change just
+// hid. Move it to the new screen's heading so keyboard and VoiceOver users
+// arrive at the top of what is now showing.
+function focusScreen(screen) {
+  const active = document.activeElement;
+  if (active && active !== body && active.getClientRects().length) return;
+  const target = screen === 'setup'
+    ? (mode === 'simple' ? $('s-chips').firstElementChild : $('setup-heading'))
+    : screen === 'run' ? $('r-title') : $('l-title');
+  target.focus();
 }
 
 /* ---------- Setup (full and work) ---------- */
+
+function showError(errId, fieldId, msg = '') {
+  $(errId).textContent = msg;
+  for (const id of ['f-minutes', 'f-until', 's-minutes']) {
+    if ($(id).getAttribute('aria-describedby') !== errId) continue;
+    $(id).removeAttribute('aria-invalid');
+    $(id).removeAttribute('aria-describedby');
+  }
+  if (msg && fieldId) {
+    $(fieldId).setAttribute('aria-invalid', 'true');
+    $(fieldId).setAttribute('aria-describedby', errId);
+  }
+}
+const lengthField = () => (form.by === 'for' ? 'f-minutes' : 'f-until');
 
 const form = { by: 'for', minutes: 25 };
 
@@ -99,16 +131,16 @@ function resetForm() {
   for (const id of ['f-title', 'f-next', 'f-step', 'f-minutes', 'f-until']) $(id).value = '';
   $('f-buffer').value = '0';
   $('f-warn').value = 'auto';
-  $('f-error').textContent = '';
+  showError('f-error');
   renderSetup();
 }
 
 function renderSetup() {
-  for (const b of document.querySelectorAll('[data-by]')) b.setAttribute('aria-checked', String(b.dataset.by === form.by));
+  for (const b of document.querySelectorAll('[data-by]')) b.setAttribute('aria-pressed', String(b.dataset.by === form.by));
   $('by-for').hidden = form.by !== 'for';
   $('by-until').hidden = form.by !== 'until';
   const exact = $('f-minutes').value.trim();
-  for (const c of $('f-chips').children) c.setAttribute('aria-checked', String(!exact && +c.dataset.min === form.minutes));
+  for (const c of $('f-chips').children) c.setAttribute('aria-pressed', String(!exact && +c.dataset.min === form.minutes));
   showRibbon('f-ribbon', 'f-ribbon-text', $('f-title').value);
   renderUntilHint();
   renderPresets();
@@ -203,20 +235,20 @@ function renderPresets() {
 $('setup-form').addEventListener('submit', e => {
   e.preventDefault();
   const f = readForm();
-  if (f.error) { $('f-error').textContent = f.error; return; }
+  if (f.error) { showError('f-error', lengthField(), f.error); return; }
   startSession(f);
 });
 
 $('f-save').addEventListener('click', () => {
-  if (form.by !== 'for') { $('f-error').textContent = 'Presets use a length. Switch to “For” to save one.'; return; }
+  if (form.by !== 'for') { showError('f-error', null, 'Presets use a length. Switch to “For” to save one.'); return; }
   const f = readForm();
-  if (f.error) { $('f-error').textContent = f.error; return; }
+  if (f.error) { showError('f-error', lengthField(), f.error); return; }
   presets.push({
     id: Date.now().toString(36), title: f.title.trim(), next: f.next.trim(), step: f.step.trim(),
     minutes: Math.round(f.totalMs / MIN), warn: $('f-warn').value,
   });
   save('presets', presets);
-  $('f-error').textContent = '';
+  showError('f-error');
   renderPresets();
   toast('Preset saved');
 });
@@ -224,12 +256,12 @@ $('f-save').addEventListener('click', () => {
 $('f-clear').addEventListener('click', resetForm);
 
 for (const b of document.querySelectorAll('[data-by]')) {
-  b.addEventListener('click', () => { form.by = b.dataset.by; $('f-error').textContent = ''; renderSetup(); });
+  b.addEventListener('click', () => { form.by = b.dataset.by; showError('f-error'); renderSetup(); });
 }
 for (const c of $('f-chips').children) {
-  c.addEventListener('click', () => { form.minutes = +c.dataset.min; $('f-minutes').value = ''; $('f-error').textContent = ''; renderSetup(); });
+  c.addEventListener('click', () => { form.minutes = +c.dataset.min; $('f-minutes').value = ''; showError('f-error'); renderSetup(); });
 }
-$('f-minutes').addEventListener('input', () => { $('f-error').textContent = ''; renderSetup(); });
+$('f-minutes').addEventListener('input', () => { showError('f-error'); renderSetup(); });
 // The keyboard's return key moves to the next field instead of starting early.
 const fieldOrder = ['f-title', 'f-next', 'f-step'];
 fieldOrder.forEach((id, i) => $(id).addEventListener('keydown', e => {
@@ -238,7 +270,7 @@ fieldOrder.forEach((id, i) => $(id).addEventListener('keydown', e => {
   if (fieldOrder[i + 1]) $(fieldOrder[i + 1]).focus(); else $(id).blur();
 }));
 $('f-title').addEventListener('input', () => showRibbon('f-ribbon', 'f-ribbon-text', $('f-title').value));
-for (const id of ['f-until', 'f-buffer']) $(id).addEventListener('input', () => { $('f-error').textContent = ''; renderUntilHint(); });
+for (const id of ['f-until', 'f-buffer']) $(id).addEventListener('input', () => { showError('f-error'); renderUntilHint(); });
 
 /* ---------- Setup (simple) ---------- */
 
@@ -248,12 +280,12 @@ for (const c of $('s-chips').children) {
 $('s-form').addEventListener('submit', e => {
   e.preventDefault();
   const m = parseInt($('s-minutes').value, 10);
-  if (!(m >= 1 && m <= 600)) { $('s-error').textContent = 'Type a number of minutes from 1 to 600.'; return; }
-  $('s-error').textContent = '';
+  if (!(m >= 1 && m <= 600)) { showError('s-error', 's-minutes', 'Type a number of minutes from 1 to 600.'); return; }
+  showError('s-error');
   $('s-minutes').value = '';
   startSession({ totalMs: m * MIN });
 });
-$('s-minutes').addEventListener('input', () => { $('s-error').textContent = ''; });
+$('s-minutes').addEventListener('input', () => showError('s-error'));
 
 /* ---------- Session lifecycle ---------- */
 
@@ -315,7 +347,12 @@ for (const b of document.querySelectorAll('[data-adj]')) {
     if (session.finishedAt) onFinished(); else render();
   });
 }
-$('finish-btn').addEventListener('click', () => { if (session) { E.finishNow(session); onFinished(); } });
+$('finish-btn').addEventListener('click', () => {
+  if (!session) return;
+  E.finishNow(session);
+  announce(cueWords('finish', session));
+  onFinished();
+});
 $('stop-btn').addEventListener('click', stopSession);
 
 /* ---------- Running screen ---------- */
@@ -362,7 +399,12 @@ function renderRun(now = Date.now()) {
   $('w-next-row').hidden = !s.next;
   $('w-next-when').textContent = fmtShort(s.endAt);
   $('w-next-what').textContent = s.next;
-  for (const d of document.querySelectorAll('[data-face]')) d.setAttribute('aria-checked', String(d.dataset.face === settings.face));
+  for (const d of document.querySelectorAll('[data-face]')) d.setAttribute('aria-pressed', String(d.dataset.face === settings.face));
+
+  const face = $('face');
+  face.setAttribute('aria-label', faceLabel(now));
+  if (mode === 'work') { face.setAttribute('role', 'button'); face.tabIndex = 0; }
+  else { face.setAttribute('role', 'img'); face.removeAttribute('tabindex'); }
   renderFloatText(now);
 }
 
@@ -442,14 +484,30 @@ for (const d of document.querySelectorAll('[data-face]')) {
   d.addEventListener('click', () => { settings.face = d.dataset.face; saveSettings(); render(); });
 }
 
-// Tapping the clock privately shows the time left for a few seconds.
+// What the picture says to a screen reader. Work mode stays discreet: it is a
+// clock until asked, then the reveal speaks the time left.
+function faceLabel(now) {
+  if (!session) return '';
+  if (mode === 'work') return 'Clock. Show time left';
+  return `${session.pausedAt ? 'Paused, ' : ''}${fmtLeft(E.remaining(session, now))} left, ends ${fmtClock(session.endAt)}`;
+}
+
+// Tapping the clock (or Enter or Space on it) privately shows the time left
+// for a few seconds.
 let revealTimer;
-$('face').addEventListener('click', () => {
+function reveal() {
   if (mode !== 'work' || !session) return;
-  $('reveal').textContent = fmtLeft(E.remaining(session));
+  $('reveal').textContent = '';
+  setTimeout(() => { $('reveal').textContent = fmtLeft(E.remaining(session)); }, 50);
   $('reveal').classList.add('on');
   clearTimeout(revealTimer);
   revealTimer = setTimeout(() => $('reveal').classList.remove('on'), 4000);
+}
+$('face').addEventListener('click', reveal);
+$('face').addEventListener('keydown', e => {
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  e.preventDefault();
+  reveal();
 });
 
 /* ---------- Cues ---------- */
@@ -671,12 +729,13 @@ function closeFloat() {
 
 function buildFloat(doc) {
   doc.title = mode === 'work' ? 'Day' : 'VizTime';
+  doc.documentElement.lang = 'en';
   doc.body.className = 'pip';
   doc.body.innerHTML = `
     <div class="light" aria-hidden="true"></div>
     <p class="pip-title" id="pip-title"></p>
     <p class="pip-next" id="pip-next"></p>
-    <canvas class="pip-face" id="pip-face"></canvas>
+    <canvas class="pip-face" id="pip-face" role="img"></canvas>
     <p class="pip-fig mono" id="pip-fig"></p>
     <div class="pip-row" id="pip-row">
       <button type="button" class="ctl mono" data-padj="-5" aria-label="Take 5 minutes off">−5</button>
@@ -701,6 +760,7 @@ function renderFloatText(now) {
   if (!floatDoc || !session) return;
   const work = mode === 'work';
   const finished = !!session.finishedAt;
+  floatDoc.getElementById('pip-face').setAttribute('aria-label', finished ? '' : faceLabel(now));
   floatDoc.getElementById('pip-title').textContent = finished
     ? (work ? 'Session finished.' : 'Finished') : (session.title || (work ? fmtClock(now) : ''));
   floatDoc.getElementById('pip-next').textContent = session.next ? `${work ? 'Next' : 'then'} ${session.next}` : '';
@@ -747,16 +807,16 @@ function toast(text, undo) {
   $('toast-undo').onclick = () => { $('toast').hidden = true; undo(); };
   $('toast').hidden = false;
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => { $('toast').hidden = true; }, 5000);
+  toastTimer = setTimeout(() => { $('toast').hidden = true; }, 10_000);
 }
 
 /* ---------- Menu ---------- */
 
 function renderMenu() {
-  for (const b of document.querySelectorAll('#m-mode [data-mode]')) b.setAttribute('aria-checked', String(b.dataset.mode === mode));
+  for (const b of document.querySelectorAll('#m-mode [data-mode]')) b.setAttribute('aria-pressed', String(b.dataset.mode === mode));
   $('m-default').value = settings.defaultMode;
   settings.bundle = matchBundle();
-  for (const b of document.querySelectorAll('[data-bundle]')) b.setAttribute('aria-checked', String(b.dataset.bundle === settings.bundle));
+  for (const b of document.querySelectorAll('[data-bundle]')) b.setAttribute('aria-pressed', String(b.dataset.bundle === settings.bundle));
   $('m-bundle-hint').textContent = BUNDLE_HINTS[settings.bundle];
   for (const c of document.querySelectorAll('[data-cue]')) {
     const [cue, kind] = c.dataset.cue.split('.');

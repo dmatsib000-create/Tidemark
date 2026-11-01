@@ -36,7 +36,7 @@
 
   <!-- ===== Setup: full and work modes ===== -->
   <section class="screen setup" id="setup" aria-labelledby="setup-heading">
-    <h1 class="sr-only" id="setup-heading">Set up</h1>
+    <h1 class="sr-only" id="setup-heading" tabindex="-1">Set up</h1>
     <form id="setup-form" autocomplete="off" novalidate>
       <label class="field field-title">
         <span class="label mono"><span class="only-full">What this time is for</span><span class="only-work">Now</span></span>
@@ -55,18 +55,18 @@
 
       <fieldset class="field">
         <legend class="label mono">Length</legend>
-        <div class="seg" role="radiogroup" aria-label="How to set the length">
-          <button type="button" class="seg-btn" role="radio" data-by="for" aria-checked="true">For</button>
-          <button type="button" class="seg-btn" role="radio" data-by="until" aria-checked="false">Until</button>
+        <div class="seg" role="group" aria-label="How to set the length">
+          <button type="button" class="seg-btn" data-by="for" aria-pressed="true">For</button>
+          <button type="button" class="seg-btn" data-by="until" aria-pressed="false">Until</button>
         </div>
         <div class="by-for" id="by-for">
-          <div class="chips" id="f-chips" role="radiogroup" aria-label="Minutes">
-            <button type="button" class="chip" role="radio" data-min="5">5</button>
-            <button type="button" class="chip" role="radio" data-min="10">10</button>
-            <button type="button" class="chip" role="radio" data-min="15">15</button>
-            <button type="button" class="chip" role="radio" data-min="25">25</button>
-            <button type="button" class="chip" role="radio" data-min="45">45</button>
-            <button type="button" class="chip" role="radio" data-min="60">60</button>
+          <div class="chips" id="f-chips" role="group" aria-label="Minutes">
+            <button type="button" class="chip" data-min="5" aria-pressed="false">5</button>
+            <button type="button" class="chip" data-min="10" aria-pressed="false">10</button>
+            <button type="button" class="chip" data-min="15" aria-pressed="false">15</button>
+            <button type="button" class="chip" data-min="25" aria-pressed="false">25</button>
+            <button type="button" class="chip" data-min="45" aria-pressed="false">45</button>
+            <button type="button" class="chip" data-min="60" aria-pressed="false">60</button>
           </div>
           <label class="inline-field"><span class="mono">or exactly</span>
             <input class="num-input" id="f-minutes" inputmode="numeric" pattern="[0-9]*" maxlength="3" placeholder="25" aria-label="Exact minutes">
@@ -130,7 +130,7 @@
   <section class="screen run" id="run" aria-label="Session">
     <div class="run-text">
       <p class="label mono run-kind" id="r-kind"></p>
-      <h1 class="run-title" id="r-title"></h1>
+      <h1 class="run-title" id="r-title" tabindex="-1"></h1>
       <p class="run-next" id="r-next-line"><span class="label mono">then</span> <span class="italic" id="r-next"></span></p>
       <div class="ribbon" id="r-ribbon" hidden><span class="label mono">Where you left off</span><span id="r-ribbon-text"></span></div>
     </div>
@@ -145,14 +145,14 @@
     </div>
 
     <div class="face-wrap">
-      <canvas class="face" id="face" role="img" aria-label="Time picture"></canvas>
-      <p class="reveal mono" id="reveal" aria-live="off"></p>
+      <canvas class="face" id="face" role="img" aria-label=""></canvas>
+      <p class="reveal mono" id="reveal" aria-live="polite"></p>
     </div>
 
-    <div class="faces-switch" id="faces-switch" role="radiogroup" aria-label="Clock style">
-      <button type="button" class="dot" role="radio" data-face="level" aria-label="Level"></button>
-      <button type="button" class="dot" role="radio" data-face="sun" aria-label="Sun"></button>
-      <button type="button" class="dot" role="radio" data-face="planner" aria-label="Planner"></button>
+    <div class="faces-switch" id="faces-switch" role="group" aria-label="Clock style">
+      <button type="button" class="dot" data-face="level" aria-label="Level" aria-pressed="false"></button>
+      <button type="button" class="dot" data-face="sun" aria-label="Sun" aria-pressed="false"></button>
+      <button type="button" class="dot" data-face="planner" aria-label="Planner" aria-pressed="false"></button>
     </div>
 
     <p class="figures mono" id="r-figures"></p>
@@ -199,7 +199,7 @@
   <!-- ===== Landing: the handoff ===== -->
   <section class="screen landing" id="landing" aria-labelledby="l-title">
     <p class="label mono" id="l-label"></p>
-    <h1 class="landing-title" id="l-title"></h1>
+    <h1 class="landing-title" id="l-title" tabindex="-1"></h1>
     <p class="landing-step" id="l-step"></p>
     <div class="ribbon" id="l-ribbon" hidden><span class="label mono">Where you left off</span><span id="l-ribbon-text"></span></div>
 
@@ -249,10 +249,10 @@
 
     <section class="sheet-section">
       <h3 class="label mono">Mode for now</h3>
-      <div class="seg" id="m-mode" role="radiogroup" aria-label="Mode for now">
-        <button type="button" class="seg-btn" role="radio" data-mode="full">Full</button>
-        <button type="button" class="seg-btn" role="radio" data-mode="work">Work</button>
-        <button type="button" class="seg-btn" role="radio" data-mode="simple">Simple</button>
+      <div class="seg" id="m-mode" role="group" aria-label="Mode for now">
+        <button type="button" class="seg-btn" data-mode="full" aria-pressed="false">Full</button>
+        <button type="button" class="seg-btn" data-mode="work" aria-pressed="false">Work</button>
+        <button type="button" class="seg-btn" data-mode="simple" aria-pressed="false">Simple</button>
       </div>
       <label class="inline-field"><span class="mono">Open in</span>
         <select class="select" id="m-default">
@@ -263,10 +263,10 @@
 
     <section class="sheet-section">
       <h3 class="label mono">Comfort</h3>
-      <div class="seg" id="m-bundle" role="radiogroup" aria-label="Comfort bundle">
-        <button type="button" class="seg-btn" role="radio" data-bundle="quiet">Quiet</button>
-        <button type="button" class="seg-btn" role="radio" data-bundle="balanced">Balanced</button>
-        <button type="button" class="seg-btn" role="radio" data-bundle="noticeable">Noticeable</button>
+      <div class="seg" id="m-bundle" role="group" aria-label="Comfort bundle">
+        <button type="button" class="seg-btn" data-bundle="quiet" aria-pressed="false">Quiet</button>
+        <button type="button" class="seg-btn" data-bundle="balanced" aria-pressed="false">Balanced</button>
+        <button type="button" class="seg-btn" data-bundle="noticeable" aria-pressed="false">Noticeable</button>
       </div>
       <p class="hint" id="m-bundle-hint"></p>
       <details class="details">
@@ -279,7 +279,7 @@
             <tr><th class="mono" scope="row">Finish</th><td><input type="checkbox" data-cue="finish.sound" aria-label="Tone at finish"></td><td><input type="checkbox" data-cue="finish.speak" aria-label="Voice at finish"></td></tr>
           </tbody>
         </table>
-        <label class="inline-field"><span class="mono">Volume</span><input type="range" id="m-volume" min="0" max="1" step="0.05"><button type="button" class="text-btn mono" id="m-test">Try it</button></label>
+        <div class="inline-field"><label class="inline-field" for="m-volume"><span class="mono">Volume</span></label><input type="range" id="m-volume" min="0" max="1" step="0.05"><button type="button" class="text-btn mono" id="m-test">Try it</button></div>
         <label class="inline-field"><span class="mono">Warm light</span>
           <select class="select" id="m-warmth"><option value="subtle">subtle</option><option value="normal">normal</option><option value="strong">strong</option></select></label>
         <label class="check"><input type="checkbox" id="m-breathe"> <span>Slow breathing light at the finish</span></label>
