@@ -1,7 +1,7 @@
 // VizTime: wiring between the timer model, the page, and the floating views.
 
 import * as E from './engine.js';
-import { load, save, getNote, setNote } from './store.js';
+import { load, save, getNote, setNote, noteKey } from './store.js';
 import { unlockAudio, chime, speak } from './sound.js';
 import { palette, drawFace, paintWarmth } from './faces.js';
 import { canFloatWindow, canFloatVideo, openFloatWindow, openFloatVideo } from './float.js';
@@ -38,7 +38,7 @@ const LIGHT_GAIN = { subtle: 0.6, normal: 1, strong: 1.6 };
 const clone = o => JSON.parse(JSON.stringify(o));
 const DEFAULTS = {
   defaultMode: 'full', face: 'planner', bundle: 'balanced', ...clone(BUNDLES.balanced),
-  volume: 0.6, flash: false, wake: true, notify: false,
+  volume: 0.6, flash: false, wake: true, notify: false, rememberLengths: false,
 };
 const stored = load('settings', {});
 const settings = { ...clone(DEFAULTS), ...stored, cues: { ...clone(DEFAULTS.cues), ...(stored.cues || {}) } };
@@ -121,7 +121,10 @@ function showError(errId, fieldId, msg = '') {
     $(fieldId).setAttribute('aria-describedby', errId);
   }
 }
-const lengthField = () => (form.by === 'for' ? 'f-minutes' : 'f-until');
+// Work mode has no For/Until switch: the chips are end times, with typed
+// minutes as the other option. Full mode uses the switch.
+const lengthBy = () => (mode === 'work' ? 'for' : form.by);
+const lengthField = () => (lengthBy() === 'for' ? 'f-minutes' : 'f-until');
 
 const form = { by: 'for', minutes: 25 };
 
@@ -136,14 +139,31 @@ function resetForm() {
 }
 
 function renderSetup() {
+  const work = mode === 'work', by = lengthBy();
   for (const b of document.querySelectorAll('[data-by]')) b.setAttribute('aria-pressed', String(b.dataset.by === form.by));
-  $('by-for').hidden = form.by !== 'for';
-  $('by-until').hidden = form.by !== 'until';
+  $('f-by').hidden = work;
+  $('by-for').hidden = by !== 'for';
+  $('by-until').hidden = by !== 'until';
   const exact = $('f-minutes').value.trim();
-  for (const c of $('f-chips').children) c.setAttribute('aria-pressed', String(!exact && +c.dataset.min === form.minutes));
+  // In Work mode typed minutes are confirmed as an end time, never a duration.
+  const typed = parseInt(exact, 10);
+  $('f-exact-hint').textContent = work && typed >= 1 && typed <= 600 ? `Ends at ${fmtClock(Date.now() + typed * MIN)}.` : '';
+  for (const c of $('f-chips').children) c.setAttribute('aria-pressed', String(by === 'for' && !exact && +c.dataset.min === form.minutes));
+  labelChips(Date.now());
   showRibbon('f-ribbon', 'f-ribbon-text', $('f-title').value);
   renderUntilHint();
   renderPresets();
+}
+
+// In Work mode a length reads as an appointment's end time ("2:45"), never as
+// minutes. Labels follow the clock, so they are refreshed every tick.
+function labelChips(now) {
+  const work = mode === 'work';
+  for (const c of [...$('f-chips').children, ...$('l-chips').children]) {
+    const min = +c.dataset.min;
+    c.textContent = work ? fmtShort(now + min * MIN) : String(min);
+    c.setAttribute('aria-label', work ? `Until ${fmtClock(now + min * MIN)}` : `${min} minutes`);
+  }
 }
 
 function showRibbon(wrapId, textId, title) {
@@ -172,7 +192,7 @@ function renderUntilHint() {
 
 function readForm() {
   let totalMs;
-  if (form.by === 'for') {
+  if (lengthBy() === 'for') {
     const exact = $('f-minutes').value.trim();
     const minutes = exact ? parseInt(exact, 10) : form.minutes;
     if (!(minutes >= 1 && minutes <= 600)) return { error: 'Choose a length between 1 and 600 minutes.' };
@@ -230,6 +250,7 @@ function renderPresets() {
     return li;
   }));
   $('presets-empty').hidden = presets.length > 0;
+  list.closest('.presets').classList.toggle('has-items', presets.length > 0);
 }
 
 $('setup-form').addEventListener('submit', e => {
@@ -240,7 +261,7 @@ $('setup-form').addEventListener('submit', e => {
 });
 
 $('f-save').addEventListener('click', () => {
-  if (form.by !== 'for') { showError('f-error', null, 'Presets use a length. Switch to “For” to save one.'); return; }
+  if (lengthBy() !== 'for') { showError('f-error', null, 'Presets use a length. Switch to “For” to save one.'); return; }
   const f = readForm();
   if (f.error) { showError('f-error', lengthField(), f.error); return; }
   presets.push({
@@ -259,7 +280,7 @@ for (const b of document.querySelectorAll('[data-by]')) {
   b.addEventListener('click', () => { form.by = b.dataset.by; showError('f-error'); renderSetup(); });
 }
 for (const c of $('f-chips').children) {
-  c.addEventListener('click', () => { form.minutes = +c.dataset.min; $('f-minutes').value = ''; showError('f-error'); renderSetup(); });
+  c.addEventListener('click', () => { form.minutes = +c.dataset.min; $('f-minutes').value = ''; $('f-until').value = ''; showError('f-error'); renderSetup(); });
 }
 $('f-minutes').addEventListener('input', () => { showError('f-error'); renderSetup(); });
 // The keyboard's return key moves to the next field instead of starting early.
@@ -270,7 +291,7 @@ fieldOrder.forEach((id, i) => $(id).addEventListener('keydown', e => {
   if (fieldOrder[i + 1]) $(fieldOrder[i + 1]).focus(); else $(id).blur();
 }));
 $('f-title').addEventListener('input', () => showRibbon('f-ribbon', 'f-ribbon-text', $('f-title').value));
-for (const id of ['f-until', 'f-buffer']) $(id).addEventListener('input', () => { showError('f-error'); renderUntilHint(); });
+for (const id of ['f-until', 'f-buffer']) $(id).addEventListener('input', () => { showError('f-error'); renderSetup(); });
 
 /* ---------- Setup (simple) ---------- */
 
@@ -289,8 +310,19 @@ $('s-minutes').addEventListener('input', () => showError('s-error'));
 
 /* ---------- Session lifecycle ---------- */
 
+// Per-activity lengths are kept only when the person turns this on in Menu.
+const suggestedMinutes = title => (settings.rememberLengths && load('lengths', {})[noteKey(title)]) || 25;
+
+function rememberLength(opts) {
+  if (!settings.rememberLengths || opts.kind === 'extension' || !noteKey(opts.title)) return;
+  const lengths = load('lengths', {});
+  lengths[noteKey(opts.title)] = Math.round(opts.totalMs / MIN);
+  save('lengths', lengths);
+}
+
 function startSession(opts) {
   unlockAudio();
+  rememberLength(opts);
   $('toast').hidden = true;
   session = E.createSession(opts);
   persist();
@@ -408,6 +440,15 @@ function renderRun(now = Date.now()) {
   renderFloatText(now);
 }
 
+// The main start button; in Work mode it names an end time, which moves with the clock.
+function labelMain(now) {
+  if (!session || !session.next) return;
+  const m = +$('l-main').dataset.min || 25;
+  $('l-main').textContent = mode === 'work'
+    ? `Start ${session.next} · until ${fmtShort(now + m * MIN)}`
+    : `Start ${session.next} · ${m} min`;
+}
+
 function renderLanding() {
   const s = session;
   const work = mode === 'work', simple = mode === 'simple';
@@ -423,7 +464,10 @@ function renderLanding() {
   showRibbon('l-ribbon', 'l-ribbon-text', hasNext ? s.next : '');
 
   $('l-start').hidden = !hasNext;
-  $('l-start-label').textContent = work ? 'Start for' : `Start ${s.next} for`;
+  if (hasNext) $('l-main').dataset.min = suggestedMinutes(s.next);
+  labelMain(Date.now());
+  $('l-start-label').textContent = work ? 'Or until' : 'Or another length';
+  labelChips(Date.now());
 
   $('l-note').hidden = !s.title || simple;
   $('l-note-label').textContent = work ? 'Note' : `Where did you leave off on ${s.title}?`;
@@ -439,6 +483,7 @@ function renderLanding() {
 for (const c of $('l-chips').children) {
   c.addEventListener('click', () => startNext(+c.dataset.min));
 }
+$('l-main').addEventListener('click', () => startNext(+$('l-main').dataset.min));
 $('l-form').addEventListener('submit', e => {
   e.preventDefault();
   const m = parseInt($('l-minutes').value, 10);
@@ -570,7 +615,8 @@ function tick() {
   const frozen = now - lastTick > FROZEN_GAP;
   lastTick = now;
   $('bar-date').textContent = dateFmt.format(now);
-  $('w-time').textContent = fmtClock(now);
+  $('w-time').textContent = $('s-clock').textContent = fmtClock(now);
+  if (body.dataset.screen !== 'run' && mode === 'work') { labelChips(now); labelMain(now); }
   if (session) {
     const wasFinished = !!session.finishedAt;
     const firedBefore = JSON.stringify(session.fired);
@@ -828,6 +874,8 @@ function renderMenu() {
   $('m-flash').checked = settings.flash;
   $('m-wake').checked = settings.wake;
   $('m-notify').checked = settings.notify;
+  $('m-remember').checked = settings.rememberLengths;
+  $('m-forget').textContent = 'Forget saved lengths';
   $('m-notify-wrap').hidden = !('Notification' in window);
   $('m-float-hint').textContent = canFloatWindow()
     ? 'While a session runs, choose Float at the top. A small window stays on top of your other apps, with the picture and a few controls.'
@@ -864,6 +912,8 @@ $('m-warmth').addEventListener('change', () => { settings.warmth = $('m-warmth')
 $('m-breathe').addEventListener('change', () => { settings.breathe = $('m-breathe').checked; saveSettings(); renderMenu(); });
 $('m-flash').addEventListener('change', () => { settings.flash = $('m-flash').checked; saveSettings(); });
 $('m-wake').addEventListener('change', () => { settings.wake = $('m-wake').checked; saveSettings(); syncWake(); });
+$('m-remember').addEventListener('change', () => { settings.rememberLengths = $('m-remember').checked; saveSettings(); });
+$('m-forget').addEventListener('click', () => { save('lengths', null); $('m-forget').textContent = 'Saved lengths forgotten'; });
 $('m-notify').addEventListener('change', async () => {
   settings.notify = $('m-notify').checked;
   if (settings.notify && Notification.permission !== 'granted') {

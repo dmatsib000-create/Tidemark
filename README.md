@@ -10,6 +10,7 @@ A calm visual timer for time blindness and transitions. Plain static files that 
   - **Level**: a clock whose dial holds a sinking ochre level, with a small mark where the warning begins.
   - **Sun**: a clock with a low sun arcing to the horizon and sinking at the end.
   Tapping the picture shows the time left for four seconds. Controls hide behind **Edit**. The tab title is "Day". It finishes with "Session finished."
+  Setting up looks like adding an entry to the day: the desk clock sits on top, lengths are shown as end times ("2:15", "2:30"), and you can type a number of minutes instead, confirmed only as an end time.
 - **Simple.** Six large lengths or exact minutes. While running: the picture, Pause, −5, +5, Reset.
 
 Switch modes from **Menu** at any time without touching a running session. **Open in** sets the mode the app starts in.
@@ -19,7 +20,7 @@ Switch modes from **Menu** at any time without touching a running session. **Ope
 - The whole page warms slightly through the warning stage, like late-afternoon light, and settles at the finish. That light is the main cue in every mode.
 - In Full mode the next activity gets its own card in the warning stage. It fills and grows as the end approaches and shows the first small step and your last note for it.
 - The note about where you left off is offered during the warning stage (and on the finish screen). It reappears as a ribbon bookmark the next time you start that activity.
-- The finish screen puts the next activity first with one-tap lengths. Extra time (+2, +5, +10) starts its own short, full-size segment.
+- The finish screen puts the next activity first with one main button, such as "Start Lunch · 25 min", and other lengths below it. Turn on **Menu → Activities → Remember how long each activity usually runs** and that button suggests the length you last used for that activity. Extra time (+2, +5, +10) starts its own short, full-size segment.
 - **Until** sets a session by when the next thing starts, minus time to get there.
 
 ## Stop, finish, reset

@@ -221,8 +221,15 @@ main { max-width: 640px; margin: 0 auto; }
 }
 .ribbon .label { display: block; font-style: normal; }
 
+/* Work mode setup: the desk clock comes first, as on the running screen. */
+.setup-clock { display: none; }
+body[data-mode="work"] .setup-clock { display: block; padding-bottom: var(--s3); margin-bottom: var(--s5); border-bottom: 1px solid var(--ink); }
+
 /* ---------- Presets ---------- */
 .presets { margin-top: var(--s7); border-top: 1px solid var(--ink); padding-top: var(--s3); }
+/* Once there are presets, they are the quickest start, so they come first. */
+.presets.has-items { order: -1; margin: 0 0 var(--s6); }
+body[data-mode="work"] .presets.has-items { order: 0; margin-top: var(--s7); }
 .preset-list { list-style: none; margin: var(--s2) 0 0; padding: 0; }
 .preset-list li { display: flex; align-items: stretch; border-bottom: 1px solid var(--rule); }
 .preset-start {
@@ -251,10 +258,10 @@ main { max-width: 640px; margin: 0 auto; }
 
 /* ---------- Screens ---------- */
 .screen { display: none; }
-body[data-screen="setup"]:not([data-mode="simple"]) #setup,
 body[data-screen="setup"][data-mode="simple"] #setup-simple,
 body[data-screen="run"] #run,
 body[data-screen="landing"] #landing { display: block; }
+body[data-screen="setup"]:not([data-mode="simple"]) #setup { display: flex; flex-direction: column; }
 
 .only-full, .only-work, .only-simple { display: none; }
 body[data-mode="full"] .only-full,
@@ -340,16 +347,16 @@ body[data-mode="work"] .controls { border-top-color: var(--rule); }
 .work-tools { justify-content: flex-end; gap: var(--s5); margin: var(--s2) 0; }
 
 @media (min-width: 820px) {
-  body[data-mode="work"] main { max-width: 900px; }
-  body[data-mode="work"] .bar { max-width: 900px; }
+  body[data-mode="work"] main, body[data-mode="work"] .bar { max-width: 1040px; }
   body[data-mode="work"] #run {
-    display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: var(--s8);
+    display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); column-gap: var(--s7);
     grid-template-areas: "face head" "face tools" "face note" "face controls" "face ." "switch .";
     grid-template-rows: auto auto auto auto 1fr auto;
     align-items: start;
   }
   body[data-mode="work"] .face-wrap { grid-area: face; margin: 0; }
-  body[data-mode="work"] .face { width: min(100%, 420px); }
+  body[data-mode="work"] .face { width: min(100%, 64dvh, 580px); }
+  body[data-mode="work"] #run .work-time { font-size: clamp(40px, 3.6vw, 56px); }
   body[data-mode="work"] .work-head { grid-area: head; }
   body[data-mode="work"] .faces-switch { grid-area: switch; }
   body[data-mode="work"] .work-tools { grid-area: tools; }
@@ -388,10 +395,11 @@ body[data-mode="simple"] .figures { font-size: 17px; }
 .landing .ribbon { margin: var(--s5) 0 0; }
 .landing-start { margin: var(--s6) 0 var(--s5); padding-top: var(--s3); border-top: 1px solid var(--ink); }
 .landing-start .label { margin-bottom: var(--s3); }
+.landing-main { width: 100%; min-height: 60px; margin: var(--s2) 0 var(--s5); font-size: 22px; text-align: left; padding: 0 var(--s5); overflow-wrap: anywhere; }
 .landing-start .chip { min-width: 60px; }
 .landing-more { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s2); margin: var(--s5) 0; }
 .landing-more .label { flex-basis: 100%; }
-.done-btn { font-size: 15px; color: var(--ink); }
+.done-btn { font-size: 15px; min-width: 96px; }
 body[data-mode="simple"] .landing-start,
 body[data-mode="simple"] #l-note { display: none; }
 

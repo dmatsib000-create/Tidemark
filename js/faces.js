@@ -223,7 +223,10 @@ function drawSun(ctx, cx, cy, R, m, p) {
 function drawPlanner(ctx, w, h, m, p) {
   const small = w < 260;
   const pad = small ? 8 : 14;
-  const gutter = small ? 40 : 58;
+  const gutter = small ? 40 : Math.round(Math.min(76, Math.max(58, w / 8)));
+  // Text grows with the page, so a large desktop planner stays proportionate.
+  const labelSize = small ? 9.5 : Math.min(13, Math.max(11, w / 40));
+  const titleSize = small ? 12 : Math.min(22, Math.max(15, Math.round(w / 26)));
   const top = pad, H = h - pad * 2;
 
   const bEnd = m.endAt, bStart = bEnd - m.totalMs;
@@ -240,7 +243,7 @@ function drawPlanner(ctx, w, h, m, p) {
   const span = we - ws;
   const step = [1, 2, 5, 10, 15, 30, 60, 120].map(x => x * MIN).find(s => span / s <= (small ? 6 : 9)) || 240 * MIN;
   const tz = new Date().getTimezoneOffset() * MIN;
-  ctx.font = `400 ${small ? 9.5 : 11}px ${MONO}`;
+  ctx.font = `400 ${labelSize}px ${MONO}`;
   ctx.textBaseline = 'middle';
   ctx.textAlign = 'right';
   for (let t = Math.ceil((ws - tz) / step) * step + tz; t <= we; t += step) {
@@ -271,7 +274,7 @@ function drawPlanner(ctx, w, h, m, p) {
       }
       ctx.fillStyle = p.inkSoft;
       ctx.fillRect(x0, ny0, 2, ny1 - ny0);
-      blockLabel(ctx, m.next, x0 + 10, ny0, ny1, x1 - x0 - 16, small, p.ink, true);
+      blockLabel(ctx, m.next, x0 + 10, ny0, ny1, x1 - x0 - 16, titleSize, p.ink, true);
     }
   }
 
@@ -307,7 +310,7 @@ function drawPlanner(ctx, w, h, m, p) {
     ctx.strokeRect(x0 + 0.5, by0 + 0.5, x1 - x0 - 1, by1 - by0 - 1);
     ctx.fillStyle = p.ochreInk;
     ctx.fillRect(x0, by0, 2, by1 - by0);
-    blockLabel(ctx, m.title || 'Appointment', x0 + 10, by0, by1, x1 - x0 - 16, small, p.ink, false);
+    blockLabel(ctx, m.title || 'Appointment', x0 + 10, by0, by1, x1 - x0 - 16, titleSize, p.ink, false);
   }
 
   // Now line, as any calendar draws it.
@@ -323,8 +326,7 @@ function drawPlanner(ctx, w, h, m, p) {
   ctx.fill();
 }
 
-function blockLabel(ctx, text, x, y0, y1, maxW, small, color, italic) {
-  const size = small ? 12 : 15;
+function blockLabel(ctx, text, x, y0, y1, maxW, size, color, italic) {
   if (y1 - y0 < size + 6) return;
   ctx.font = `${italic ? 'italic ' : ''}400 ${size}px ${SERIF}`;
   ctx.textAlign = 'left';
