@@ -1,5 +1,5 @@
-// VizTime service worker: the whole app is cached on first visit so it works offline.
-const CACHE = 'viztime-paper-7';
+// Tidemark service worker: the whole app is cached on first visit so it works offline.
+const CACHE = 'tidemark-1';
 const SHELL = [
   './', './index.html', './styles.css', './manifest.webmanifest',
   './js/app.js', './js/state.js', './js/ui.js', './js/setup.js', './js/session.js', './js/screens.js',
@@ -21,7 +21,7 @@ self.addEventListener('install', e => {
 self.addEventListener('activate', e => {
   e.waitUntil(caches.keys()
     // Only this app's old caches: other Pages projects share the origin.
-    .then(keys => Promise.all(keys.filter(k => k.startsWith('viztime') && k !== CACHE).map(k => caches.delete(k))))
+    .then(keys => Promise.all(keys.filter(k => k.startsWith('tidemark') && k !== CACHE).map(k => caches.delete(k))))
     .then(() => self.clients.claim()));
 });
 

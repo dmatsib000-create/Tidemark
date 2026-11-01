@@ -64,7 +64,7 @@ export function closeFloat() {
 }
 
 export function buildFloat(doc) {
-  doc.title = mode === 'work' ? 'Day' : 'VizTime';
+  doc.title = mode === 'work' ? 'Day' : 'Tidemark';
   doc.documentElement.lang = 'en';
   doc.body.className = 'pip';
   doc.body.innerHTML = `

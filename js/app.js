@@ -1,4 +1,4 @@
-// VizTime: loads every part of the page, then shows the first screen.
+// Tidemark: loads every part of the page, then shows the first screen.
 //
 // state.js    settings, the mode and the session, shared by all of these
 // ui.js       element lookup, time wording, the toast, the live region

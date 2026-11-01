@@ -1,6 +1,12 @@
-# VizTime
+# Tidemark
 
-A calm visual timer for an adult with time blindness and trouble with transitions (autism and ADHD). Plain static files on GitHub Pages, installed to an iPhone home screen and kept open as a floating window on a Windows computer. It was built for its owner, who uses Work mode in a clinic where patients can see the screen.
+A calm time and transition companion for self-directing adults with level 1 autism and/or ADHD. It grew out of VizTime (a separate app that keeps going on its own) and starts from VizTime's code: plain static files on GitHub Pages, installed to a phone home screen or kept open as a floating window on a computer. The new requirements are in [build-prompt.md](build-prompt.md); VizTime's are kept in [docs/origins/viztime-build-prompt.md](docs/origins/viztime-build-prompt.md). Until the docs below are rewritten for Tidemark, they describe the code as inherited from VizTime.
+
+## Decisions so far (1 November 2026)
+
+- **A static app, for now.** No server: data stays on the device. Where the spec asks for things a web app can't do (lock screen, watch, iPhone vibration, alerts while the phone is locked, sync), say so plainly in the app. Exporting `.ics` events is the way to get a real phone alarm. A server is a later decision, not a default.
+- **Work mode becomes a privacy option.** "Never looks like a timer" becomes a setting anyone can turn on when others can see their screen. Its rules below still apply whenever it is on.
+- **The day plan comes first.** A list of steps, events and breaks replaces the single session. Bookmarks with return slots, buffers, now/next/later, change-of-plan previews and actual-versus-planned lengths all build on it.
 
 ## Which document to read
 
@@ -18,10 +24,10 @@ When docs disagree: build-prompt.md, then design-direction.md, then design-syste
 ## Run and test
 
 ```bash
-python -m http.server 8765
+python -m http.server 8766
 ```
 
-The browser preview is set up in [.claude/launch.json](.claude/launch.json) under the name `viztime`. Tests use Node's built-in runner (Node 20+), nothing to install:
+The browser preview is set up in [.claude/launch.json](.claude/launch.json) under the name `tidemark`. Tests use Node's built-in runner (Node 20+), nothing to install:
 
 ```bash
 node --test
@@ -37,7 +43,7 @@ Tests cover the timer model ([js/engine.js](js/engine.js)), saved data ([js/stor
 
 **Relative paths everywhere.** The site is served from a subpath (`username.github.io/<repo>/`), including the manifest and service worker.
 
-**Saved data is namespaced.** Every GitHub Pages project on the account shares one origin. Use `load` and `save` from [js/store.js](js/store.js) (prefix `viztime2:`), never `localStorage` directly. Service worker caches are named `viztime-…`.
+**Saved data is namespaced.** Every GitHub Pages project on the account shares one origin. Use `load` and `save` from [js/store.js](js/store.js) (prefix `tidemark:`), never `localStorage` directly. Service worker caches are named `tidemark-…`.
 
 **Offline file list.** A new file the app needs goes in `SHELL` in [sw.js](sw.js), and `CACHE` gets bumped. The tests fail if a script or font is missing. The worker fetches network-first, so editing an existing file needs no bump.
 

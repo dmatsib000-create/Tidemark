@@ -1,8 +1,8 @@
-# VizTime
+# Tidemark
 
 A calm visual timer for time blindness and transitions. Plain static files that install to a phone home screen and work offline. The look ("Afternoon paper") is described in [design-direction.md](design-direction.md) and documented as built in [design-system.md](design-system.md); the requirements are in [build-prompt.md](build-prompt.md).
 
-New to VizTime, or not technical? Start with the [plain-language guide](docs/guide.md), with pictures of every screen.
+New to Tidemark, or not technical? Start with the [plain-language guide](docs/guide.md), with pictures of every screen.
 
 ## Three modes
 
@@ -41,11 +41,11 @@ Sessions are stored as timestamps, so a running session survives closing and reo
 ## Floating view
 
 - **Chrome, Edge or Vivaldi on a computer:** **Float** opens a small always-on-top window with the picture and −5, Pause, +5. Its layout follows the window's shape: side by side when wide, picture-first when small. At the finish it offers the same handoff as the main screen (Start the next activity, +5 min, Done). In Work mode it shows only the picture and the next entry, and the picture reveals the time left on a tap or Enter.
-- **iPhone and Safari:** **Float** shows the picture as a picture-in-picture video above other apps. It can't be tapped, and iOS may freeze it while VizTime is in the background. This is experimental.
+- **iPhone and Safari:** **Float** shows the picture as a picture-in-picture video above other apps. It can't be tapped, and iOS may freeze it while Tidemark is in the background. This is experimental.
 
 ## Limits on iPhone
 
-A home-screen web app is suspended when it isn't on screen or the phone locks, so it can't sound a cue then. Keep the screen awake (on by default while a session runs) and leave VizTime open. Sound only works after a tap, the silent switch mutes it, and web apps can't vibrate. Notifications aren't available without a server.
+A home-screen web app is suspended when it isn't on screen or the phone locks, so it can't sound a cue then. Keep the screen awake (on by default while a session runs) and leave Tidemark open. Sound only works after a tap, the silent switch mutes it, and web apps can't vibrate. Notifications aren't available without a server.
 
 ## Install
 

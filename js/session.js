@@ -137,7 +137,7 @@ async function notify(cue) {
     title = `${s.title || 'Session'} finished`;
     text = s.next ? `Next: ${s.next}` : '';
   }
-  const opts = { body: text, tag: 'viztime', icon: 'icons/icon-192.png', silent: true };
+  const opts = { body: text, tag: 'tidemark', icon: 'icons/icon-192.png', silent: true };
   try {
     const reg = await navigator.serviceWorker?.getRegistration();
     if (reg) reg.showNotification(title, opts); else new Notification(title, opts);

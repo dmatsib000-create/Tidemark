@@ -1,14 +1,14 @@
-# VizTime: a guide for everyone
+# Tidemark: a guide for everyone
 
-This guide explains what VizTime is and how to use it. You don't need any technical knowledge to read it.
+This guide explains what Tidemark is and how to use it. You don't need any technical knowledge to read it.
 
-**Open VizTime:** https://dmatsib000-create.github.io/VizTime/
+**Open Tidemark:** https://dmatsib000-create.github.io/Tidemark/
 
 ## What it is, and who it's for
 
-VizTime is a timer for people who lose track of time, and for whom stopping one thing to start the next is hard. That often comes with ADHD or autism, but not only.
+Tidemark is a timer for people who lose track of time, and for whom stopping one thing to start the next is hard. That often comes with ADHD or autism, but not only.
 
-An ordinary timer shows numbers counting down and then rings an alarm. For many people the numbers don't register, and the alarm is a jolt, not a help. VizTime works differently:
+An ordinary timer shows numbers counting down and then rings an alarm. For many people the numbers don't register, and the alarm is a jolt, not a help. Tidemark works differently:
 
 - **You see time instead of reading it.** A shape shrinks as time passes, so a glance tells you roughly how much is left.
 - **The end never comes as a surprise.** As the end gets close, the whole screen warms slightly, like late-afternoon light. You notice it without being startled.
@@ -18,7 +18,7 @@ It's calm on purpose: muted paper colours, no alarms, no scores and no cheerful 
 
 ## Getting it on your phone or computer
 
-VizTime runs in a web browser, but you can add it to your phone like an app. You don't need an app store or an account.
+Tidemark runs in a web browser, but you can add it to your phone like an app. You don't need an app store or an account.
 
 **iPhone**
 1. Open the address above in **Safari**.
@@ -34,7 +34,7 @@ It now has its own icon, opens full screen, and works without an internet connec
 <img src="images/full-setup.png" alt="The setup screen, filled in: Write the quarterly report, then Lunch, with 45 minutes chosen" width="260" align="right">
 
 1. **Say what this time is for**, for example "Write the quarterly report". This is optional, but it helps.
-2. **Say what comes next**, for example "Lunch". Also optional, and very useful: VizTime keeps it in view.
+2. **Say what comes next**, for example "Lunch". Also optional, and very useful: Tidemark keeps it in view.
 3. **Add a first small step for next** if you like, for example "Pick a place to eat". A tiny first step makes starting the next thing easier.
 4. **Choose how long.**
    - **For**: tap a length (5 to 60 minutes) or type your own.
@@ -66,7 +66,7 @@ If you left a note last time you did this activity, it appears as a bookmark rib
 | **Finish now** | Ends early and goes straight to "what's next". Nothing is lost. |
 | **Stop** | Throws this session away and returns to a blank setup. **Undo** appears for 10 seconds in case it was a mistake. |
 
-You can close VizTime or switch off your phone and come back later. It picks up where it should be, because it remembers when the session ends, not how many seconds were left.
+You can close Tidemark or switch off your phone and come back later. It picks up where it should be, because it remembers when the session ends, not how many seconds were left.
 
 <br clear="right">
 
@@ -74,7 +74,7 @@ You can close VizTime or switch off your phone and come back later. It picks up 
 
 <img src="images/full-warning.png" alt="Three minutes left: the disc is small and a card for Lunch fills the lower screen" width="260" align="right">
 
-A few minutes before the end (about 15% of the session, between 2 and 10 minutes), VizTime moves into its **getting close** stage:
+A few minutes before the end (about 15% of the session, between 2 and 10 minutes), Tidemark moves into its **getting close** stage:
 
 - The whole screen warms slightly. This is the main signal, and you can notice it out of the corner of your eye.
 - A card for what comes next appears and slowly fills as the end approaches, with the first small step on it.
@@ -102,7 +102,7 @@ Nothing here tells you that you were late or stopped early. Stopping early and r
 
 ## The three modes
 
-Switch between them with **Full · Work · Simple** at the top of the screen. Switching never interrupts a running session. To choose which mode VizTime opens in, go to **Menu → Mode → Open in**.
+Switch between them with **Full · Work · Simple** at the top of the screen. Switching never interrupts a running session. To choose which mode Tidemark opens in, go to **Menu → Mode → Open in**.
 
 ### Full: everything
 
@@ -146,7 +146,7 @@ Open **Menu → Comfort**. Three one-tap choices set everything at once:
 
 **Adjust each cue** lets you set each one yourself: a bell or a spoken line at halfway, at the warning and at the finish, plus volume, how strong the warm light is, three slow flashes, and whether the screen stays awake. The bells are soft and fade in slowly; there is never a harsh beep.
 
-In Work mode, VizTime never speaks or sends notices about anything except "Session finished."
+In Work mode, Tidemark never speaks or sends notices about anything except "Session finished."
 
 ## Keeping it on screen while you do other things
 
@@ -160,13 +160,13 @@ On an iPhone, **Float** shows the picture as a small floating video over other a
 |---|---|---|
 | The timer, all three modes | Yes | Yes |
 | Works without internet | Yes, after the first visit | Yes, after the first visit |
-| Sounds | Only while VizTime is open on screen, and only after you've tapped something. The silent switch mutes them. | Yes |
+| Sounds | Only while Tidemark is open on screen, and only after you've tapped something. The silent switch mutes them. | Yes |
 | Keeping the screen awake | Yes (on by default during a session) | Yes |
 | Reminders when you're in another app | No | Yes, if you turn on **System notification** in Menu |
 | Vibration | No | No |
 | Floating window | Experimental, can't be tapped | Yes |
 
-**Why the iPhone can do less:** an iPhone pauses web apps as soon as they're off screen or the phone locks, so VizTime can't play a sound then. That's an Apple rule that VizTime can't get around. The best approach on an iPhone is to leave VizTime open on screen; the screen stays awake by default while a session runs. Because of this, the picture and the warming light are designed to do the whole job without sound.
+**Why the iPhone can do less:** an iPhone pauses web apps as soon as they're off screen or the phone locks, so Tidemark can't play a sound then. That's an Apple rule that Tidemark can't get around. The best approach on an iPhone is to leave Tidemark open on screen; the screen stays awake by default while a session runs. Because of this, the picture and the warming light are designed to do the whole job without sound.
 
 ## Your information
 
@@ -176,7 +176,7 @@ This also means:
 - **Your phone and your computer don't share anything.** A preset you save on your phone won't appear on your computer.
 - **Clearing your browser's data** (history, cookies or website data) erases your presets, notes and settings.
 
-VizTime saves only what you ask it to: your settings, presets, the current session, and your "where you left off" notes. It remembers how long each activity usually runs only if you turn that on (**Menu → Activities**), and **Forget saved lengths** clears it.
+Tidemark saves only what you ask it to: your settings, presets, the current session, and your "where you left off" notes. It remembers how long each activity usually runs only if you turn that on (**Menu → Activities**), and **Forget saved lengths** clears it.
 
 ## Common questions
 
@@ -184,9 +184,9 @@ VizTime saves only what you ask it to: your settings, presets, the current sessi
 
 **I set the wrong length.** Use **−5**, **−1**, **+1** or **+5** while it runs. Taking off more than is left simply finishes it, quietly.
 
-**I didn't hear anything at the end.** Check **Menu → Comfort**: Quiet has no sounds. On an iPhone, check the silent switch, keep VizTime open on screen, and tap the screen once after opening it, because iPhones only allow sound after a tap.
+**I didn't hear anything at the end.** Check **Menu → Comfort**: Quiet has no sounds. On an iPhone, check the silent switch, keep Tidemark open on screen, and tap the screen once after opening it, because iPhones only allow sound after a tap.
 
-**The end passed while VizTime was closed.** When you reopen it, it goes straight to the finish screen. It doesn't play old sounds late.
+**The end passed while Tidemark was closed.** When you reopen it, it goes straight to the finish screen. It doesn't play old sounds late.
 
 **I can't find the buttons in Work mode.** Tap **Edit**.
 
@@ -197,5 +197,5 @@ VizTime saves only what you ask it to: your settings, presets, the current sessi
 ## More detail
 
 - [README.md](../README.md): a shorter summary of every feature, and how the app is published.
-- [build-prompt.md](../build-prompt.md): the original description of what VizTime needs to do and why, written by the person it was made for.
+- [build-prompt.md](../build-prompt.md): what Tidemark needs to do and why. Tidemark grew out of VizTime; [VizTime's original description](origins/viztime-build-prompt.md) is kept for reference.
 - [design-direction.md](../design-direction.md): why it looks the way it does.

@@ -15,7 +15,7 @@ beforeEach(() => items.clear());
 test('values round-trip under the app prefix', () => {
   save('presets', [{ minutes: 25 }]);
   assert.deepEqual(load('presets', []), [{ minutes: 25 }]);
-  assert.ok(items.has('viztime2:presets'));
+  assert.ok(items.has('tidemark:presets'));
 });
 
 test('saving null removes the value', () => {
@@ -25,7 +25,7 @@ test('saving null removes the value', () => {
 });
 
 test('unreadable data falls back instead of breaking the app', () => {
-  items.set('viztime2:settings', '{not json');
+  items.set('tidemark:settings', '{not json');
   assert.deepEqual(load('settings', {}), {});
 });
 

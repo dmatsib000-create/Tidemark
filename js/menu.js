@@ -46,7 +46,7 @@ function renderMenu() {
   $('m-float-hint').textContent = canFloatWindow()
     ? 'While a session runs, choose Float at the top. A small window stays on top of your other apps, with the picture and a few controls.'
     : canFloatVideo()
-      ? 'While a session runs, choose Float at the top. The picture floats as a small video above other apps. It can’t be tapped, and the phone may pause it while VizTime is in the background.'
+      ? 'While a session runs, choose Float at the top. The picture floats as a small video above other apps. It can’t be tapped, and the phone may pause it while Tidemark is in the background.'
       : 'This browser has no floating view. Chrome or Edge on a computer can keep the session in a small window on top of other apps.';
 }
 

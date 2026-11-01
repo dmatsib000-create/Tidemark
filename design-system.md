@@ -1,4 +1,4 @@
-# VizTime design system
+# Tidemark design system
 
 The reference for what is built: tokens, components and patterns as they exist in [styles.css](styles.css), [index.html](index.html), the modules in [js/](js/) (listed at the top of [js/app.js](js/app.js)), with the pictures in [js/faces.js](js/faces.js). [design-direction.md](design-direction.md) holds the intent behind them ("Afternoon paper"): the philosophy, the session states, the surfaces and the copy voice.
 

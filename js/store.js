@@ -1,6 +1,6 @@
 // Saved data lives in localStorage under one prefix, because every GitHub Pages
 // project on the same account shares a single origin.
-const PREFIX = 'viztime2:';
+const PREFIX = 'tidemark:';
 
 export function load(key, fallback) {
   try {

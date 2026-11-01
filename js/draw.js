@@ -49,10 +49,10 @@ export function tick() {
 }
 
 function updateTitle(now) {
-  let t = 'VizTime';
+  let t = 'Tidemark';
   if (mode === 'work') t = 'Day';
-  else if (session && session.finishedAt) t = 'Finished · VizTime';
-  else if (session) t = `${session.pausedAt ? 'Paused · ' : ''}${fmtLeft(E.remaining(session, now))} · ${session.title || 'VizTime'}`;
+  else if (session && session.finishedAt) t = 'Finished · Tidemark';
+  else if (session) t = `${session.pausedAt ? 'Paused · ' : ''}${fmtLeft(E.remaining(session, now))} · ${session.title || 'Tidemark'}`;
   if (document.title !== t) document.title = t;
 }
 
