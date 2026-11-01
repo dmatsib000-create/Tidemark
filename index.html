@@ -76,7 +76,15 @@
           <p class="hint mono" id="f-exact-hint"></p>
         </div>
         <div class="by-until" id="by-until" hidden>
-          <label class="inline-field"><span class="mono">next starts at</span>
+          <div class="chips" id="u-chips" role="group" aria-label="End times">
+            <button type="button" class="chip" data-min="5" aria-pressed="false">5</button>
+            <button type="button" class="chip" data-min="10" aria-pressed="false">10</button>
+            <button type="button" class="chip" data-min="15" aria-pressed="false">15</button>
+            <button type="button" class="chip" data-min="25" aria-pressed="false">25</button>
+            <button type="button" class="chip" data-min="45" aria-pressed="false">45</button>
+            <button type="button" class="chip" data-min="60" aria-pressed="false">60</button>
+          </div>
+          <label class="inline-field"><span class="mono">or next starts at</span>
             <input class="num-input time" id="f-until" type="time" aria-label="When the next thing starts"></label>
           <label class="inline-field"><span class="mono">getting there takes</span>
             <select class="select" id="f-buffer" aria-label="Buffer minutes">

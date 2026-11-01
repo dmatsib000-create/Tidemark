@@ -10,7 +10,7 @@ A calm visual timer for time blindness and transitions. Plain static files that 
   - **Level**: a clock whose dial holds a sinking ochre level, with a small mark where the warning begins.
   - **Sun**: a clock with a low sun arcing to the horizon and sinking at the end.
   Tapping the picture shows the time left for four seconds. Controls hide behind **Edit**. The tab title is "Day". It finishes with "Session finished."
-  Setting up looks like adding an entry to the day: the desk clock sits on top, lengths are shown as end times ("2:15", "2:30"), and you can type a number of minutes instead, confirmed only as an end time.
+  Setting up looks like adding an entry to the day: the desk clock sits on top, it opens on **Until**, with end-time buttons ("2:15", "2:30") and a "next starts at" time. **For** (minutes) is one tap away; typed minutes there are confirmed only as an end time. Full and Simple open on For.
 - **Simple.** Six large lengths or exact minutes. While running: the picture, Pause, −5, +5, Reset.
 
 Switch modes from **Menu** at any time without touching a running session. **Open in** sets the mode the app starts in.

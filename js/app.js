@@ -121,16 +121,20 @@ function showError(errId, fieldId, msg = '') {
     $(fieldId).setAttribute('aria-describedby', errId);
   }
 }
-// Work mode has no For/Until switch: the chips are end times, with typed
-// minutes as the other option. Full mode uses the switch.
-const lengthBy = () => (mode === 'work' ? 'for' : form.by);
+// Every mode has the For/Until switch. Work mode starts on Until, because an
+// end time reads as an appointment; the other modes start on For.
+const defaultBy = () => (mode === 'work' ? 'until' : 'for');
+const lengthBy = () => form.by;
 const lengthField = () => (lengthBy() === 'for' ? 'f-minutes' : 'f-until');
 
-const form = { by: 'for', minutes: 25 };
+// minutes: the chosen For button. untilMin: the chosen Until button, as
+// minutes from now; a typed "next starts at" time overrides it.
+const form = { by: 'for', minutes: 25, untilMin: 25 };
 
 function resetForm() {
-  form.by = 'for';
+  form.by = defaultBy();
   form.minutes = 25;
+  form.untilMin = 25;
   for (const id of ['f-title', 'f-next', 'f-step', 'f-minutes', 'f-until']) $(id).value = '';
   $('f-buffer').value = '0';
   $('f-warn').value = 'auto';
@@ -141,7 +145,6 @@ function resetForm() {
 function renderSetup() {
   const work = mode === 'work', by = lengthBy();
   for (const b of document.querySelectorAll('[data-by]')) b.setAttribute('aria-pressed', String(b.dataset.by === form.by));
-  $('f-by').hidden = work;
   $('by-for').hidden = by !== 'for';
   $('by-until').hidden = by !== 'until';
   const exact = $('f-minutes').value.trim();
@@ -149,21 +152,30 @@ function renderSetup() {
   const typed = parseInt(exact, 10);
   $('f-exact-hint').textContent = work && typed >= 1 && typed <= 600 ? `Ends at ${fmtClock(Date.now() + typed * MIN)}.` : '';
   for (const c of $('f-chips').children) c.setAttribute('aria-pressed', String(by === 'for' && !exact && +c.dataset.min === form.minutes));
+  const typedTime = $('f-until').value;
+  for (const c of $('u-chips').children) c.setAttribute('aria-pressed', String(by === 'until' && !typedTime && +c.dataset.min === form.untilMin));
   labelChips(Date.now());
   showRibbon('f-ribbon', 'f-ribbon-text', $('f-title').value);
   renderUntilHint();
   renderPresets();
 }
 
-// In Work mode a length reads as an appointment's end time ("2:45"), never as
-// minutes. Labels follow the clock, so they are refreshed every tick.
+// Until buttons (and, in Work mode, the finish screen's lengths) read as end
+// times ("2:45"); For buttons read as minutes. End times follow the clock, so
+// they are refreshed every tick.
 function labelChips(now) {
-  const work = mode === 'work';
-  for (const c of [...$('f-chips').children, ...$('l-chips').children]) {
+  const asTime = c => {
     const min = +c.dataset.min;
-    c.textContent = work ? fmtShort(now + min * MIN) : String(min);
-    c.setAttribute('aria-label', work ? `Until ${fmtClock(now + min * MIN)}` : `${min} minutes`);
-  }
+    c.textContent = fmtShort(now + min * MIN);
+    c.setAttribute('aria-label', `Until ${fmtClock(now + min * MIN)}`);
+  };
+  const asMinutes = c => {
+    c.textContent = c.dataset.min;
+    c.setAttribute('aria-label', `${c.dataset.min} minutes`);
+  };
+  [...$('u-chips').children].forEach(asTime);
+  [...$('f-chips').children].forEach(asMinutes);
+  [...$('l-chips').children].forEach(mode === 'work' ? asTime : asMinutes);
 }
 
 function showRibbon(wrapId, textId, title) {
@@ -197,9 +209,10 @@ function readForm() {
     const minutes = exact ? parseInt(exact, 10) : form.minutes;
     if (!(minutes >= 1 && minutes <= 600)) return { error: 'Choose a length between 1 and 600 minutes.' };
     totalMs = minutes * MIN;
+  } else if (!$('f-until').value) {
+    totalMs = form.untilMin * MIN;
   } else {
     totalMs = untilTotal();
-    if (totalMs == null) return { error: 'Choose when the next thing starts.' };
     if (totalMs < MIN) return { error: 'That time has passed or is too close. Choose a later time.' };
     totalMs = Math.round(totalMs / 1000) * 1000;
   }
@@ -261,7 +274,8 @@ $('setup-form').addEventListener('submit', e => {
 });
 
 $('f-save').addEventListener('click', () => {
-  if (lengthBy() !== 'for') { showError('f-error', null, 'Presets use a length. Switch to “For” to save one.'); return; }
+  // An Until button is a length from now, so it saves; a typed clock time doesn't.
+  if (lengthBy() === 'until' && $('f-until').value) { showError('f-error', null, 'Presets use a length. Choose one of the times above, or switch to “For”.'); return; }
   const f = readForm();
   if (f.error) { showError('f-error', lengthField(), f.error); return; }
   presets.push({
@@ -280,7 +294,10 @@ for (const b of document.querySelectorAll('[data-by]')) {
   b.addEventListener('click', () => { form.by = b.dataset.by; showError('f-error'); renderSetup(); });
 }
 for (const c of $('f-chips').children) {
-  c.addEventListener('click', () => { form.minutes = +c.dataset.min; $('f-minutes').value = ''; $('f-until').value = ''; showError('f-error'); renderSetup(); });
+  c.addEventListener('click', () => { form.minutes = +c.dataset.min; $('f-minutes').value = ''; showError('f-error'); renderSetup(); });
+}
+for (const c of $('u-chips').children) {
+  c.addEventListener('click', () => { form.untilMin = +c.dataset.min; $('f-until').value = ''; showError('f-error'); renderSetup(); });
 }
 $('f-minutes').addEventListener('input', () => { showError('f-error'); renderSetup(); });
 // The keyboard's return key moves to the next field instead of starting early.
@@ -616,7 +633,7 @@ function tick() {
   lastTick = now;
   $('bar-date').textContent = dateFmt.format(now);
   $('w-time').textContent = $('s-clock').textContent = fmtClock(now);
-  if (body.dataset.screen !== 'run' && mode === 'work') { labelChips(now); labelMain(now); }
+  if (body.dataset.screen !== 'run') { labelChips(now); if (mode === 'work') labelMain(now); }
   if (session) {
     const wasFinished = !!session.finishedAt;
     const firedBefore = JSON.stringify(session.fired);
@@ -888,7 +905,14 @@ $('menu-btn').addEventListener('click', () => { renderMenu(); $('sheet').showMod
 $('sheet').addEventListener('click', e => { if (e.target === $('sheet')) $('sheet').close(); });
 
 for (const b of document.querySelectorAll('#m-mode [data-mode]')) {
-  b.addEventListener('click', () => { mode = b.dataset.mode; renderMenu(); render(); frame.force = true; if (floatDoc) buildFloat(floatDoc); });
+  b.addEventListener('click', () => {
+    mode = b.dataset.mode;
+    if (!session) form.by = defaultBy();
+    renderMenu();
+    render();
+    frame.force = true;
+    if (floatDoc) buildFloat(floatDoc);
+  });
 }
 $('m-default').addEventListener('change', () => { settings.defaultMode = $('m-default').value; saveSettings(); });
 for (const b of document.querySelectorAll('[data-bundle]')) {
