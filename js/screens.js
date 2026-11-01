@@ -69,7 +69,8 @@ export function renderRun(now = Date.now()) {
   const noteFor = getNote(s.title);
 
   $('r-kind').textContent = s.kind === 'extension' ? 'Extra time' : '';
-  $('r-title').textContent = s.title || `${Math.round(s.totalMs / MIN)} minutes`;
+  // Work mode never names a length, even for an untitled session.
+  $('r-title').textContent = s.title || (mode === 'work' ? 'Session' : `${Math.round(s.totalMs / MIN)} minutes`);
   $('r-next-line').hidden = !s.next;
   $('r-next').textContent = s.next;
   showRibbon('r-ribbon', 'r-ribbon-text', s.title);
