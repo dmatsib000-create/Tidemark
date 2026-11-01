@@ -1,5 +1,5 @@
 // VizTime service worker: the whole app is cached on first visit so it works offline.
-const CACHE = 'viztime-paper-1';
+const CACHE = 'viztime-paper-2';
 const SHELL = [
   './', './index.html', './styles.css', './manifest.webmanifest',
   './js/app.js', './js/engine.js', './js/store.js', './js/sound.js', './js/faces.js', './js/float.js',
@@ -9,7 +9,11 @@ const SHELL = [
 ];
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));
+  // 'reload' skips the browser's own cache, so a new install never stores
+  // files left over from the previous version.
+  e.waitUntil(caches.open(CACHE)
+    .then(c => c.addAll(SHELL.map(url => new Request(url, { cache: 'reload' }))))
+    .then(() => self.skipWaiting()));
 });
 
 self.addEventListener('activate', e => {
@@ -20,10 +24,14 @@ self.addEventListener('activate', e => {
 });
 
 // Network first so updates arrive when online; the cache answers when offline.
+// Every file is revalidated with the server ('no-cache'). Without that, GitHub
+// Pages' 10-minute browser caching could pair a new index.html with an old
+// app.js after a deploy, leaving new buttons with nothing wired to them.
 self.addEventListener('fetch', e => {
   const req = e.request;
   if (req.method !== 'GET' || new URL(req.url).origin !== location.origin) return;
-  e.respondWith(fetch(req).then(res => {
+  const fresh = new Request(req.url, { cache: 'no-cache', credentials: 'same-origin' });
+  e.respondWith(fetch(fresh).then(res => {
     if (res.ok) { const copy = res.clone(); caches.open(CACHE).then(c => c.put(req, copy)); }
     return res;
   }).catch(() => caches.match(req, { ignoreSearch: true })
