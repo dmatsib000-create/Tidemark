@@ -140,25 +140,35 @@ function drawClock(ctx, w, h, m, p, kind) {
   }
 
   // Hands: an ordinary clock telling the ordinary time. Soft hands are finer
-  // and in pencil grey, so the ochre stays the strongest mark.
+  // and translucent ink, so the ochre stays the strongest mark while the hands
+  // still read against it in both modes (3:1 or better). Never under 1.5px.
   const soft = m.hands === 'soft';
   const k = soft ? 0.7 : 1;
+  const thin = (min, w) => Math.max(1.5, Math.max(min, w) * k);
   const t = new Date(m.now);
   const mins = t.getMinutes() + t.getSeconds() / 60;
   const hrs = (t.getHours() % 12) + mins / 60;
+  // Both hands and the hub are one filled shape, all wound the same way, so
+  // translucent ink lands once where they cross instead of pooling darker.
+  // Each hand is a capsule: a line with round ends, drawn as an outline.
   const hand = (angle, len, width) => {
-    ctx.lineWidth = width;
-    ctx.lineCap = 'round';
-    ctx.beginPath();
-    ctx.moveTo(cx - Math.sin(angle) * R * 0.08, cy + Math.cos(angle) * R * 0.08);
-    ctx.lineTo(cx + Math.sin(angle) * len, cy - Math.cos(angle) * len);
-    ctx.stroke();
+    const r = width / 2, nx = Math.cos(angle) * r, ny = Math.sin(angle) * r;
+    const tx = cx - Math.sin(angle) * R * 0.08, ty = cy + Math.cos(angle) * R * 0.08;
+    const hx = cx + Math.sin(angle) * len, hy = cy - Math.cos(angle) * len;
+    ctx.moveTo(tx + nx, ty + ny);
+    ctx.lineTo(hx + nx, hy + ny);
+    ctx.arc(hx, hy, r, angle, angle + Math.PI, true);
+    ctx.lineTo(tx - nx, ty - ny);
+    ctx.arc(tx, ty, r, angle + Math.PI, angle, true);
+    ctx.closePath();
   };
-  ctx.strokeStyle = soft ? p.inkSoft : p.ink;
-  hand((hrs / 12) * Math.PI * 2, R * 0.5, Math.max(2, R * 0.03) * k);
-  hand((mins / 60) * Math.PI * 2, R * 0.76, Math.max(1.5, R * 0.018) * k);
-  circle(ctx, cx, cy, Math.max(2.5, R * 0.03) * k);
-  ctx.fillStyle = ctx.strokeStyle;
+  ctx.beginPath();
+  hand((hrs / 12) * Math.PI * 2, R * 0.5, thin(2, R * 0.03));
+  hand((mins / 60) * Math.PI * 2, R * 0.76, thin(1.5, R * 0.018));
+  const hub = thin(2.5, R * 0.03);
+  ctx.moveTo(cx + hub, cy);
+  ctx.arc(cx, cy, hub, 0, Math.PI * 2, true);
+  ctx.fillStyle = soft ? alpha(p.ink, 0.7) : p.ink;
   ctx.fill();
 }
 

@@ -483,7 +483,7 @@ Every button below is a native `<button type="button">` (or `type="submit"` in a
 
 ### Faces — `canvas.face`
 
-**Description.** The time picture, drawn by [js/faces.js](js/faces.js): `disc` (Full, Simple), `level`, `sun`, `planner` (Work, and offered in Full). Level and Sun draw ink clock hands in Work, where they are the disguise, and soft hands in Full (`hands: 'soft'` in the model: `--ink-soft`, 70% width), so they don't compete with the time left. Each takes a model and the palette, so one drawing serves the page, the floating window and the video.
+**Description.** The time picture, drawn by [js/faces.js](js/faces.js): `disc` (Full, Simple), `level`, `sun`, `planner` (Work, and offered in Full). Level and Sun draw ink clock hands in Work, where they are the disguise, and soft hands in Full (`hands: 'soft'` in the model: `--ink` at 70% opacity, 70% width, never under 1.5px), so they don't compete with the time left. Soft hands measure 4.0:1 over the wash in light mode and 3.6:1 in dark. The hands and hub are one filled shape, so translucent ink doesn't pool darker where they cross. Each takes a model and the palette, so one drawing serves the page, the floating window and the video.
 
 | Mode | Role | Behavior |
 |---|---|---|
