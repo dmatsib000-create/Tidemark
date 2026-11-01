@@ -349,7 +349,9 @@ body[data-mode="work"] .run-text, body[data-mode="simple"] .run-text {
 body[data-mode="work"] .figures,
 body[data-mode="work"] .next-card { display: none !important; }
 body[data-mode="work"] .work-head { display: block; }
-body[data-mode="work"] .faces-switch { display: flex; }
+body[data-mode="work"] .faces-switch, body[data-mode="full"] .faces-switch { display: flex; }
+/* A shrinking disc reads as a timer, so Work mode doesn't offer it. */
+body[data-mode="work"] .dot[data-face="disc"] { display: none; }
 body[data-mode="work"] .work-tools { display: flex; }
 body[data-mode="work"]:not(.is-edit-open) .controls { display: none; }
 body[data-mode="work"]:not(.is-note-open) #leave-note { display: none !important; }
@@ -362,6 +364,9 @@ body[data-mode="work"] .controls { border-top-color: var(--rule); }
 .sched-what { font-size: 19px; overflow-wrap: anywhere; }
 .sched-row:not(.is-now) .sched-what { color: var(--ink-soft); }
 .faces-switch { justify-content: center; gap: 0; margin-top: var(--s1); }
+/* Full mode: the dots sit under the time figures, a little apart from the controls. */
+body[data-mode="full"] .figures { margin-bottom: 0; }
+body[data-mode="full"] .faces-switch { margin: 0 0 var(--s4); }
 .dot { width: var(--tap); height: var(--tap); background: none; border: 0; position: relative; }
 .dot::after {
   content: ''; position: absolute; left: 50%; top: 50%; width: 8px; height: 8px; margin: -4px 0 0 -4px;
@@ -409,7 +414,7 @@ body[data-mode="simple"] .figures { font-size: 17px; }
   body:not([data-mode="work"]) #run .face { width: min(78dvh, 44vw); }
   body:not([data-mode="work"]) #run > :not(.face-wrap) { grid-column: 2; }
   .figures { text-align: left; }
-  .adjust, .ends { justify-content: flex-start; }
+  .adjust, .ends, body[data-mode="full"] .faces-switch { justify-content: flex-start; }
   .big-chip { min-height: 72px; font-size: 34px; }
 }
 

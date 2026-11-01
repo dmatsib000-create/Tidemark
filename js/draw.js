@@ -79,11 +79,16 @@ export function faceModel(now) {
     frac: E.fraction(s, now), warnFrac: Math.min(1, s.warnMs / s.totalMs),
     stage: E.stage(s, now), warnP: E.warnProgress(s, now), paused: !!s.pausedAt,
     now, endAt: end, totalMs: s.totalMs, warnMs: s.warnMs, remainingMs: E.remaining(s, now),
-    title: s.title || (mode === 'work' ? 'Current' : ''), next: s.next, zoom, fmtClock: fmtShort,
+    title: s.title || (mode === 'work' ? 'Current' : `${Math.round(s.totalMs / E.MIN)} minutes`), next: s.next,
+    // The clock hands are Work mode's disguise; in Full they step back behind the time left.
+    hands: mode === 'work' ? 'ink' : 'soft', zoom, fmtClock: fmtShort,
   };
 }
 
-export const faceName = () => (mode === 'work' ? settings.face : 'disc');
+// Work and Full each remember their own picture; Simple always has the disc.
+const FACE_SETTING = { work: 'face', full: 'fullFace' };
+export const faceSetting = () => FACE_SETTING[mode];
+export const faceName = () => settings[faceSetting()] || 'disc';
 
 export function paint(canvas, name, m) {
   const r = canvas.getBoundingClientRect();

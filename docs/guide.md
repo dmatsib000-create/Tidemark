@@ -53,6 +53,8 @@ The coloured disc is the time left. It shrinks steadily, with no ticking or jump
 
 Underneath, in small print: the minutes left and the clock time it ends.
 
+Prefer a different picture? The dots under the numbers switch to one of the three pictures from Work mode (Level, Sun and Planner, described under [Work](#work-looks-like-a-clock-not-a-timer)); the last dot brings back the disc. In Full mode, the clock hands on Level and Sun are drawn lighter, so the coloured part showing time left stands out. Full mode remembers your choice, separately from Work mode.
+
 If you left a note last time you did this activity, it appears as a bookmark ribbon: **Where you left off**.
 
 **The buttons:**

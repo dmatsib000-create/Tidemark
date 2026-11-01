@@ -6,7 +6,7 @@ import { mode, session, settings, saveSettings } from './state.js';
 import { $, body, fmtClock, fmtShort, fmtLeft } from './ui.js';
 import { renderSetup, labelChips, showRibbon, showError } from './setup.js';
 import { startSession, endSession, suggestedMinutes, syncWake } from './session.js';
-import { tick } from './draw.js';
+import { tick, faceName, faceSetting } from './draw.js';
 import { canFloatWindow, canFloatVideo } from './float.js';
 import { renderFloatText } from './pip.js';
 
@@ -91,7 +91,8 @@ export function renderRun(now = Date.now()) {
   $('w-next-row').hidden = !s.next;
   $('w-next-when').textContent = fmtShort(s.endAt);
   $('w-next-what').textContent = s.next;
-  for (const d of document.querySelectorAll('[data-face]')) d.setAttribute('aria-pressed', String(d.dataset.face === settings.face));
+  for (const d of document.querySelectorAll('[data-face]')) d.setAttribute('aria-pressed', String(d.dataset.face === faceName()));
+  $('faces-switch').setAttribute('aria-label', mode === 'work' ? 'Clock style' : 'Picture');
 
   const face = $('face');
   face.setAttribute('aria-label', faceLabel(now));
@@ -192,7 +193,7 @@ $('w-note-btn').addEventListener('click', () => {
   if (body.classList.toggle('is-note-open')) $('ln-text').focus();
 });
 for (const d of document.querySelectorAll('[data-face]')) {
-  d.addEventListener('click', () => { settings.face = d.dataset.face; saveSettings(); render(); });
+  d.addEventListener('click', () => { settings[faceSetting()] = d.dataset.face; saveSettings(); render(); });
 }
 
 // What the picture says to a screen reader. Work mode stays discreet: it is a

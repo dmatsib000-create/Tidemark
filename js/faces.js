@@ -1,13 +1,16 @@
 // The time pictures, drawn on canvas so the same drawing serves the page, the
 // floating window, and the iPhone picture-in-picture video.
 //
-// disc     Full and simple modes: an ochre wash whose area is the time left.
+// disc     Simple mode, and Full's default: an ochre wash whose area is the time left.
 // level    Work mode: a desk clock whose dial holds a sinking ochre level.
 // sun      Work mode: a desk clock with a low sun arcing to the horizon.
 // planner  Work mode: a day-planner page. The session is an appointment block
 //          on a real clock grid; the "now" line moves down through it and the
 //          wash below the line is the time left. In the warning stage the page
 //          eases into a closer view of the last stretch and the next entry.
+//
+// Full mode can show any of the four, drawing level and sun with soft hands;
+// Work mode never shows the disc.
 
 import { MIN } from './engine.js';
 
@@ -136,7 +139,10 @@ function drawClock(ctx, w, h, m, p, kind) {
     ctx.stroke();
   }
 
-  // Hands: an ordinary clock telling the ordinary time.
+  // Hands: an ordinary clock telling the ordinary time. Soft hands are finer
+  // and in pencil grey, so the ochre stays the strongest mark.
+  const soft = m.hands === 'soft';
+  const k = soft ? 0.7 : 1;
   const t = new Date(m.now);
   const mins = t.getMinutes() + t.getSeconds() / 60;
   const hrs = (t.getHours() % 12) + mins / 60;
@@ -148,11 +154,11 @@ function drawClock(ctx, w, h, m, p, kind) {
     ctx.lineTo(cx + Math.sin(angle) * len, cy - Math.cos(angle) * len);
     ctx.stroke();
   };
-  ctx.strokeStyle = p.ink;
-  hand((hrs / 12) * Math.PI * 2, R * 0.5, Math.max(2, R * 0.03));
-  hand((mins / 60) * Math.PI * 2, R * 0.76, Math.max(1.5, R * 0.018));
-  circle(ctx, cx, cy, Math.max(2.5, R * 0.03));
-  ctx.fillStyle = p.ink;
+  ctx.strokeStyle = soft ? p.inkSoft : p.ink;
+  hand((hrs / 12) * Math.PI * 2, R * 0.5, Math.max(2, R * 0.03) * k);
+  hand((mins / 60) * Math.PI * 2, R * 0.76, Math.max(1.5, R * 0.018) * k);
+  circle(ctx, cx, cy, Math.max(2.5, R * 0.03) * k);
+  ctx.fillStyle = ctx.strokeStyle;
   ctx.fill();
 }
 
