@@ -223,6 +223,8 @@ Every button below is a native `<button type="button">` (or `type="submit"` in a
 | `.chip` | Picking a length or end time in setup (44 × 44, 16px mono) |
 | `.landing-start .chip` | Another length on the finish screen; starts at once (60px wide, three to a row at 440px and below; shown as end times in Work mode) |
 | `.big-chip` | Simple mode's six large start buttons (104px tall, 44px serif numeral over a mono "min") |
+| `#m-stages .chip` | Menu's warning stages, toggled on and off (30, 15, 10, 5, 2, 1: minutes before the end, not lengths, so the six-lengths rule doesn't apply). Each is named "15 minutes before the end" |
+| `.chip.note-chip` | A recent where-I-left-off note in the bookmark. Human content, so 16px Newsreader italic; one line, cut with an ellipsis |
 
 | State | Visual | Behavior |
 |---|---|---|
@@ -530,7 +532,9 @@ The next row's time comes from the day plan, so an event shows its own fixed tim
 |---|---|---|
 | Setup form | field, line input, seg, chips, inline field, select, error, primary + text buttons | Optional fields are labeled, not starred. Enter moves between word fields. No validation until submit. |
 | Running screen | title, next line, ribbon, face, figures, next card, controls | One thing of primary importance. Controls sit under an ink rule; the next card comes above them. |
-| Handoff (finish screen) | label, display title, landing-main primary, chips, inline start form, note field, extend controls | The next activity takes the title position; one tap starts it. |
+| Handoff (finish screen) | label, display title, landing-main primary, chips, inline start form, note field, bookmark, extend controls | The next activity takes the title position; one tap starts it. The extend controls show only the choices left under the person's cap; when none are left, a `.hint` says so plainly. In Work mode they read as end times. |
+| Bookmark (`.bookmark`, from `<template id="bk-tpl">`) | `.note-chip` chips, label, `.ctl` choices with `aria-pressed`, time box input, `.hint.mono` status | Inside both note forms. Recent notes fill the note in one tap. "Come back to this" adds or moves the activity's one return slot, with Undo in the toast. The status names the place in clock times only ("Back to Writing after Call."). "After the next item" hides when nothing is next. |
+| Warning stages (Menu) | `.chip` toggles with `aria-pressed`, live `.hint` | Tap minutes on or off; the hint says where the warm light starts. None chosen means one automatic warning, so nothing is ever disabled. |
 | Undo instead of confirm | toast + text button | Stopping, removing a preset or a plan item, and setting aside yesterday's leftovers never ask first; Undo stays for 10 seconds. |
 | Plan screen | heading, plan lists, seg, line input, box inputs, error, small primary | Opened by Plan in the top bar ("Back" while open), over any screen except in Simple mode. An event's time field shows only when Event is chosen. |
 | Live announcements | one `aria-live="polite"` region | Speaks the warning, the finish and keyboard mode switches; never each minute. Work mode says "Session finished" only. |

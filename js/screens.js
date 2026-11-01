@@ -3,14 +3,15 @@
 import * as E from './engine.js';
 import * as P from './plan.js';
 import { getNote, setNote } from './store.js';
-import { mode, plan, view, session, settings, saveSettings, newDay } from './state.js';
+import { mode, plan, view, session, settings, saveSettings, newDay, persist } from './state.js';
 import { $, body, fmtClock, fmtShort, fmtLeft } from './ui.js';
 import { renderSetup, labelChips, showRibbon, showError } from './setup.js';
-import { startPlanItem, extendSession, endSession, suggestedMinutes, syncWake } from './session.js';
+import { startPlanItem, extendSession, endSession, suggestedMinutes, syncWake, extraCapMs } from './session.js';
 import { tick, faceName, faceSetting } from './draw.js';
 import { canFloatWindow, canFloatVideo } from './float.js';
 import { renderFloatText } from './pip.js';
 import { renderPlan } from './planscreen.js';
+import { renderBookmarks } from './bookmark.js';
 
 const { MIN, MAX_MINUTES } = E;
 
@@ -35,6 +36,7 @@ export function render() {
   if (session && !session.finishedAt) renderRun();
   if (session && session.finishedAt) renderLanding();
   if (screen === 'plan') renderPlan();
+  if (session) renderBookmarks();
   $('plan-btn').hidden = mode === 'simple';
   $('plan-btn').textContent = screen === 'plan' ? 'Back' : 'Plan';
   $('float-btn').hidden = !(session && !session.finishedAt && (canFloatWindow() || canFloatVideo()));
@@ -66,13 +68,15 @@ const leftFigures = (s, now) => {
 export function renderRun(now = Date.now()) {
   const s = session;
   const st = E.stage(s, now);
+  // The box holds the activity's latest note; a return slot's own note shows
+  // in the ribbon above it.
   const noteFor = getNote(s.title);
 
   $('r-kind').textContent = s.kind === 'extension' ? 'Extra time' : '';
   $('r-title').textContent = s.title || `${Math.round(s.totalMs / MIN)} minutes`;
   $('r-next-line').hidden = !s.next;
   $('r-next').textContent = s.next;
-  showRibbon('r-ribbon', 'r-ribbon-text', s.title);
+  showRibbon('r-ribbon', 'r-ribbon-text', s.title, P.current(plan)?.note);
   $('r-figures').innerHTML = leftFigures(s, now);
   $('pause-btn').textContent = s.pausedAt ? 'Resume' : 'Pause';
 
@@ -83,7 +87,7 @@ export function renderRun(now = Date.now()) {
     $('next-card').style.setProperty('--p', E.warnProgress(s, now).toFixed(3));
     $('nc-title').textContent = s.next;
     $('nc-step').textContent = s.step ? `First: ${s.step}` : '';
-    const nextNote = getNote(s.next);
+    const nextNote = P.upcoming(plan)[0]?.note || getNote(s.next);
     $('nc-note').textContent = nextNote ? `Last time: ${nextNote.text}` : '';
   }
 
@@ -134,10 +138,10 @@ function renderLanding() {
   $('l-label').textContent = label;
   $('l-title').textContent = title;
   $('l-step').textContent = hasNext && s.step ? `First: ${s.step}` : '';
-  showRibbon('l-ribbon', 'l-ribbon-text', hasNext ? s.next : '');
+  const next = P.upcoming(plan)[0];
+  showRibbon('l-ribbon', 'l-ribbon-text', hasNext ? s.next : '', hasNext ? next?.note : null);
 
   $('l-start').hidden = !hasNext;
-  const next = P.upcoming(plan)[0];
   // An event runs to its own end time when that is still ahead.
   const toEventEnd = next?.kind === 'event' && next.at != null ? next.at + next.plannedMs - Date.now() : 0;
   if (hasNext) $('l-main').dataset.min = toEventEnd >= MIN ? Math.round(toEventEnd / MIN)
@@ -152,8 +156,17 @@ function renderLanding() {
   if (document.activeElement !== $('l-note-text')) $('l-note-text').value = note ? note.text : '';
   $('l-note-saved').textContent = '';
 
+  // More time, within the person's own cap on extra time for this activity.
   $('l-more-label').textContent = work ? 'Extend' : simple ? 'More time' : `More time on ${s.title || 'this'}`;
-  for (const b of document.querySelectorAll('[data-extend]')) b.textContent = `+${b.dataset.extend} min`;
+  const cap = extraCapMs();
+  const choices = P.extendChoices(cap == null ? Infinity : cap - P.extraUsedMs(plan, P.current(plan)));
+  document.querySelectorAll('[data-extend]').forEach((b, i) => {
+    b.hidden = i >= choices.length;
+    if (!b.hidden) b.dataset.extend = choices[i];
+  });
+  $('l-capped').hidden = choices.length > 0;
+  $('l-capped').textContent = `That is all the extra time you set for ${work || !s.title ? 'this' : s.title}.`;
+  labelChips(Date.now());
   renderFloatText(Date.now());
 }
 
@@ -187,6 +200,9 @@ function wireNote(inputId, savedId) {
   $(inputId).addEventListener('input', () => {
     if (!session || !session.title) return;
     setNote(session.title, $(inputId).value);
+    // A return slot already made for this activity takes the note along.
+    const slot = P.returnSlotFor(plan, P.current(plan));
+    if (slot) { P.setSlotNote(slot, $(inputId).value, Date.now()); persist(); }
     clearTimeout(timer);
     timer = setTimeout(() => {
       $(savedId).textContent = $(inputId).value.trim() ? 'Saved for next time' : '';

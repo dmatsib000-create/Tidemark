@@ -300,7 +300,7 @@ test('a new day files away what was done and offers what was not', () => {
   assert.equal(next.day, P.dayKey(tomorrow));
   assert.equal(next.seq, plan.seq);
   assert.deepEqual(next.items, []);
-  assert.deepEqual(next.carry, [{ kind: 'step', title: 'B', step: '', plannedMs: 10 * MIN }]);
+  assert.deepEqual(next.carry, [{ kind: 'step', title: 'B', step: '', plannedMs: 10 * MIN, note: null }]);
   assert.equal(log.length, 1);
   assert.equal(log[0].title, 'A');
   assert.equal(log[0].actualMs, 20 * MIN);
@@ -308,4 +308,75 @@ test('a new day files away what was done and offers what was not', () => {
   assert.equal(b.title, 'B');
   assert.deepEqual(next.carry, []);
   assert.equal(P.rollDay(next, tomorrow), null);
+});
+
+test('only "More time" counts as extra time, not +1 or +5 while running', () => {
+  const plan = dayOf({ title: 'A', minutes: 20 }, { title: 'B', minutes: 10 });
+  const a = P.startItem(plan, plan.items[0].id, T0);
+  E.adjust(a.run, 5 * MIN, T0 + MIN);
+  E.finishNow(a.run, T0 + 25 * MIN);
+  assert.equal(P.extraUsedMs(plan, a), 0);
+  const e1 = P.extend(plan, 5 * MIN, T0 + 25 * MIN, { capMs: 10 * MIN });
+  E.finishNow(e1.run, T0 + 30 * MIN);
+  assert.equal(P.extraUsedMs(plan, e1), 5 * MIN);
+  // A grant past the cap is refused; what fits is allowed.
+  assert.equal(P.extend(plan, 10 * MIN, T0 + 30 * MIN, { capMs: 10 * MIN }), null);
+  const e2 = P.extend(plan, 5 * MIN, T0 + 30 * MIN, { capMs: 10 * MIN });
+  assert.equal(e2.extOf, a.id);
+  assert.equal(P.extraUsedMs(plan, a), 10 * MIN);
+});
+
+test('the More time choices fit what is left under the cap', () => {
+  assert.deepEqual(P.extendChoices(Infinity), [2, 5, 10]);
+  assert.deepEqual(P.extendChoices(30 * MIN), [2, 5, 10]);
+  assert.deepEqual(P.extendChoices(7 * MIN), [2, 5, 7]);
+  assert.deepEqual(P.extendChoices(3 * MIN), [2, 3]);
+  assert.deepEqual(P.extendChoices(1.5 * MIN), [1]);
+  assert.deepEqual(P.extendChoices(0), []);
+});
+
+test('a return slot goes after the next item, at the end, or at a time, with its note', () => {
+  const plan = dayOf({ title: 'Writing', minutes: 30 }, { title: 'Call', minutes: 15 }, { title: 'Email', minutes: 20 });
+  const w = P.startItem(plan, plan.items[0].id, T0);
+  const { item: slot } = P.addReturnSlot(plan, w.id, 'next', T0 + 25 * MIN, { text: ' Halfway through section 2 ' });
+  assert.deepEqual(titles(plan), ['Writing', 'Call', 'Writing', 'Email']);
+  assert.equal(slot.returnOf, w.id);
+  assert.equal(slot.plannedMs, null);
+  assert.equal(slot.returnWhere, 'next');
+  assert.deepEqual(slot.note, { text: 'Halfway through section 2', at: T0 + 25 * MIN });
+  assert.equal(P.returnSlotFor(plan, w), slot);
+  // A second slot for the same activity replaces the first, and says what it replaced.
+  const moved = P.addReturnSlot(plan, w.id, 'end', T0 + 26 * MIN, { text: 'Section 2' });
+  assert.deepEqual(titles(plan), ['Writing', 'Call', 'Email', 'Writing']);
+  assert.equal(moved.replaced.item, slot);
+  // At a time: an event, placed in time order.
+  const timed = P.addReturnSlot(plan, w.id, 'at', T0 + 26 * MIN, { at: at(14, 40) });
+  assert.equal(timed.item.kind, 'event');
+  assert.deepEqual(titles(plan), ['Writing', 'Call', 'Writing', 'Email']);
+  assert.equal(P.addReturnSlot(plan, w.id, 'at', T0 + 26 * MIN, { at: T0 }), null);
+});
+
+test('a return slot keeps its note until it starts, and a later segment finds the same slot', () => {
+  const plan = dayOf({ title: 'Writing', minutes: 30 }, { title: 'Call', minutes: 15 });
+  const w = P.startItem(plan, plan.items[0].id, T0);
+  E.finishNow(w.run, T0 + 30 * MIN);
+  const ext = P.extend(plan, 5 * MIN, T0 + 30 * MIN);
+  const { item: slot } = P.addReturnSlot(plan, ext.id, 'next', T0 + 31 * MIN, { text: 'Intro done' });
+  assert.equal(slot.returnOf, w.id);
+  assert.equal(P.returnSlotFor(plan, w), slot);
+  P.setSlotNote(slot, 'Intro and outline done', T0 + 32 * MIN);
+  E.finishNow(ext.run, T0 + 35 * MIN);
+  const call = P.upcoming(plan)[0];
+  P.startItem(plan, call.id, T0 + 35 * MIN);
+  E.finishNow(call.run, T0 + 50 * MIN);
+  P.startItem(plan, slot.id, T0 + 50 * MIN, { totalMs: 20 * MIN });
+  assert.equal(P.current(plan), slot);
+  assert.equal(P.current(plan).note.text, 'Intro and outline done');
+});
+
+test('starting with stages passes them to the session', () => {
+  const plan = dayOf({ title: 'A', minutes: 30 });
+  const a = P.startItem(plan, plan.items[0].id, T0, { warnStages: [15 * MIN, 5 * MIN, MIN] });
+  assert.deepEqual(a.run.stages, [15 * MIN, 5 * MIN, MIN]);
+  assert.equal(a.run.warnMs, 5 * MIN);
 });

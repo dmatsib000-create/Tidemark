@@ -41,6 +41,8 @@ function renderMenu() {
   $('m-wake').checked = settings.wake;
   $('m-notify').checked = settings.notify;
   $('m-remember').checked = settings.rememberLengths;
+  $('m-cap').value = settings.extraCapMin ?? '';
+  renderStages();
   $('m-forget').textContent = 'Forget saved lengths';
   $('m-notify-wrap').hidden = !('Notification' in window);
   $('m-float-hint').textContent = canFloatWindow()
@@ -52,6 +54,31 @@ function renderMenu() {
 
 $('menu-btn').addEventListener('click', () => { renderMenu(); $('sheet').showModal(); });
 $('sheet').addEventListener('click', e => { if (e.target === $('sheet')) $('sheet').close(); });
+
+// The warning stages: tap minutes on and off. None chosen is one automatic warning.
+function renderStages() {
+  const st = settings.warnStages;
+  for (const c of document.querySelectorAll('[data-stage]')) {
+    c.setAttribute('aria-pressed', String(st.includes(+c.dataset.stage)));
+    c.setAttribute('aria-label', `${c.dataset.stage} minutes before the end`);
+  }
+  $('m-stages-hint').textContent = !st.length
+    ? 'None chosen: one warning, timed to the length of the session.'
+    : st.length === 1 ? `One warning, ${st[0]} min before the end. The warm light starts then.`
+      : `The warm light starts at ${st[st.length - 2]} min.${st.length > 2 ? ` ${st.slice(0, -2).join(' and ')} min ${st.length > 3 ? 'are' : 'is a'} heads-up${st.length > 3 ? 's' : ''}.` : ''} The last cue is at ${st[st.length - 1]} min. Stages longer than a session are skipped.`;
+}
+
+for (const c of document.querySelectorAll('[data-stage]')) {
+  c.addEventListener('click', () => {
+    const m = +c.dataset.stage;
+    const st = settings.warnStages.includes(m) ? settings.warnStages.filter(x => x !== m) : [...settings.warnStages, m];
+    settings.warnStages = st.sort((a, b) => b - a);
+    saveSettings();
+    renderStages();
+  });
+}
+// The finish screen's More time choices follow the cap at once.
+$('m-cap').addEventListener('change', () => { settings.extraCapMin = $('m-cap').value ? +$('m-cap').value : null; saveSettings(); render(); });
 
 /* ---------- Mode switch ---------- */
 

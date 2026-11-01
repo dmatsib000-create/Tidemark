@@ -40,7 +40,7 @@ export const nameOf = item => item.title || (item.kind === 'break' ? 'Break' : '
 
 // `minutes` (or `plannedMs`) left out makes an unsized item: its length is
 // chosen when it starts.
-export function makeItem(plan, { kind = 'step', title = '', step = '', minutes, plannedMs, at = null, bufferMs = 0, quick = false, extOf = null }) {
+export function makeItem(plan, { kind = 'step', title = '', step = '', minutes, plannedMs, at = null, bufferMs = 0, quick = false, extOf = null, returnOf = null, note = null }) {
   const ms = plannedMs ?? (minutes ? Math.min(MAX_MINUTES, Math.max(1, Math.round(minutes))) * MIN : null);
   return {
     id: `i${(plan.seq = (plan.seq || 0) + 1).toString(36)}`,
@@ -48,7 +48,7 @@ export function makeItem(plan, { kind = 'step', title = '', step = '', minutes, 
     title: title.trim(), step: step.trim(),
     plannedMs: kind === 'event' ? ms ?? EVENT_MINUTES * MIN : ms,
     at: kind === 'event' ? at : null,
-    bufferMs, quick, extOf, note: null,
+    bufferMs, quick, extOf, returnOf, note,
     startedAt: null, endedAt: null, outcome: null, run: null,
   };
 }
@@ -102,7 +102,7 @@ export function restoreItem(plan, item, index) {
 // Starts an upcoming item. A finished current item is closed first; a running
 // one blocks the start (returns null). The length is, in order: the one chosen
 // now, an event's fixed end, the planned length, then `fallbackMs`.
-export function startItem(plan, id, now, { totalMs, warnMs, fallbackMs = 25 * MIN } = {}) {
+export function startItem(plan, id, now, { totalMs, warnStages, warnMs, fallbackMs = 25 * MIN } = {}) {
   if (isRunning(plan)) return null;
   const item = byId(plan, id);
   if (!item || item.startedAt) return null;
@@ -120,7 +120,7 @@ export function startItem(plan, id, now, { totalMs, warnMs, fallbackMs = 25 * MI
   const first = upcoming(plan)[0];
   insertItem(plan, item, first ? plan.items.indexOf(first) : plan.items.length);
   item.startedAt = now;
-  item.run = E.createSession({ title: nameOf(item), totalMs: ms, warnMs, kind: item.extOf ? 'extension' : 'main' }, now);
+  item.run = E.createSession({ title: nameOf(item), totalMs: ms, warnStages, warnMs, kind: item.extOf ? 'extension' : 'main' }, now);
   plan.cursor = item.id;
   normalize(plan);
   return item;
@@ -129,7 +129,7 @@ export function startItem(plan, id, now, { totalMs, warnMs, fallbackMs = 25 * MI
 // The quick one-off timer: a new item placed just before whatever is planned
 // next, then started. A "then" typed with it becomes the next item, unless the
 // plan's next item already has that name.
-export function startNow(plan, { title = '', next = '', step = '', totalMs, warnMs }, now) {
+export function startNow(plan, { title = '', next = '', step = '', totalMs, warnStages, warnMs }, now) {
   if (isRunning(plan)) return null;
   if (plan.cursor) closeCurrent(plan, now);
   const first = upcoming(plan)[0];
@@ -139,18 +139,74 @@ export function startNow(plan, { title = '', next = '', step = '', totalMs, warn
     if (first && sameName(first.title, next)) { if (step.trim()) first.step = step.trim(); }
     else insertItem(plan, makeItem(plan, { title: next, step }), at + 1);
   }
-  return startItem(plan, item.id, now, { totalMs, warnMs });
+  return startItem(plan, item.id, now, { totalMs, warnStages, warnMs });
 }
 
 // More time after a finish: a new segment of the same activity, right after it.
-export function extend(plan, totalMs, now) {
+// It is refused past the person's own cap on extra time (`capMs`, none if
+// left out).
+export function extend(plan, totalMs, now, { capMs, warnStages } = {}) {
   const from = current(plan);
   if (!from || !from.run.finishedAt) return null;
+  if (capMs != null && extraUsedMs(plan, from) + totalMs > capMs) return null;
   closeCurrent(plan, now);
   const item = insertItem(plan, makeItem(plan, {
-    kind: from.kind === 'event' ? 'step' : from.kind, title: from.title, plannedMs: totalMs, extOf: from.extOf || from.id,
+    kind: from.kind === 'event' ? 'step' : from.kind, title: from.title, plannedMs: totalMs, extOf: rootOf(from),
   }), plan.items.indexOf(from) + 1);
-  return startItem(plan, item.id, now, { totalMs });
+  return startItem(plan, item.id, now, { totalMs, warnStages });
+}
+
+/* ---------- Extra time ---------- */
+
+// The first segment of an activity; "More time" segments point back to it.
+export const rootOf = item => item.extOf || item.id;
+
+// Extra time granted so far with "More time". Time added with +1 or +5 while
+// running changes only the run, never `plannedMs`, so it doesn't count.
+export const extraUsedMs = (plan, item) =>
+  plan.items.filter(i => i.extOf === rootOf(item)).reduce((sum, i) => sum + i.plannedMs, 0);
+
+// The "More time" choices, in minutes, for what is left under the cap: the
+// usual steps that fit, plus exactly what remains when that is not one of them.
+export function extendChoices(leftMs, steps = [2, 5, 10]) {
+  if (leftMs == null || leftMs === Infinity) return steps;
+  const out = steps.filter(m => m * MIN <= leftMs);
+  const rest = Math.floor(leftMs / MIN);
+  if (rest >= 1 && rest < steps[steps.length - 1] && !out.includes(rest)) out.push(rest);
+  return out.sort((a, b) => a - b);
+}
+
+/* ---------- Return slots ---------- */
+
+// The upcoming slot that returns to this item's activity, if there is one.
+export const returnSlotFor = (plan, item) =>
+  (item ? upcoming(plan).find(i => i.returnOf === rootOf(item)) : null) || null;
+
+// Adds a slot to come back to an interrupted activity, with the note of where
+// it was left. `where` is 'next' (after the next item), 'end' (end of today)
+// or 'at' (a fixed time, like an event). An activity has one return slot: a
+// new one replaces the old. Returns { item, replaced } (replaced is what
+// Undo puts back), or null.
+export function addReturnSlot(plan, fromId, where, now, { text = '', at } = {}) {
+  const from = byId(plan, fromId);
+  if (!from || (where === 'at' && !(at >= now + MIN))) return null;
+  const old = returnSlotFor(plan, from);
+  const replaced = old ? removeItem(plan, old.id) : null;
+  const item = makeItem(plan, {
+    kind: where === 'at' ? 'event' : 'step', title: from.title, at: where === 'at' ? at : null,
+    returnOf: rootOf(from), note: text.trim() ? { text: text.trim(), at: now } : null,
+  });
+  item.returnWhere = where;
+  const first = upcoming(plan)[0];
+  const index = where === 'at' ? eventIndex(plan, at, now)
+    : where === 'next' && first ? plan.items.indexOf(first) + 1 : plan.items.length;
+  insertItem(plan, item, index);
+  return { item, replaced };
+}
+
+// Keeps a return slot's note in step with the note being typed.
+export function setSlotNote(slot, text, now) {
+  slot.note = text.trim() ? { text: text.trim(), at: now } : null;
 }
 
 // Done on the finish screen, or Stop while running. A stopped run under a
@@ -264,7 +320,7 @@ export function rollDay(plan, now) {
   const next = emptyPlan(now);
   next.seq = plan.seq; // ids stay unique across days
   next.carry = [...plan.carry, ...upcoming(plan)].filter(i => i.kind !== 'event')
-    .map(({ kind, title, step, plannedMs }) => ({ kind, title, step, plannedMs }));
+    .map(({ kind, title, step, plannedMs, note }) => ({ kind, title, step, plannedMs, note }));
   const log = plan.items.filter(i => i.endedAt).map(i => logEntry(i, plan.day));
   return { plan: next, log };
 }

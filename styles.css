@@ -461,7 +461,20 @@ body[data-mode="simple"] .figures { font-size: 17px; }
 /* Six won't fit in a row on a phone; two rows of three instead of five and one. */
 @media (max-width: 440px) { .landing-start .chips { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 .landing-more { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s2); margin: var(--s5) 0; }
-.landing-more .label { flex-basis: 100%; }
+.landing-more .label, .landing-more .hint { flex-basis: 100%; }
+.landing-more .hint { margin: 0; }
+
+/* The bookmark at a transition: recent notes, and a slot to come back. */
+.bookmark { margin-top: var(--s3); }
+.note-chips:empty { display: none; }
+.chip.note-chip { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: italic 400 16px var(--serif); }
+.bk-label { margin: var(--s2) 0; }
+.bk-where { display: flex; flex-wrap: wrap; gap: var(--s2); }
+.bk-where .ctl[aria-pressed="true"] { border-color: var(--ink); background: var(--paper-raised); }
+.bk-at { margin-top: var(--s2); }
+.bookmark [data-bk="status"]:empty { display: none; }
+.m-stages-label { margin: var(--s4) 0 var(--s2); }
+.m-cap { margin-top: var(--s3); }
 .done-btn { font-size: 15px; min-width: 96px; }
 body[data-mode="simple"] .landing-start,
 body[data-mode="simple"] #l-note { display: none; }

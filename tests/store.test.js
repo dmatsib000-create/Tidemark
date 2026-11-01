@@ -1,7 +1,7 @@
 // Saved data and where-I-left-off notes: run with `node --test`.
 import { test, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
-import { load, save, noteKey, getNote, setNote } from '../js/store.js';
+import { load, save, noteKey, getNote, setNote, recentNotes } from '../js/store.js';
 
 // A stand-in for the browser's localStorage.
 const items = new Map();
@@ -45,4 +45,13 @@ test('clearing a note removes it, and untitled sessions keep none', () => {
   assert.equal(getNote('Lunch'), null);
   setNote('', 'ignored');
   assert.equal(getNote(''), null);
+});
+
+test('recent notes come newest first, without repeats or the one being typed', () => {
+  save('notes', {
+    a: { text: 'Mid-sentence', at: 3 }, b: { text: 'Outline done', at: 5 },
+    c: { text: 'Mid-sentence', at: 4 }, d: { text: 'Waiting on Sam', at: 1 },
+  });
+  assert.deepEqual(recentNotes(3), ['Outline done', 'Mid-sentence', 'Waiting on Sam']);
+  assert.deepEqual(recentNotes(2, 'Outline done'), ['Mid-sentence', 'Waiting on Sam']);
 });
