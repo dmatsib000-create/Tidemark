@@ -68,8 +68,10 @@ export function renderRun(now = Date.now()) {
   const st = E.stage(s, now);
   const noteFor = getNote(s.title);
 
-  $('r-kind').textContent = s.kind === 'extension' ? 'Extra time' : '';
-  $('r-title').textContent = s.title || `${Math.round(s.totalMs / MIN)} minutes`;
+  // Work mode never names a length or extra time, even in this visually
+  // hidden heading, which screen readers still read. "Current" matches its schedule.
+  $('r-kind').textContent = s.kind === 'extension' && mode !== 'work' ? 'Extra time' : '';
+  $('r-title').textContent = s.title || (mode === 'work' ? 'Current' : `${Math.round(s.totalMs / MIN)} minutes`);
   $('r-next-line').hidden = !s.next;
   $('r-next').textContent = s.next;
   showRibbon('r-ribbon', 'r-ribbon-text', s.title);

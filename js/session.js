@@ -159,9 +159,9 @@ async function notify(cue) {
   const s = session;
   let title, text = '';
   if (mode === 'work') {
+    // The only words Work mode ever says.
     if (cue !== 'finish') return;
     title = 'Session finished.';
-    text = s.next ? `Next: ${s.next}` : '';
   } else if (cue === 'warn') {
     title = `${fmtLeft(E.remaining(s))} left${s.title ? ` · ${s.title}` : ''}`;
     text = s.next ? `Then ${s.next}` : '';
