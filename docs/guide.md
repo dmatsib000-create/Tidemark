@@ -94,7 +94,7 @@ The finish screen puts **what's next** first:
 - One large button starts it straight away, for example **Start Lunch · 25 min**. Other lengths are underneath.
 - The note box is here too, in case you didn't write one earlier.
 - **More time** (+2, +5, +10 min) gives you a short new session to wrap up, shown at full size rather than as a tiny extension.
-- **Done** returns to a blank setup.
+- **Done** returns to a blank setup, or to your plan if more is planned.
 
 Nothing here tells you that you were late or stopped early. Stopping early and running over are both normal.
 
@@ -168,6 +168,19 @@ On an iPhone, **Float** shows the picture as a small floating video over other a
 
 **Why the iPhone can do less:** an iPhone pauses web apps as soon as they're off screen or the phone locks, so Tidemark can't play a sound then. That's an Apple rule that Tidemark can't get around. The best approach on an iPhone is to leave Tidemark open on screen; the screen stays awake by default while a session runs. Because of this, the picture and the warming light are designed to do the whole job without sound.
 
+## Planning your day
+
+Tap **Plan** at the top (in Full and Work) to see today as **Now**, **Next** and **Later**, each with its clock times.
+
+- **Add to the plan**: choose **Step**, **Break** or **Event**, type what it is, and the minutes if you know them. An event, like a meeting or an appointment, also has the time it starts.
+- Each item can be **started**, moved **Up** or **Down**, or **removed**. Removing offers **Undo** for 10 seconds.
+- If something runs over, the steps and breaks after it simply move later. Events stay at their time. If the plan is going to run into an event, the event tells you, for example "The plan before this runs to 3:10 PM." It's up to you what to move.
+- While a session runs, its "then" line is always the next thing in your plan, and the finish screen offers it in one tap.
+- Starting a quick session from the usual setup screen puts it in front of whatever you had planned next.
+- The next day, anything you didn't get to shows under **From yesterday**. Add what you still want with **Add**, or tap **Not today**.
+
+In Work mode the plan shows only clock times, so it looks like an ordinary schedule.
+
 ## Your information
 
 Everything you type stays on your device, in the browser you use. There is no account, nothing is sent anywhere, and nobody else can see it.
@@ -176,11 +189,11 @@ This also means:
 - **Your phone and your computer don't share anything.** A preset you save on your phone won't appear on your computer.
 - **Clearing your browser's data** (history, cookies or website data) erases your presets, notes and settings.
 
-Tidemark saves only what you ask it to: your settings, presets, the current session, and your "where you left off" notes. It remembers how long each activity usually runs only if you turn that on (**Menu → Activities**), and **Forget saved lengths** clears it.
+Tidemark saves only what you ask it to: your settings, presets, today's plan, and your "where you left off" notes. When a day is over, it keeps a short record on this device of what you did and how long it took compared with the plan, so a later version can show you the difference. It remembers how long each activity usually runs only if you turn that on (**Menu → Activities**), and **Forget saved lengths** clears it.
 
 ## Common questions
 
-**I started a session by mistake.** Tap **Stop**. It's gone, and **Undo** appears for 10 seconds if you change your mind.
+**I started a session by mistake.** Tap **Stop**. If it was less than a minute old it's gone; either way **Undo** appears for 10 seconds if you change your mind.
 
 **I set the wrong length.** Use **−5**, **−1**, **+1** or **+5** while it runs. Taking off more than is left simply finishes it, quietly.
 

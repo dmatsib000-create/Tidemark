@@ -38,6 +38,7 @@ test('pausing freezes the time left and resuming pushes the end back', () => {
   E.resume(s, T0 + 9 * MIN);
   assert.equal(s.endAt, T0 + 24 * MIN);
   assert.equal(E.remaining(s, T0 + 9 * MIN), 15 * MIN);
+  assert.equal(s.pausedMs, 4 * MIN);
 });
 
 test('adding time extends the end and rescales an automatic warning', () => {
@@ -103,6 +104,14 @@ test('reopening after the end lands on the finished state at the real end time',
   E.settle(s, T0 + 60 * MIN);
   assert.equal(s.finishedAt, T0 + 10 * MIN);
   assert.deepEqual(s.fired, { half: true, warn: true, finish: true });
+});
+
+test('finishing while paused counts the pause as paused', () => {
+  const s = E.createSession({ totalMs: 10 * MIN }, T0);
+  E.pause(s, T0 + 2 * MIN);
+  E.finishNow(s, T0 + 7 * MIN);
+  assert.equal(s.pausedMs, 5 * MIN);
+  assert.equal(s.pausedAt, null);
 });
 
 test('finishing now ends the session and silences every cue', () => {

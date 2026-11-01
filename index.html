@@ -35,6 +35,7 @@
     <p class="bar-date mono" id="bar-date"></p>
   </div>
   <div class="bar-tools">
+    <button class="text-btn mono" id="plan-btn" type="button" aria-controls="plan">Plan</button>
     <button class="text-btn mono" id="float-btn" type="button" hidden>Float</button>
     <button class="text-btn mono" id="menu-btn" type="button" aria-haspopup="dialog">Menu</button>
   </div>
@@ -260,6 +261,48 @@
     </div>
 
     <button type="button" class="ctl done-btn" id="l-done">Done</button>
+  </section>
+
+  <!-- ===== The day plan: now, next, later ===== -->
+  <section class="screen plan" id="plan" aria-labelledby="plan-heading">
+    <h1 class="plan-heading" id="plan-heading" tabindex="-1">Today</h1>
+
+    <div class="plan-group" id="plan-carry" hidden>
+      <h2 class="label mono">From yesterday</h2>
+      <ul class="plan-list" id="carry-list"></ul>
+      <button type="button" class="text-btn mono" id="carry-clear">Not today</button>
+    </div>
+
+    <div class="plan-group" id="plan-now-wrap"><h2 class="label mono">Now</h2><ul class="plan-list" id="plan-now"></ul></div>
+    <div class="plan-group" id="plan-next-wrap"><h2 class="label mono">Next</h2><ul class="plan-list" id="plan-next"></ul></div>
+    <div class="plan-group" id="plan-later-wrap"><h2 class="label mono">Later</h2><ul class="plan-list" id="plan-later"></ul></div>
+    <p class="hint" id="plan-empty">Nothing planned yet. Add the steps, breaks and events of your day below, in the order you mean to do them.</p>
+
+    <form class="plan-form" id="plan-form" autocomplete="off" novalidate>
+      <h2 class="label mono">Add to the plan</h2>
+      <div class="seg" id="p-kind" role="group" aria-label="Kind of item">
+        <button type="button" class="seg-btn" data-kind="step" aria-pressed="true">Step</button>
+        <button type="button" class="seg-btn" data-kind="break" aria-pressed="false">Break</button>
+        <button type="button" class="seg-btn" data-kind="event" aria-pressed="false">Event</button>
+      </div>
+      <label class="field">
+        <span class="label mono">What <span class="soft" id="p-title-opt" hidden>(optional)</span></span>
+        <input class="line-input" id="p-title" maxlength="80" enterkeyhint="done">
+      </label>
+      <div class="plan-form-row">
+        <label class="inline-field" id="p-at-wrap" hidden><span class="mono">At</span>
+          <input class="box-input time" id="p-at" type="time"></label>
+        <label class="inline-field"><span class="mono">Minutes <span class="soft">(optional)</span></span>
+          <input class="box-input" id="p-minutes" inputmode="numeric" pattern="[0-9]*" maxlength="3"></label>
+      </div>
+      <p class="error mono" id="p-error" role="alert"></p>
+      <div class="form-actions"><button class="primary small" type="submit">Add</button></div>
+    </form>
+
+    <details class="details plan-group" id="plan-done-wrap">
+      <summary class="mono">Done today</summary>
+      <ul class="plan-list" id="plan-done"></ul>
+    </details>
   </section>
 </main>
 

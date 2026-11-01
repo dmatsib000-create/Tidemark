@@ -66,10 +66,13 @@ export function pause(s, now = Date.now()) {
   if (!s.pausedAt && !s.finishedAt) s.pausedAt = now;
 }
 
+// The time spent paused is kept, so the day plan can tell actual from planned.
+const closePause = (s, now) => { s.pausedMs = (s.pausedMs || 0) + now - s.pausedAt; s.pausedAt = null; };
+
 export function resume(s, now = Date.now()) {
   if (!s.pausedAt) return;
   s.endAt += now - s.pausedAt;
-  s.pausedAt = null;
+  closePause(s, now);
 }
 
 // Add (positive) or take away (negative) time. Taking away more than is left
@@ -86,13 +89,13 @@ export function adjust(s, deltaMs, now = Date.now()) {
   if (s.autoWarn) s.warnMs = autoWarning(s.totalMs);
   const r = remaining(s, now);
   for (const cue of Object.keys(CUE_AT)) s.fired[cue] = r <= CUE_AT[cue](s);
-  if (r <= 0) { s.finishedAt = now; s.pausedAt = null; }
+  if (r <= 0) { s.finishedAt = now; if (s.pausedAt) closePause(s, now); }
 }
 
 export function finishNow(s, now = Date.now()) {
   if (s.finishedAt) return;
   s.finishedAt = now;
-  s.pausedAt = null;
+  if (s.pausedAt) closePause(s, now);
   for (const cue of Object.keys(CUE_AT)) s.fired[cue] = true;
 }
 

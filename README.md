@@ -17,6 +17,17 @@ New to Tidemark, or not technical? Start with the [plain-language guide](docs/gu
 
 Switch modes with **Full · Work · Simple** at the top of the screen, or **Alt+1**, **Alt+2**, **Alt+3** on a keyboard, at any time without touching a running session. **Menu → Open in** sets the mode the app starts in.
 
+## Today's plan
+
+**Plan** at the top (Full and Work) opens today's plan: the steps, breaks and events of the day as **Now**, **Next** and **Later**, with clock times. **Add to the plan** takes a step, a break or an event; an event has a fixed start time ("At"), and the minutes are optional (an unsized step takes its length when it starts). Each upcoming item can be started, moved up or down, or removed (with Undo). What has finished is under **Done today**.
+
+- Steps and breaks follow one another, so when something runs over, they move later. An event keeps its time; if the plan before it runs into it, the event says so ("The plan before this runs to 3:10 PM.") and nothing is moved for you.
+- The running session's "then" line is always the plan's next item, and the finish screen offers it in one tap. Nothing starts on its own.
+- A quick start (the setup form, Simple mode, a preset) is a one-item plan placed before whatever is next. A "What comes next" typed with it becomes the next item.
+- Done on the finish screen opens the plan when more is planned.
+- On a new day, what you finished yesterday is filed away on this device with its planned and actual length (not shown yet; it is there for a later view that compares the two without judgment). Yesterday's unstarted steps and breaks are offered under **From yesterday**, to add one at a time or set aside with **Not today**.
+- Work mode's plan shows clock times only, never lengths. Simple mode has no plan screen.
+
 ## The handoff
 
 - The whole page warms slightly through the warning stage, like late-afternoon light, and settles at the finish. That light is the main cue in every mode.
@@ -27,7 +38,7 @@ Switch modes with **Full · Work · Simple** at the top of the screen, or **Alt+
 
 ## Stop, finish, reset
 
-- **Stop** discards the session and returns to a clean setup. Undo is offered for ten seconds.
+- **Stop** ends the session and returns to a clean setup; the time spent stays in today's plan (a quick start stopped within a minute is taken out). Undo is offered for ten seconds.
 - **Finish now** ends early and goes to the handoff.
 - Taking time off is as easy as adding it. Taking off more than is left finishes quietly; cues it skips past don't play.
 - Setup is always clean after a session. Nothing is pre-filled.
@@ -36,7 +47,7 @@ Switch modes with **Full · Work · Simple** at the top of the screen, or **Alt+
 
 **Quiet**, **Balanced** and **Noticeable** set everything at once. Under "Adjust each cue": a tone and a spoken line per moment (halfway, warning, finish), volume, light strength, a slow breathing light, three slow flashes, keeping the screen awake, and system notifications on a computer. Tones are soft bells with a slow attack. Work mode never speaks or notifies about anything except "Session finished."
 
-Sessions are stored as timestamps, so a running session survives closing and reopening the app. A cue whose moment passed while the app was closed is never played late.
+Sessions are stored as timestamps inside the day plan, so a running session survives closing and reopening the app. A cue whose moment passed while the app was closed is never played late.
 
 ## Floating view
 
@@ -65,7 +76,7 @@ Then open http://localhost:8000.
 
 ## Tests
 
-The timer model, saved data and the offline file list have tests that use Node's built-in runner, so there is nothing to install. With Node 20 or later:
+The timer model, the day plan, saved data and the offline file list have tests that use Node's built-in runner, so there is nothing to install. With Node 20 or later:
 
 ```bash
 node --test

@@ -33,7 +33,7 @@ The browser preview is set up in [.claude/launch.json](.claude/launch.json) unde
 node --test
 ```
 
-Tests cover the timer model ([js/engine.js](js/engine.js)), saved data ([js/store.js](js/store.js)) and the offline file list ([sw.js](sw.js)). Everything else is checked by running the app. CI runs the tests on every push and pull request. Work on a branch and open a pull request into `main`.
+Tests cover the timer model ([js/engine.js](js/engine.js)), the day plan ([js/plan.js](js/plan.js)), saved data ([js/store.js](js/store.js)) and the offline file list ([sw.js](sw.js)). Everything else is checked by running the app. CI runs the tests on every push and pull request. Work on a branch and open a pull request into `main`.
 
 ## Rules that are easy to break
 
@@ -48,6 +48,8 @@ Tests cover the timer model ([js/engine.js](js/engine.js)), saved data ([js/stor
 **Offline file list.** A new file the app needs goes in `SHELL` in [sw.js](sw.js), and `CACHE` gets bumped. The tests fail if a script or font is missing. The worker fetches network-first, so editing an existing file needs no bump.
 
 **Sessions are timestamps.** A session is plain data with `endAt`, `pausedAt` and `finishedAt`, so it survives closing the app. A cue whose moment passed while the app was closed is never played late (`settle` in engine.js). Keep timer logic in engine.js, pure and testable, with `now` as a parameter.
+
+**The day plan owns the session.** The saved data is the plan (`tidemark:plan`, logic in [js/plan.js](js/plan.js), pure like engine.js). Each started item holds its session as `run`; `session` in state.js is the current item's run. Change the plan only through plan.js functions followed by `persist()`, which also refreshes the running session's "then" line from the plan. Never store `next` anywhere else.
 
 **Design rules** (detail in design-system.md):
 - Ochre (`--ochre`, `--ochre-ink`) means time. Never on buttons or decoration.
@@ -66,4 +68,4 @@ Light and dark, full warmth (the warning stage near the end), 200% text, 320px w
 
 ## Modules
 
-The scripts in [js/](js/) import one another in a loop. That is safe because each only defines things and wires its own controls while loading, then calls across modules later. Keep it that way: no top-level code that calls into another module. Shared state lives in [js/state.js](js/state.js); other modules read `mode` and `session` as live bindings and change them only through `setMode` and `setSession`.
+The scripts in [js/](js/) import one another in a loop. That is safe because each only defines things and wires its own controls while loading, then calls across modules later. Keep it that way: no top-level code that calls into another module. Shared state lives in [js/state.js](js/state.js); other modules read `mode`, `view`, `plan` and `session` as live bindings and change them only through `setMode`, `setView`, `setPlan` and `persist`.
