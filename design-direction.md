@@ -56,8 +56,8 @@ Warmth is 0 for the body of the session, rises along an ease-in curve across the
 
 | Token | Family | Size | Line height | Use |
 |---|---|---|---|---|
-| `--type-title` | Newsreader 400, display optical size | `clamp(28px, 5vw + 12px, 52px)` | 1.1 | What I am doing |
-| `--type-next` | Newsreader 400, italic | `clamp(20px, 2vw + 12px, 28px)` | 1.25 | What comes next |
+| `--type-title` | Newsreader 400, display optical size | `clamp(30px, 5vw + 14px, 52px)` | 1.1 | What I am doing |
+| `--type-next` | Newsreader 400, italic | `clamp(20px, 2vw + 12px, 26px)` | 1.25 | What comes next |
 | `--type-body` | Newsreader 400 | 17 px | 1.5 | Notes, the finish screen |
 | `--type-label` | IBM Plex Mono 400 | 12 px, `letter-spacing: 0.02em` | 1.4 | Labels, clock times, minutes |
 | `--type-figure` | IBM Plex Mono 400, `font-variant-numeric: tabular-nums` | 15 to 40 px by context | 1 | Supporting time numbers in full mode |

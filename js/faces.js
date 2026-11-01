@@ -11,8 +11,9 @@
 
 import { MIN } from './engine.js';
 
-const SERIF = 'Newsreader, Georgia, serif';
-const MONO = '"IBM Plex Mono", ui-monospace, Menlo, monospace';
+// The same stacks as --serif and --mono in styles.css.
+export const SERIF = "Newsreader, Georgia, 'Times New Roman', serif";
+export const MONO = "'IBM Plex Mono', ui-monospace, Menlo, Consolas, monospace";
 
 export function palette(root = document.documentElement) {
   const cs = getComputedStyle(root);
@@ -21,6 +22,8 @@ export function palette(root = document.documentElement) {
     paper: v('--paper'), raised: v('--paper-raised'), rule: v('--rule'),
     ink: v('--ink'), inkSoft: v('--ink-soft'), ochre: v('--ochre'), ochreInk: v('--ochre-ink'),
     wash: parseFloat(v('--wash-alpha')) || 0.5,
+    light: parseFloat(v('--light-alpha')) || 0.12,
+    blend: v('--light-blend') || 'multiply',
   };
 }
 
@@ -44,11 +47,14 @@ export function drawFace(ctx, w, h, name, m, p) {
 }
 
 // Used only for the picture-in-picture video, which can't sit under the
-// page's light overlay.
+// page's light overlay. Matches .light: the same strength and blend per mode.
 export function paintWarmth(ctx, w, h, warmth, p) {
   if (warmth <= 0) return;
-  ctx.fillStyle = alpha(p.ochre, 0.12 * warmth);
+  ctx.save();
+  ctx.globalCompositeOperation = p.blend;
+  ctx.fillStyle = alpha(p.ochre, p.light * warmth);
   ctx.fillRect(0, 0, w, h);
+  ctx.restore();
 }
 
 /* ---------- disc ---------- */

@@ -2,7 +2,7 @@
 
 The reference for what is actually built. [design-direction.md](design-direction.md) is the intent ("Afternoon paper"); this file records the tokens, components and rules as they exist in [styles.css](styles.css), [index.html](index.html) and [js/faces.js](js/faces.js), and where the two disagree.
 
-Audited 2026-11-01 against `main` at `83da073`.
+Audited 2026-11-01 against `main` at `83da073`. Part 1 is kept as the record of that audit; Part 2 describes the system after the fixes listed under [Resolution](#resolution).
 
 ---
 
@@ -10,11 +10,37 @@ Audited 2026-11-01 against `main` at `83da073`.
 
 ### Summary
 
-**Components reviewed:** 24 | **Issues found:** 12 (0 blocking, 5 drift from spec or open questions, 7 hygiene)
+**Components reviewed:** 24 | **Issues found:** 15 (1 usability, 5 drift from spec or open questions, 9 hygiene)
 
-The system is small, coherent and mostly faithful to the spec. Colors are fully tokenized, ochre is used only for time, the spacing scale is used almost everywhere, contrast passes AA in both modes including under full warmth, and every control meets 44 px. The weak spots are untokenized typography (the spec defines five type tokens; the code has none), a few places where JS duplicates values CSS already owns, and reduced motion silencing finish cues people opted into.
+The system is small, coherent and mostly faithful to the spec. Colors are fully tokenized, ochre is used only for time, the spacing scale is used almost everywhere, contrast passes AA in both modes including under full warmth, and every tap area is at least 44 px (see [Tap targets](#tap-targets)). The one real usability problem is that the next card, which is meant to take the stage in the warning, sits below the controls and off-screen on a laptop. The weak spots in the system itself are untokenized typography (the spec defines five type tokens; the code has none), a few places where JS duplicates values CSS already owns, and reduced motion silencing finish cues people opted into.
 
 No overall score is given: there is no rubric that would make a number meaningful. The per-component scores below are a rough guide only.
+
+### Resolution
+
+All findings were fixed on 2026-11-01, on the `design-system-doc` branch, except where noted.
+
+| Finding | What changed |
+|---|---|
+| Next card off-screen in the warning | Moved above the controls in index.html. At 1024×768 it now shows in full; the controls start just below it. |
+| PiP video warmth | `palette()` reads `--light-alpha` and `--light-blend`; `paintWarmth` uses them with the matching canvas blend mode. |
+| Reduced motion and finish cues | Decided: keep them, gentler. Under reduced motion, breathing slows to 12s and the flashes become three soft 4s swells (peak 0.35). |
+| Mode switch margin | `.seg.mode-switch` now beats `.seg`; the switch and Menu share a center line. |
+| 320px adjust row | `−1`/`+1` hide below 360px. |
+| Finish screen chips | Three per row below 420px. |
+| Type tokens | `--type-title`, `--type-next`, `--type-body`, `--type-label`, `--type-figure` added and used. The shipped title and next sizes were kept and design-direction.md updated to match. One-off sizes stay hand-tuned. |
+| Fonts in JS | `SERIF` and `MONO` exported from faces.js with the CSS stacks; `paintVideo` uses `SERIF`. |
+| Motion and size tokens | `--dur-press`, `--dur-fade` (was `--quick`), `--tap`, `--measure`; literals replaced. |
+| Hover | Chips fill, segments and dots darken to ink, big chips firm their edge to ink. |
+| Names | `.line-input` (with `.big`, `.italic`) replaces `.serif-input` / `.plain-input`; `.box-input` replaces `.num-input`; `.is-on`, `.is-edit-open`, `.is-note-open` replace `.on`, `.edit-open`, `.note-open`. `.label` now has tabular figures itself. |
+| Off-scale spacing | Chip gap is `--s2`, ribbon indent `--s5`. `.text-btn`'s 2px side padding stays: it keeps the underline flush with the text. |
+| `--backdrop` | Light mode mixes `--ink` instead of a raw rgba. |
+| Placeholder contrast | Opacity raised to 0.75, ahead of any placeholder being added. |
+| Next card 400ms fade | Kept, with a comment: it arrives with a stage change. |
+| Icon `#E0CDB7` | Unchanged: the SVG icon can't read CSS tokens. It is `--ochre` mixed with `--paper`. |
+| Disabled styles | None added: the system hides controls rather than disabling them. |
+
+The offline cache name moved to `viztime-paper-5` so installed copies pick up the changes.
 
 ### Token coverage
 
@@ -93,15 +119,40 @@ No component has a disabled style (0 `:disabled` rules). Nothing is disabled tod
 | Light overlay | ✅ warmth, breathe, flash | ✅ per mode | ✅ spec | 10/10 |
 | Time faces (disc, level, sun, planner) | ✅ | ✅ | ✅ in faces.js | 9/10 |
 
+### Live check
+
+Run on the published site (1024×768, 375px and 320px, light and dark), through a full session from setup to warning to finish, then confirmed in the code.
+
+| Finding | Severity | Cause | Fix |
+|---|---|---|---|
+| In the warning, the next card is below the controls. At 1024×768 about 10px of it shows; the rest needs a scroll. The spec's "next activity gains presence" is effectively invisible. | 🔴 | `#next-card` comes after `nav.controls` in [index.html](index.html), and nothing reorders or scrolls it (the code comment in `app.js` says it "takes the stage"). | Move it above the controls, between the figures and the control rule. |
+| The mode switch sits higher than Menu in the top bar on phones. | 🟢 | `.mode-switch { margin: 0 }` comes before `.seg { margin-bottom: var(--s3) }` in styles.css; same specificity, so the later rule wins and the switch keeps a 12px bottom margin. | Raise the specificity (`.seg.mode-switch`) or move the rule below `.seg`. |
+| At 320px the adjust row wraps four plus one, leaving `+5` alone. | 🟢 | 4 × 52px + 96px Pause + gaps is 336px; the content is 288px. | Hide `.adj-fine` under about 360px, as Simple mode already does. |
+| On a 375px phone the finish screen's minute chips wrap five plus one. | 🟢 | `.landing-start .chip` is 60px min; six of them plus gaps is 390px. | A 3-column grid, like Simple mode's big chips. |
+
+Confirmed live: no text under 4.5:1 on the setup screen, keyboard focus visible on every control tried, focus moves to each screen's heading, the live region speaks only at the warning and finish, no horizontal scroll at 320px, and reopening after the end time goes straight to the finished screen.
+
+Not checked: the iPhone PiP video, reduced-motion behavior, and a real screen reader.
+
+### Tap targets
+
+44 × 44 px is the right minimum for this app and should stay. WCAG AA (2.5.8) only requires 24px, but 44px is the AAA level (2.5.5) and Apple's guideline, the app is mainly a home-screen iPhone app, and it is used at a glance in front of other people. The current build gets the details right:
+
+- **It measures the tap area, not the visible box.** The underlined fields are 38px tall, but each is inside a `<label class="field">`, so tapping the label above also focuses it. The real target is about 60px tall and full width.
+- **Inline text links are exempt**, as WCAG allows.
+- **The floating window is the deliberate exception**: `.pip-row .ctl` shrinks to 36px in very small windows, where the alternative is dropping the controls. It hides them altogether below about 140px tall.
+
 ### Priority actions
 
-1. **Match the PiP video warmth to the page.** Have `paintWarmth` read `--light-alpha` through `palette()` so dark mode uses 10% and a soft-light approximation, not 12% normal blend.
-2. **Decide on reduced motion and the finish cues.** Either keep the opt-in breathing and flashing in a gentler form, or document that reduced motion overrides them.
-3. **Tokenize the five spec type sizes** (`--type-title`, `--type-next`, `--type-body`, `--type-label`, `--type-figure`), settling the title and next values first. Leave the one-off context sizes alone: the spec asks for each to be calibrated by hand, and collapsing them would undo that work.
-4. **Give JS one source for fonts.** Export `SERIF` / `MONO` from faces.js and use them in `app.js`'s `paintVideo`.
-5. **Add motion and size tokens.** `--dur-press: 100ms`, `--dur-fade: 160ms`, `--tap: 44px`, `--measure: 640px`. Replace the literals.
-6. **Even out hover.** Chip, big chip, segment and dot should fill to `--paper-raised` on hover the way `.ctl` and preset rows do.
-7. **Tidy names** per the naming table; lowest priority because nothing is broken.
+1. **Move the next card above the controls,** so the warning shows what's next without scrolling. (From the live check.)
+2. **Match the PiP video warmth to the page.** Have `paintWarmth` read `--light-alpha` through `palette()` so dark mode uses 10% and a soft-light approximation, not 12% normal blend.
+3. **Decide on reduced motion and the finish cues.** Either keep the opt-in breathing and flashing in a gentler form, or document that reduced motion overrides them.
+4. **Fix the small layout issues** from the live check: the mode switch margin, the 320px adjust row, and the finish screen chips.
+5. **Tokenize the five spec type sizes** (`--type-title`, `--type-next`, `--type-body`, `--type-label`, `--type-figure`), settling the title and next values first. Leave the one-off context sizes alone: the spec asks for each to be calibrated by hand, and collapsing them would undo that work.
+6. **Give JS one source for fonts.** Export `SERIF` / `MONO` from faces.js and use them in `app.js`'s `paintVideo`.
+7. **Add motion and size tokens.** `--dur-press: 100ms`, `--dur-fade: 160ms`, `--tap: 44px`, `--measure: 640px`. Replace the literals.
+8. **Even out hover.** Chip, big chip, segment and dot should fill to `--paper-raised` on hover the way `.ctl` and preset rows do.
+9. **Tidy names** per the naming table; lowest priority because nothing is broken.
 
 ---
 
@@ -136,22 +187,22 @@ Canvas reads colors through `palette()` in [js/faces.js](js/faces.js), so faces 
 
 Families: `--serif` (Newsreader, roman 400–500 and italic 400, optical sizing on) and `--mono` (IBM Plex Mono 400 and 500, `tnum`). Both self-hosted in `fonts/` and cached by the service worker.
 
-Sizes in use today, grouped by role (target tokens in brackets):
+Sizes in use, grouped by role. Roles with a token use it; the rest are tuned per context.
 
 | Role | Family | Size | Where |
 |---|---|---|---|
-| Display [`--type-display`] | serif | `clamp(36px, 6vw + 16px, 60px)`; work clock `clamp(44px, 8vw + 16px, 72px)` | Landing title, desk clock |
+| Display | serif | `clamp(36px, 6vw + 16px, 60px)`; work clock `clamp(44px, 8vw + 16px, 72px)` | Landing title, desk clock |
 | Title [`--type-title`] | serif | `clamp(30px, 5vw + 14px, 52px)`, lh 1.1 | Running title |
 | Title input | serif | `clamp(26px, 4vw + 14px, 36px)` | Setup "what this time is for" |
 | Next [`--type-next`] | serif italic | `clamp(20px, 2vw + 12px, 26px)`, lh 1.25; inputs 22px | "then …", next field |
 | Heading | serif | 24px (sheet), 21–22px (landing step, next card) | |
 | Lead | serif | 19px | Preset names, schedule rows, primary button |
-| Body [`--type-body`] | serif | 17px / 1.5 | Default, plain inputs, ribbon |
+| Body [`--type-body`] | serif | 17px / 1.5 | Default, line inputs, ribbon |
 | Hint | serif | 14px | `.hint` |
-| Control | mono | 15–16px | `.ctl`, `.chip`, figures |
+| Control | mono | 15–16px | `.ctl`, `.chip` |
 | Small | mono | 13px | Text buttons, segments, errors, preset lengths |
 | Label [`--type-label`] | mono | 12px / 1.4, `0.02em` | `.label`, dates, schedule times |
-| Figure [`--type-figure`] | mono tabular | 15–40px by context | Time numbers |
+| Figure [`--type-figure`] | mono tabular | 15px / 1.5 (17px in Simple mode) | Time left and end time under the face |
 
 Weights: 400 everywhere; 500 only for the selected chip and `<strong>` in figures. Inputs are never under 17px (prevents iOS zoom). Sentence case throughout.
 
@@ -160,8 +211,8 @@ Weights: 400 everywhere; 500 only for the selected chip and `<strong>` in figure
 `--s1` 4 · `--s2` 8 · `--s3` 12 · `--s4` 16 · `--s5` 24 · `--s6` 32 · `--s7` 48 · `--s8` 64
 
 - Field to field: `--s5`. Label to field: `--s1`. Section break: `--s6` or `--s7` above a `1px var(--ink)` rule with `--s3` under it.
-- Content width 640px (Work mode on ≥820px: 1040px; landscape phone: 900px).
-- Tap target minimum 44 × 44 px; primary 48px tall.
+- Content width `--measure` 640px (Work mode on ≥820px: 1040px; landscape phone: 900px).
+- Tap area minimum `--tap` 44 × 44 px, measured on what responds to a tap (a wrapping `<label>` counts); primary 48px tall. Only exception: the floating window's controls, which shrink to 36px before hiding.
 - `--radius` 2px on every boxed control. Circles only for the face dots.
 
 ### Motion
@@ -169,13 +220,14 @@ Weights: 400 everywhere; 500 only for the selected chip and `<strong>` in figure
 | Token / value | Use |
 |---|---|
 | `--ease` `cubic-bezier(0.2, 0, 0, 1)` | All interaction motion |
-| 100ms | Press: `translateY(1px)` on `.ctl`, `.chip`, `.big-chip`, `.primary` |
-| `--quick` 160ms | Hover color and border changes, sheet and toast fade |
+| `--dur-press` 100ms | Press: `translateY(1px)` on `.ctl`, `.chip`, `.big-chip`, `.primary` |
+| `--dur-fade` 160ms | Hover color and border changes, sheet and toast fade |
 | 200ms in / 600ms out | Discreet reveal |
 | ~1.5s time constant (JS) | Warmth easing toward its stage target |
 | 6s / 1.6s ×3 | Opt-in breathing and flashing light at finish |
+| 400ms | Next card fading in with the warning (a stage change, so slower than a panel) |
 
-`prefers-reduced-motion` removes all CSS transitions and animations, including the opt-in breathing and flashing finish cues (an open question; see the audit); JS steps warmth in thirds. The faces keep moving because they are the information.
+`prefers-reduced-motion` removes CSS transitions and animations except the finish cues the person turned on: breathing slows to 12s and the flashes become three soft 4s swells. JS steps warmth in thirds. The faces keep moving because they are the information.
 
 ### Focus
 
@@ -222,25 +274,25 @@ States: rest is `--ink-soft` with a `--rule` underline; hover goes to `--ink` te
 
 A row of mutually exclusive choices with `role="group"` and `aria-pressed` on each button. Used for mode (Full / Work / Simple), For / Until, and comfort bundle.
 
-Selected: `--paper-raised` fill, `--ink` text, 1px ink underline (inset shadow). Unselected: `--ink-soft` text. The mode switch uses a narrower 12px variant.
+Selected: `--paper-raised` fill, `--ink` text, 1px ink underline (inset shadow). Unselected: `--ink-soft` text, `--ink` on hover. The mode switch uses a narrower 12px variant.
 
 #### Chip — `.chip` and `.big-chip`
 
-Quick minute choices. `.chip` (48 × 44, mono 16px) toggles with `aria-pressed`; selected gets an ink border, raised fill and weight 500. `.big-chip` (Simple mode, 104px tall, 44px serif numeral with a mono "min" under it) starts the timer directly, so it has no selected state.
+Quick minute choices. `.chip` (48 × 44, mono 16px) toggles with `aria-pressed`; hover fills raised; selected gets an ink border, raised fill and weight 500. On the finish screen they sit three to a row below 420px. `.big-chip` (Simple mode, 104px tall, 44px serif numeral with a mono "min" under it) starts the timer directly, so it has no selected state; already raised, its hover firms the border to ink.
 
-#### Line input — `.serif-input`, `.plain-input`
+#### Line input — `.line-input`
 
-An underlined field on the page, no box. `.serif-input.big` for the title, `.serif-input.italic` for the next activity, `.plain-input` (17px) for notes and the first step. Focus darkens the rule to ink; keyboard focus turns it into a 2px ochre-ink rule. Long titles are capped by `maxlength` (80, notes 140).
+An underlined field on the page, no box. `.line-input.big` for the title, `.line-input.italic` (22px) for the next activity, plain `.line-input` (17px) for notes and the first step. Always wrap it in a `<label class="field">`, which makes the tap area. Focus darkens the rule to ink; keyboard focus turns it into a 2px ochre-ink rule. Long titles are capped by `maxlength` (80, notes 140).
 
-#### Box input — `.num-input`, `.select`
+#### Box input — `.box-input`, `.select`
 
-Boxed mono fields on `--paper-raised` for numbers, times and short choices. `.num-input` is 4.5em wide and centered; `.time` widens it. `.select` draws its own chevron in `--ink-soft`. Always `inputmode="numeric"` for minutes.
+Boxed mono fields on `--paper-raised` for numbers, times and short choices. `.box-input` is 4.5em wide and centered; `.time` widens it. `.select` draws its own chevron in `--ink-soft`. Always `inputmode="numeric"` for minutes.
 
 #### Field wrappers — `.field`, `.inline-field`, `.label`, `.hint`, `.error`, `.check`
 
 - `.field`: block label + input, `--s5` below. Optional fields add `<span class="soft">(optional)</span>` to the label.
 - `.inline-field`: label, input and unit on one wrapping line ("or exactly [  ] min").
-- `.label`: 12px mono, `--ink-soft`. Also used for small headings (`h2.label`, `h3.label`). Add `.mono` when the label shows numbers, for tabular figures.
+- `.label`: `--type-label` (12px mono, tabular figures), `--ink-soft`. Also used for small headings (`h2.label`, `h3.label`).
 - `.hint`: 14px serif `--ink-soft`; `.hint.mono` is 12px.
 - `.error`: 13px mono in `--ochre-ink` with `role="alert"` and a reserved line so the form doesn't jump. Errors here are about time; an error that isn't should use `--ink`.
 - `.check`: native checkbox (20px, `accent-color: var(--ink)`) and a sentence, 44px tall.
@@ -255,7 +307,7 @@ A ruled list item: `.preset-start` (name in 19px serif, next activity in soft it
 
 #### Next card — `.next-card`
 
-Full mode only, during the warning. Raised panel with a `--rule` border; `.next-fill` grows in ochre at 22% by `--p` while the title grows from 22 to 36px. It is the only boxed surface on the running screen.
+Full mode only, during the warning, between the figures and the controls. Raised panel with a `--rule` border; `.next-fill` grows in ochre at 22% by `--p` while the title grows from 22 to 36px. It is the only boxed surface on the running screen.
 
 #### Schedule — `.schedule`, `.sched-row`
 
@@ -263,7 +315,7 @@ Work mode's two-line agenda: 7.5em mono time column, serif activity. The current
 
 #### Face switch — `.dot`
 
-Three 44px buttons each drawing an 8px circle; pressed is filled ink. `aria-label` names the face (Level, Sun, Planner).
+Three 44px buttons each drawing an 8px circle; hover darkens the ring, pressed is filled ink. `aria-label` names the face (Level, Sun, Planner).
 
 #### Sheet — `dialog.sheet`
 

@@ -50,17 +50,17 @@
     <form id="setup-form" autocomplete="off" novalidate>
       <label class="field field-title">
         <span class="label mono"><span class="only-full">What this time is for</span><span class="only-work">Now</span> <span class="soft">(optional)</span></span>
-        <input class="serif-input big" id="f-title" name="title" maxlength="80" enterkeyhint="next">
+        <input class="line-input big" id="f-title" name="title" maxlength="80" enterkeyhint="next">
       </label>
       <div class="ribbon" id="f-ribbon" hidden><span class="label mono">Where you left off</span><span id="f-ribbon-text"></span></div>
 
       <label class="field">
         <span class="label mono"><span class="only-full">What comes next</span><span class="only-work">Next</span> <span class="soft">(optional)</span></span>
-        <input class="serif-input italic" id="f-next" name="next" maxlength="80" enterkeyhint="next">
+        <input class="line-input italic" id="f-next" name="next" maxlength="80" enterkeyhint="next">
       </label>
       <label class="field field-step" id="f-step-wrap">
         <span class="label mono">First small step for next <span class="soft">(optional)</span></span>
-        <input class="plain-input" id="f-step" name="step" maxlength="100">
+        <input class="line-input" id="f-step" name="step" maxlength="100">
       </label>
 
       <fieldset class="field">
@@ -79,7 +79,7 @@
             <button type="button" class="chip" data-min="60" aria-pressed="false">60</button>
           </div>
           <label class="inline-field" id="f-exact"><span class="mono"><span class="only-full">or exactly</span><span class="only-work">or for</span></span>
-            <input class="num-input" id="f-minutes" inputmode="numeric" pattern="[0-9]*" maxlength="3" aria-label="Exact minutes">
+            <input class="box-input" id="f-minutes" inputmode="numeric" pattern="[0-9]*" maxlength="3" aria-label="Exact minutes">
             <span class="mono">min</span></label>
           <p class="hint mono" id="f-exact-hint"></p>
         </div>
@@ -93,7 +93,7 @@
             <button type="button" class="chip" data-min="60" aria-pressed="false">60</button>
           </div>
           <label class="inline-field"><span class="mono">or next starts at</span>
-            <input class="num-input time" id="f-until" type="time" aria-label="When the next thing starts"></label>
+            <input class="box-input time" id="f-until" type="time" aria-label="When the next thing starts"></label>
           <label class="inline-field"><span class="mono">getting there takes</span>
             <select class="select" id="f-buffer" aria-label="Buffer minutes">
               <option value="0">no time</option><option value="2">2 min</option><option value="5">5 min</option>
@@ -138,7 +138,7 @@
     </div>
     <form class="simple-exact" id="s-form" novalidate>
       <label class="inline-field"><span class="mono">or exactly</span>
-        <input class="num-input" id="s-minutes" inputmode="numeric" pattern="[0-9]*" maxlength="3" aria-label="Exact minutes">
+        <input class="box-input" id="s-minutes" inputmode="numeric" pattern="[0-9]*" maxlength="3" aria-label="Exact minutes">
         <span class="mono">min</span></label>
       <button class="primary" type="submit">Start</button>
     </form>
@@ -176,6 +176,17 @@
 
     <p class="figures mono" id="r-figures"></p>
 
+    <!-- Full mode: the next activity takes the stage during the warning, above the controls so it is never below the fold -->
+    <div class="next-card" id="next-card" hidden>
+      <div class="next-fill" id="next-fill"></div>
+      <div class="next-inner">
+        <p class="label mono">Next</p>
+        <p class="next-title" id="nc-title"></p>
+        <p class="next-step" id="nc-step"></p>
+        <p class="next-note" id="nc-note"></p>
+      </div>
+    </div>
+
     <div class="work-tools">
       <button class="text-btn mono" type="button" id="w-note-btn">Note</button>
       <button class="text-btn mono" type="button" id="w-edit-btn" aria-expanded="false" aria-controls="controls">Edit</button>
@@ -195,21 +206,10 @@
       </div>
     </nav>
 
-    <!-- Full mode: the next activity takes the stage during the warning -->
-    <div class="next-card" id="next-card" hidden>
-      <div class="next-fill" id="next-fill"></div>
-      <div class="next-inner">
-        <p class="label mono">Next</p>
-        <p class="next-title" id="nc-title"></p>
-        <p class="next-step" id="nc-step"></p>
-        <p class="next-note" id="nc-note"></p>
-      </div>
-    </div>
-
     <form class="leave-note" id="leave-note" hidden novalidate>
       <label class="field">
         <span class="label mono"><span class="only-full">Where are you leaving off?</span><span class="only-work">Note</span> <span class="soft">(optional)</span></span>
-        <input class="plain-input" id="ln-text" maxlength="140" enterkeyhint="done">
+        <input class="line-input" id="ln-text" maxlength="140" enterkeyhint="done">
       </label>
       <p class="hint mono" id="ln-saved" aria-live="polite"></p>
     </form>
@@ -236,7 +236,7 @@
       </div>
       <form class="inline-field" id="l-form" novalidate>
         <span class="mono">or</span>
-        <input class="num-input" id="l-minutes" inputmode="numeric" pattern="[0-9]*" maxlength="3" aria-label="Exact minutes">
+        <input class="box-input" id="l-minutes" inputmode="numeric" pattern="[0-9]*" maxlength="3" aria-label="Exact minutes">
         <span class="mono">min</span>
         <button class="ctl mono" type="submit">Start</button>
       </form>
@@ -245,7 +245,7 @@
     <form class="leave-note" id="l-note" novalidate>
       <label class="field">
         <span class="label mono"><span id="l-note-label"></span> <span class="soft">(optional)</span></span>
-        <input class="plain-input" id="l-note-text" maxlength="140" enterkeyhint="done">
+        <input class="line-input" id="l-note-text" maxlength="140" enterkeyhint="done">
       </label>
       <p class="hint mono" id="l-note-saved" aria-live="polite"></p>
     </form>
