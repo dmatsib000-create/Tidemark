@@ -448,15 +448,39 @@ input[type="range"] { accent-color: var(--ink); width: 10em; }
 .pip-video { position: fixed; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
 
 /* ---------- Floating window (Document Picture-in-Picture) ---------- */
+/* The window's shape decides the layout, and the picture always gets the most
+   room. Sizes use vmin, so text and buttons scale with the window. */
 body.pip { padding: var(--s2); height: 100vh; min-height: 0; display: flex; flex-direction: column; gap: var(--s1); overflow: hidden; }
-.pip-title { margin: 0; font-size: 15px; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.pip-next { margin: 0; font-size: 13px; font-style: italic; color: var(--ink-soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pip-title { margin: 0; font-size: clamp(15px, 7vmin, 24px); line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pip-next { margin: 0; font-size: clamp(13px, 5.5vmin, 19px); font-style: italic; color: var(--ink-soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .pip-face-wrap { flex: 1 1 0; min-height: 0; position: relative; }
 /* The window alone decides the picture's size; its pixel size never feeds back into layout. */
 .pip-face { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-.pip-row { display: flex; justify-content: center; gap: var(--s1); }
-.pip-row .ctl { min-height: 32px; min-width: 40px; font-size: 13px; padding: 0 var(--s2); }
-.pip-fig { margin: 0; text-align: center; font-size: 11px; color: var(--ink-soft); }
+.pip-row { display: flex; justify-content: center; gap: var(--s1); flex-wrap: wrap; }
+.pip-row .ctl { min-height: clamp(36px, 13vmin, 44px); min-width: 44px; font-size: clamp(13px, 5vmin, 15px); padding: 0 var(--s2); }
+.pip-fig { margin: 0; text-align: center; font-size: clamp(13px, 5vmin, 16px); color: var(--ink-soft); }
+
+/* Wide window: picture on the left, words and buttons on the right. */
+@media (min-aspect-ratio: 5/4) {
+  body.pip:not(.is-finished) {
+    display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    grid-template-rows: 1fr auto auto auto auto 1fr; column-gap: var(--s3); row-gap: var(--s1);
+  }
+  body.pip:not(.is-finished) .pip-face-wrap { grid-column: 1; grid-row: 1 / -1; height: 100%; }
+  body.pip:not(.is-finished) .pip-title { grid-column: 2; grid-row: 2; }
+  body.pip:not(.is-finished) .pip-next { grid-column: 2; grid-row: 3; }
+  body.pip:not(.is-finished) .pip-fig { grid-column: 2; grid-row: 4; text-align: left; }
+  body.pip:not(.is-finished) .pip-controls { grid-column: 2; grid-row: 5; justify-content: flex-start; }
+}
+/* Short or narrow window: drop the buttons, then the extra lines, before the picture shrinks. */
+@media (max-aspect-ratio: 5/4) and (max-height: 210px), (max-height: 140px), (max-width: 190px) { .pip-controls { display: none; } }
+@media (max-aspect-ratio: 5/4) and (max-height: 210px), (max-width: 190px) { .pip-fig { display: none; } }
+@media (max-height: 150px) { .pip-fig, .pip-next { display: none; } }
+
+/* The handoff, in the floating window too. */
+.pip-end { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: var(--s3); }
+.pip-main { width: 100%; min-height: 44px; padding: var(--s2) var(--s3); font-size: clamp(15px, 6vmin, 20px); line-height: 1.2; text-align: left; overflow-wrap: anywhere; }
+.pip-end .pip-row { justify-content: flex-start; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; animation: none !important; }

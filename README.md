@@ -38,7 +38,7 @@ Sessions are stored as timestamps, so a running session survives closing and reo
 
 ## Floating view
 
-- **Chrome or Edge on a computer:** **Float** opens a small always-on-top window with the picture and −5, Pause, +5. In Work mode it shows only the picture and the next entry.
+- **Chrome, Edge or Vivaldi on a computer:** **Float** opens a small always-on-top window with the picture and −5, Pause, +5. Its layout follows the window's shape: side by side when wide, picture-first when small. At the finish it offers the same handoff as the main screen (Start the next activity, +5 min, Done). In Work mode it shows only the picture and the next entry, and the picture reveals the time left on a tap or Enter.
 - **iPhone and Safari:** **Float** shows the picture as a picture-in-picture video above other apps. It can't be tapped, and iOS may freeze it while VizTime is in the background. This is experimental.
 
 ## Limits on iPhone
