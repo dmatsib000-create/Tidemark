@@ -404,9 +404,10 @@ body[data-mode="simple"] .figures { font-size: 17px; }
     display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: var(--s6); align-items: start;
   }
   body[data-mode="full"] main, body[data-mode="simple"] main, body[data-mode="full"] .bar, body[data-mode="simple"] .bar { max-width: 900px; }
-  #run .face-wrap { grid-row: 1 / span 6; grid-column: 1; margin: 0; }
-  #run .face { width: min(78dvh, 44vw); }
-  #run > :not(.face-wrap) { grid-column: 2; }
+  /* Work mode keeps its own grid (min-width: 820px above), which a large phone on its side also reaches. */
+  body:not([data-mode="work"]) #run .face-wrap { grid-row: 1 / span 6; grid-column: 1; margin: 0; }
+  body:not([data-mode="work"]) #run .face { width: min(78dvh, 44vw); }
+  body:not([data-mode="work"]) #run > :not(.face-wrap) { grid-column: 2; }
   .figures { text-align: left; }
   .adjust, .ends { justify-content: flex-start; }
   .big-chip { min-height: 72px; font-size: 34px; }
@@ -420,7 +421,8 @@ body[data-mode="simple"] .figures { font-size: 17px; }
 .landing .ribbon { margin: var(--s5) 0 0; }
 .landing-start { margin: var(--s6) 0 var(--s5); padding-top: var(--s3); border-top: 1px solid var(--ink); }
 .landing-start .label { margin-bottom: var(--s3); }
-.landing-main { width: 100%; min-height: 60px; margin: var(--s2) 0 var(--s5); font-size: 22px; text-align: left; padding: 0 var(--s5); overflow-wrap: anywhere; }
+/* A long activity name wraps, so it needs real leading, not .primary's single-line 1. */
+.landing-main { width: 100%; min-height: 60px; margin: var(--s2) 0 var(--s5); font-size: 22px; line-height: 1.25; text-align: left; padding: var(--s3) var(--s5); overflow-wrap: anywhere; }
 .landing-start .chip { min-width: 60px; }
 /* Six won't fit in a row on a phone; two rows of three instead of five and one. */
 @media (max-width: 440px) { .landing-start .chips { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); } }

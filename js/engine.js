@@ -2,6 +2,8 @@
 // survives closing the app and resumes from its real end time.
 
 export const MIN = 60_000;
+// The longest session any length field accepts.
+export const MAX_MINUTES = 600;
 
 // A cue may play a little late while the page is alive but throttled in the
 // background (Chrome wakes hidden tabs about once a minute). Anything later
@@ -11,6 +13,22 @@ const LATE_LIMIT = 75_000;
 export function autoWarning(totalMs) {
   const w = Math.min(10 * MIN, Math.max(2 * MIN, totalMs * 0.15));
   return Math.min(w, totalMs / 2);
+}
+
+// Length of a session that ends `bufferMin` before the clock time `hhmm`
+// ("14:30"). A time already past today is read as after midnight when that is
+// within half a day, so 00:15 typed at 23:50 means 25 minutes, while 11:00
+// typed at 11:50 stays in the past (and is rejected by the caller).
+export function untilMs(hhmm, bufferMin = 0, now = Date.now()) {
+  const [h, m] = hhmm.split(':').map(Number);
+  const target = new Date(now);
+  target.setHours(h, m, 0, 0);
+  if (target.getTime() <= now) {
+    const tomorrow = new Date(target);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    if (tomorrow.getTime() - now <= 12 * 60 * MIN) target.setTime(tomorrow.getTime());
+  }
+  return target.getTime() - bufferMin * MIN - now;
 }
 
 export function createSession({ title = '', next = '', step = '', totalMs, warnMs, kind = 'main' }, now = Date.now()) {

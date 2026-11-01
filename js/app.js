@@ -7,7 +7,7 @@ import { palette, drawFace, paintWarmth, SERIF } from './faces.js';
 import { canFloatWindow, canFloatVideo, openFloatWindow, openFloatVideo } from './float.js';
 
 const $ = id => document.getElementById(id);
-const { MIN } = E;
+const { MIN, MAX_MINUTES } = E;
 const body = document.body;
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 
@@ -112,7 +112,7 @@ function focusScreen(screen) {
 
 function showError(errId, fieldId, msg = '') {
   $(errId).textContent = msg;
-  for (const id of ['f-minutes', 'f-until', 's-minutes']) {
+  for (const id of ['f-minutes', 'f-until', 's-minutes', 'l-minutes']) {
     if ($(id).getAttribute('aria-describedby') !== errId) continue;
     $(id).removeAttribute('aria-invalid');
     $(id).removeAttribute('aria-describedby');
@@ -140,6 +140,7 @@ function resetForm() {
   $('f-buffer').value = '0';
   $('f-warn').value = 'auto';
   showError('f-error');
+  showError('l-error');
   renderSetup();
 }
 
@@ -151,7 +152,7 @@ function renderSetup() {
   const exact = $('f-minutes').value.trim();
   // In Work mode typed minutes are confirmed as an end time, never a duration.
   const typed = parseInt(exact, 10);
-  $('f-exact-hint').textContent = work && typed >= 1 && typed <= 600 ? `Ends at ${fmtClock(Date.now() + typed * MIN)}.` : '';
+  $('f-exact-hint').textContent = work && typed >= 1 && typed <= MAX_MINUTES ? `Ends at ${fmtClock(Date.now() + typed * MIN)}.` : '';
   for (const c of $('f-chips').children) c.setAttribute('aria-pressed', String(by === 'for' && !exact && +c.dataset.min === form.minutes));
   const typedTime = $('f-until').value;
   for (const c of $('u-chips').children) c.setAttribute('aria-pressed', String(by === 'until' && !typedTime && +c.dataset.min === form.untilMin));
@@ -187,11 +188,7 @@ function showRibbon(wrapId, textId, title) {
 
 function untilTotal() {
   const v = $('f-until').value;
-  if (!v) return null;
-  const [h, m] = v.split(':').map(Number);
-  const target = new Date();
-  target.setHours(h, m, 0, 0);
-  return target.getTime() - (+$('f-buffer').value) * MIN - Date.now();
+  return v ? E.untilMs(v, +$('f-buffer').value) : null;
 }
 
 function renderUntilHint() {
@@ -208,7 +205,7 @@ function readForm() {
   if (lengthBy() === 'for') {
     const exact = $('f-minutes').value.trim();
     const minutes = exact ? parseInt(exact, 10) : form.minutes;
-    if (!(minutes >= 1 && minutes <= 600)) return { error: 'Choose a length between 1 and 600 minutes.' };
+    if (!(minutes >= 1 && minutes <= MAX_MINUTES)) return { error: `Choose a length between 1 and ${MAX_MINUTES} minutes.` };
     totalMs = minutes * MIN;
   } else if (!$('f-until').value) {
     totalMs = form.untilMin * MIN;
@@ -319,7 +316,7 @@ for (const c of $('s-chips').children) {
 $('s-form').addEventListener('submit', e => {
   e.preventDefault();
   const m = parseInt($('s-minutes').value, 10);
-  if (!(m >= 1 && m <= 600)) { showError('s-error', 's-minutes', 'Type a number of minutes from 1 to 600.'); return; }
+  if (!(m >= 1 && m <= MAX_MINUTES)) { showError('s-error', 's-minutes', `Type a number of minutes from 1 to ${MAX_MINUTES}.`); return; }
   showError('s-error');
   $('s-minutes').value = '';
   startSession({ totalMs: m * MIN });
@@ -508,8 +505,12 @@ $('l-main').addEventListener('click', () => startNext(+$('l-main').dataset.min))
 $('l-form').addEventListener('submit', e => {
   e.preventDefault();
   const m = parseInt($('l-minutes').value, 10);
-  if (m >= 1 && m <= 600) { $('l-minutes').value = ''; startNext(m); }
+  if (!(m >= 1 && m <= MAX_MINUTES)) { showError('l-error', 'l-minutes', `Type a number of minutes from 1 to ${MAX_MINUTES}.`); return; }
+  showError('l-error');
+  $('l-minutes').value = '';
+  startNext(m);
 });
+$('l-minutes').addEventListener('input', () => showError('l-error'));
 function startNext(minutes) {
   startSession({ title: session.next, totalMs: minutes * MIN });
 }
@@ -922,9 +923,11 @@ $('float-btn').addEventListener('click', openFloat);
 
 /* ---------- Screen wake lock ---------- */
 
-let wakeLock = null, wakeBusy = false;
+// A change that arrives while a request is still pending runs again after it,
+// so pausing during the request doesn't leave the screen held awake.
+let wakeLock = null, wakeBusy = false, wakeAgain = false;
 async function syncWake() {
-  if (wakeBusy) return;
+  if (wakeBusy) { wakeAgain = true; return; }
   wakeBusy = true;
   try {
     const want = () => settings.wake && session && !session.finishedAt && !session.pausedAt && document.visibilityState === 'visible';
@@ -938,6 +941,7 @@ async function syncWake() {
     }
   } catch { wakeLock = null; }
   wakeBusy = false;
+  if (wakeAgain) { wakeAgain = false; syncWake(); }
 }
 
 document.addEventListener('visibilitychange', () => {
