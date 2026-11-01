@@ -158,10 +158,23 @@ h2.sec{margin:0; font-size:13px; letter-spacing:.08em; text-transform:uppercase;
   background:color-mix(in oklab, var(--fill-now), white 45%); transition:transform .9s linear}
 body:not(.no-motion) #field .horizon{box-shadow:0 0 18px 3px color-mix(in oklab, var(--fill-now), white 30%); animation:glow 7s ease-in-out infinite}
 @keyframes glow{50%{opacity:.55}}
-#ticks .tick{position:absolute; left:0; right:0; height:0; border-top:1px solid var(--line)}
-#ticks .tick span{position:absolute; right:max(14px, env(safe-area-inset-right, 0px)); bottom:3px; font-family:var(--mono); font-size:12px; color:var(--ink); opacity:.75}
-#ticks .tick.passed{opacity:.35}
-#ticks .tick.end span{font-weight:600; opacity:1}
+/* Clock scale: readable during the run, because it ties the level to the wall clock. */
+#ticks .tick{position:absolute; left:0; right:0; height:0; border-top:1px solid color-mix(in oklab, var(--ink) 22%, transparent)}
+#ticks .tick span{position:absolute; right:max(12px, env(safe-area-inset-right, 0px)); bottom:4px; font-family:var(--mono); font-size:15px; font-weight:500; color:var(--ink);
+  padding:0 6px; border-radius:6px; background:color-mix(in oklab, var(--bg) 45%, transparent)}
+#ticks .tick.passed{opacity:.4}
+#ticks .tick.near span{visibility:hidden}
+#ticks .tick.end span{font-size:17px; font-weight:600}
+#field .now-mark{position:absolute; left:0; right:0; top:0; height:0; will-change:transform; transition:transform .9s linear}
+#field .now-mark span{position:absolute; right:max(12px, env(safe-area-inset-right, 0px)); bottom:5px; font-family:var(--mono); font-size:15px; font-weight:600; color:var(--ink);
+  padding:1px 7px; border-radius:7px; background:var(--surface); border:1px solid var(--line)}
+#field .now-mark.below span{bottom:auto; top:6px}
+#field .now-mark.hide span{visibility:hidden}
+body.work #field .band span{display:none}
+@media (min-width:900px){
+  #ticks .tick span, #field .now-mark span{font-size:18px}
+  #ticks .tick.end span{font-size:20px}
+}
 #run.paused #field .fill{filter:saturate(.25)}
 
 .run-top{position:absolute; inset:0 0 auto 0; pointer-events:none;
@@ -187,10 +200,14 @@ body:not(.no-motion) #field .horizon{box-shadow:0 0 18px 3px color-mix(in oklab,
 #run.approach .next-card{border-color:color-mix(in oklab, var(--fill-warm), var(--ink) 15%); background:color-mix(in oklab, var(--fill-warm) 14%, var(--bg))}
 #run.landing .next-card{border-color:var(--fill-warm); background:color-mix(in oklab, var(--fill-warm) 24%, var(--bg)); transform:translateY(-3px)}
 #run.landing .next-name{font-size:23px}
-.controls{display:grid; grid-template-columns:repeat(4, 1fr) 48px; gap:8px}
+.run-controls{display:grid; gap:8px}
+.adjust{display:grid; grid-template-columns:52px 52px 1fr 52px 52px; gap:8px}
+.adjust .btn[data-adj]{padding:10px 0; font-family:var(--mono)}
+.controls{display:grid; grid-template-columns:1fr 1.2fr 1fr 48px; gap:8px}
 .controls .btn{padding:10px 4px}
-body.work .controls{opacity:.55}
-body.work .controls:hover, body.work .controls:focus-within{opacity:1}
+.btn.stop::before{content:""; display:inline-block; width:9px; height:9px; margin-right:7px; border-radius:2px; background:currentColor; vertical-align:1px}
+body.work .run-controls{opacity:.55}
+body.work .run-controls:hover, body.work .run-controls:focus-within{opacity:1}
 #nextEdit{margin-top:4px}
 
 /* Ended panel */
@@ -204,6 +221,9 @@ body.work .controls:hover, body.work .controls:focus-within{opacity:1}
 .steps input{width:22px; height:22px; accent-color:var(--accent); flex:none}
 .steps input:checked + span{color:var(--ink-2); text-decoration:line-through}
 .note-show{font-size:14px; background:var(--bg); border:1px dashed var(--line); border-radius:12px; padding:10px 12px}
+.ended-next .text-btn{justify-self:center; padding-block:4px; min-height:36px}
+.more-btn{justify-self:center; color:var(--ink-2)}
+.ended-more{display:grid; gap:14px; border-top:1px solid var(--line); padding-top:14px}
 .ended-actions{display:grid; grid-template-columns:repeat(3, 1fr); gap:8px}
 .ended-actions .btn{padding:10px 8px}
 .tertiary{display:flex; gap:16px; flex-wrap:wrap; justify-content:space-between}
@@ -243,7 +263,10 @@ dialog.sheet::backdrop{background:rgba(5,8,10,.45)}
 .switch::after{content:""; position:absolute; top:3px; left:3px; width:20px; height:20px; border-radius:50%; background:var(--ink-2); transition:transform .2s, background .2s}
 .switch:checked{background:var(--accent)}
 .switch:checked::after{transform:translateX(18px); background:var(--accent-ink)}
-.toast{position:fixed; left:50%; bottom:calc(env(safe-area-inset-bottom, 0px) + 24px); transform:translateX(-50%); background:var(--ink); color:var(--bg); padding:10px 16px; border-radius:999px; font-size:14px; z-index:20; max-width:calc(100% - 32px)}
+.toast{position:fixed; left:50%; bottom:calc(env(safe-area-inset-bottom, 0px) + 24px); transform:translateX(-50%); background:var(--ink); color:var(--bg); padding:10px 16px; border-radius:999px; font-size:14px; z-index:20; max-width:calc(100% - 32px);
+  display:flex; align-items:center; gap:12px; width:max-content; pointer-events:none}
+.toast button{border:0; background:none; color:inherit; font-weight:700; text-decoration:underline; padding:6px 2px; min-height:32px; pointer-events:auto}
+.until-past{display:flex; flex-wrap:wrap; gap:8px 12px; align-items:center; font-size:15px; background:var(--surface); border:1px dashed var(--c-warm); border-radius:12px; padding:10px 12px}
 
 @media (prefers-reduced-motion: reduce){
   *{animation:none!important; transition:none!important}
@@ -291,9 +314,15 @@ dialog.sheet::backdrop{background:rgba(5,8,10,.45)}
         </div>
         <div class="chips grid" id="durChips"></div>
       </div>
-      <div id="untilPanel" class="until-row" hidden>
-        <input id="untilTime" type="time" aria-label="End at">
-        <span id="untilLen" class="muted"></span>
+      <div id="untilPanel" class="block" hidden>
+        <div class="until-row">
+          <input id="untilTime" type="time" aria-label="End at">
+          <span id="untilLen" class="muted"></span>
+        </div>
+        <div id="untilPast" class="until-past" role="status" hidden>
+          <span id="untilPastText"></span>
+          <button id="untilTomorrow" class="btn" type="button">Yes, tomorrow</button>
+        </div>
       </div>
     </div>
 
@@ -343,6 +372,7 @@ dialog.sheet::backdrop{background:rgba(5,8,10,.45)}
       <div class="over" id="over"></div>
       <div id="ticks"></div>
       <div class="horizon" id="horizon"></div>
+      <div class="now-mark" id="nowMark"><span></span></div>
     </div>
     <div class="run-top">
       <div>
@@ -364,38 +394,52 @@ dialog.sheet::backdrop{background:rgba(5,8,10,.45)}
         <span class="next-name" id="runNext"></span>
       </button>
       <input id="nextEdit" type="text" placeholder="What comes next?" maxlength="60" hidden>
-      <div class="controls">
-        <button class="btn" id="pauseBtn" type="button">Pause</button>
-        <button class="btn" id="plus5" type="button">+5 min</button>
-        <button class="btn" id="noteBtn" type="button">Note</button>
-        <button class="btn" id="doneBtn" type="button">Done</button>
-        <button class="btn" id="runSettings" type="button" aria-label="Settings">&middot;&middot;&middot;</button>
+      <div class="run-controls">
+        <div class="adjust" role="group" aria-label="Change the time">
+          <button class="btn" type="button" data-adj="-5" aria-label="Remove 5 minutes">&minus;5</button>
+          <button class="btn" type="button" data-adj="-1" aria-label="Remove 1 minute">&minus;1</button>
+          <button class="btn" id="pauseBtn" type="button">Pause</button>
+          <button class="btn" type="button" data-adj="1" aria-label="Add 1 minute">+1</button>
+          <button class="btn" type="button" data-adj="5" aria-label="Add 5 minutes">+5</button>
+        </div>
+        <div class="controls">
+          <button class="btn" id="noteBtn" type="button">Note</button>
+          <button class="btn" id="doneBtn" type="button" title="End now and go to the handoff. Counts in today’s history.">Finish now</button>
+          <button class="btn stop" id="stopBtn" type="button" aria-label="Stop and discard this timer" title="Discard this timer. Nothing is saved to history.">Stop</button>
+          <button class="btn" id="runSettings" type="button" aria-label="Settings">&middot;&middot;&middot;</button>
+        </div>
       </div>
     </div>
 
+    <!-- Time's up: one obvious next step; everything else is one tap further, under "More". -->
     <div class="bottom-inner ended" id="endedPanel" hidden>
       <div class="ended-head">
         <div class="eyebrow" id="endedWhat"></div>
         <div class="over-text" id="overText"></div>
       </div>
       <div class="ended-next">
-        <div class="eyebrow">Up next</div>
+        <div class="eyebrow" id="endedNextEyebrow">Up next</div>
         <div class="ended-next-name" id="endedNextName"></div>
         <input id="endedNextInput" type="text" placeholder="What’s next?" maxlength="60" hidden>
-        <div class="chips" id="endChips" aria-label="Length of the next activity"></div>
         <button class="primary" id="startNextBtn" type="button">Start</button>
+        <button class="text-btn" id="lenBtn" type="button" aria-expanded="false">Change length</button>
+        <div class="chips" id="endChips" aria-label="Length of the next activity" hidden></div>
       </div>
-      <ul class="steps" id="steps"></ul>
-      <div class="note-show" id="noteShow" hidden></div>
-      <div class="ended-actions">
-        <button class="btn" type="button" data-extra="2">+2 min</button>
-        <button class="btn" type="button" data-extra="5">+5 min</button>
-        <button class="btn" type="button" id="resetBtn">Reset pause</button>
-      </div>
-      <div class="tertiary">
-        <button class="text-btn" type="button" id="noteBtn2">Leave a note</button>
-        <button class="text-btn" type="button" id="resumeBtn" hidden>Back to timer</button>
-        <button class="text-btn" type="button" id="finishBtn">Finish, nothing next</button>
+      <button class="text-btn more-btn" id="moreBtn" type="button" aria-expanded="false" aria-controls="endedMore">More: extra time, a pause, a note</button>
+      <div class="ended-more" id="endedMore" hidden>
+        <ul class="steps" id="steps"></ul>
+        <div class="note-show" id="noteShow" hidden></div>
+        <div class="ended-actions">
+          <button class="btn" type="button" data-extra="2">+2 min</button>
+          <button class="btn" type="button" data-extra="5">+5 min</button>
+          <button class="btn" type="button" id="resetBtn">Reset pause</button>
+        </div>
+        <div class="tertiary">
+          <button class="text-btn" type="button" id="noteBtn2">Leave a note</button>
+          <button class="text-btn" type="button" id="resumeBtn" hidden>Back to timer</button>
+          <button class="text-btn" type="button" id="otherBtn" hidden>Start something else</button>
+          <button class="text-btn" type="button" id="finishBtn">Done, nothing next</button>
+        </div>
       </div>
     </div>
   </div>
@@ -441,7 +485,7 @@ dialog.sheet::backdrop{background:rgba(5,8,10,.45)}
 
     <section class="set-group">
       <h3>Work mode</h3>
-      <label class="row"><span>Work mode<small>Dimmer colors, silent, controls fade back</small></span><input type="checkbox" class="switch" data-setting="work"></label>
+      <label class="row"><span>Work mode<small>Reads as a clock, not a countdown: no “min left” or “time’s up” on screen. Dimmer, silent, controls fade back.</small></span><input type="checkbox" class="switch" data-setting="work"></label>
       <label class="row"><span>Hide activity names<small>Shows “Current” and “Next”. Tap the name to peek for 5 seconds.</small></span><input type="checkbox" class="switch" data-setting="workHideNames"></label>
       <label class="row"><span>Allow sound in work mode</span><input type="checkbox" class="switch" data-setting="workSound"></label>
     </section>
@@ -479,7 +523,7 @@ dialog.sheet::backdrop{background:rgba(5,8,10,.45)}
       <h3>Timing</h3>
       <label class="row"><span>Wind-down length<small>When the next activity starts coming into view</small></span>
         <select data-setting="windDown"><option value="auto">Auto</option><option value="1">1 min</option><option value="2">2 min</option><option value="5">5 min</option><option value="10">10 min</option><option value="15">15 min</option></select></label>
-      <label class="row"><span>Check-ins<small>A quiet “30 min in” while you’re absorbed</small></span>
+      <label class="row"><span>Check-ins<small>Off unless you want them: a quiet “30 min in” while you’re absorbed</small></span>
         <select data-setting="checkin"><option value="0">Off</option><option value="10">Every 10 min</option><option value="15">Every 15 min</option><option value="20">Every 20 min</option><option value="30">Every 30 min</option><option value="60">Every hour</option></select></label>
       <label class="row"><span>Overtime reminders<small>Same gentle cue, never louder</small></span>
         <select data-setting="overtime"><option value="0">Off</option><option value="2">Every 2 min</option><option value="5">Every 5 min</option><option value="10">Every 10 min</option></select></label>
@@ -525,7 +569,7 @@ const DEFAULTS = {
   feel: 'balanced', sound: true, volume: 0.5,
   soundOn: { heads: true, last: false, end: true, over: true, checkin: false },
   vibrate: true, voice: false, motion: true,
-  checkin: 15, windDown: 'auto', overtime: 5, numbers: 'full',
+  checkin: 0, windDown: 'auto', overtime: 5, numbers: 'full',
   stepsText: 'Jot down where you left off\nClose what you won’t need\nStand up, stretch, get water',
   resetSecs: 60, wake: true, notify: false, theme: 'auto',
   work: false, workHideNames: true, workSound: false
@@ -538,7 +582,7 @@ const FEELS = {
 const FEEL_HINTS = {
   quiet: 'Visual only. No sound, vibration or motion.',
   balanced: 'A soft chime when wind-down starts and when time is up. Light vibration.',
-  noticeable: 'Chimes at every cue, spoken announcements and check-ins.',
+  noticeable: 'Chimes at every cue (and check-ins, if you turn them on) and spoken announcements.',
   custom: 'Your own mix. Pick a preset to reset it.'
 };
 const FEEL_KEYS = ['sound', 'vibrate', 'voice', 'motion', 'volume', 'soundOn'];
@@ -549,13 +593,18 @@ const steps = () => S.stepsText.split('\n').map(s => s.trim()).filter(Boolean);
 const quietWork = () => S.work && !S.workSound;
 
 /* ---------- data ---------- */
-let draft = Object.assign({ now: '', min: 25, next: '', nextMin: null, mode: 'for', until: '' }, store.get('draft', {}));
-let favs = store.get('favs', null);
-if (!favs) favs = [
-  { now: 'Focus block', min: 45, next: 'Break', nextMin: 10 },
-  { now: 'Between appointments', min: 10, next: 'Next appointment', nextMin: null },
-  { now: 'Inbox', min: 20, next: '', nextMin: null }
-];
+const DRAFT_DEFAULT = { now: '', min: 25, next: '', nextMin: null, mode: 'for', until: '', untilAt: null };
+let draft = Object.assign(clone(DRAFT_DEFAULT), store.get('draft', {}));
+let favs = store.get('favs', []);
+// Version 1 shipped with check-ins every 15 min and three sample saved timers. Neither was the
+// person's own choice, so clear them once (a check-in interval other than the old default stays).
+if (store.get('v', 1) < 2) {
+  if (S.checkin === 15) { S.checkin = 0; saveSettings(); }
+  const samples = [{ now: 'Focus block', min: 45, next: 'Break' }, { now: 'Between appointments', min: 10, next: 'Next appointment' }, { now: 'Inbox', min: 20, next: '' }];
+  const kept = favs.filter(f => !samples.some(s => sameFav(s, f)));
+  if (kept.length !== favs.length) { favs = kept; store.set('favs', favs); }
+  store.set('v', 2);
+}
 let notes = store.get('notes', {});
 let log = store.get('log', []);
 let T = store.get('timer', null);
@@ -656,7 +705,7 @@ function newTimer(name, next, nextMin, dur) {
   const t = now();
   return { phase: 'running', now: name, next: next || '', nextMin: nextMin || null,
     startAt: t, dur, pausedAt: null, pausedMs: 0, pausedTotal: 0,
-    firstStart: t, planned: dur, resetMs: 0, endedAt: null, early: null,
+    firstStart: t, planned: dur, adjustMs: 0, resetMs: 0, endedAt: null, early: null,
     cues: { heads: false, last: false, checkins: 0, over: 0 }, stepsDone: [] };
 }
 
@@ -687,18 +736,27 @@ async function wake(on) {
 const DUR_CHIPS = [5, 10, 15, 25, 45, 60, 90];
 const NEXT_CHIPS = [5, 10, 15, 25, 45, 60];
 
+// The "until" end time. A time that has already passed today is never quietly moved to
+// tomorrow: it comes back as passed, and the setup screen asks (which sets draft.untilAt).
+function untilTarget() {
+  if (!draft.until) return null;
+  if (draft.untilAt > now() + 30 * SEC) return { t: draft.untilAt };
+  const [h, m] = draft.until.split(':').map(Number);
+  const d = new Date(); d.setHours(h, m, 0, 0);
+  return { t: d.getTime(), passed: d.getTime() <= now() + 30 * SEC };
+}
 function draftDur() {
   if (draft.mode === 'until') {
-    if (!draft.until) return 0;
-    const [h, m] = draft.until.split(':').map(Number);
-    const d = new Date(); d.setHours(h, m, 0, 0);
-    let t = d.getTime();
-    if (t <= now() + 30 * SEC) t += 24 * 60 * MIN;
-    return t - now();
+    const u = untilTarget();
+    return u && !u.passed ? u.t - now() : 0;
   }
   return clamp(Math.round(+draft.min || 0), 1, 600) * MIN;
 }
 const saveDraft = () => store.set('draft', draft);
+function resetDraft() {
+  draft = clone(DRAFT_DEFAULT); saveDraft();
+  $('#endedNextInput').value = '';
+}
 
 function renderSetup() {
   $('#nowName').value = draft.now;
@@ -728,7 +786,13 @@ function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<'
 function renderPreview() {
   const dur = draftDur(), t0 = now();
   $('#endsAt').textContent = dur ? clock(t0 + dur) : '--';
-  if (draft.mode === 'until') $('#untilLen').textContent = dur ? 'That’s ' + len(dur) + ' from now' : 'Pick a time';
+  const u = draft.mode === 'until' ? untilTarget() : null;
+  if (draft.mode === 'until') {
+    const tomorrow = u && !u.passed && new Date(u.t).getDate() !== new Date(t0).getDate();
+    $('#untilLen').textContent = dur ? 'That’s ' + len(dur) + ' from now' + (tomorrow ? ', tomorrow' : '') : u && u.passed ? '' : 'Pick a time';
+  }
+  $('#untilPast').hidden = !(u && u.passed);
+  if (u && u.passed) $('#untilPastText').textContent = clock(u.t) + ' has already passed today. Did you mean tomorrow?';
   const nextMs = draft.next.trim() && draft.nextMin ? draft.nextMin * MIN : 0;
   $('#thenLine').textContent = draft.next.trim()
     ? 'Then ' + draft.next.trim() + (nextMs ? ' until ' + clock(t0 + dur + nextMs) : '')
@@ -742,7 +806,7 @@ function renderPreview() {
   for (let h = first.getTime() + 60 * MIN; h < t0 + span; h += 60 * MIN) {
     const x = (h - t0) / span * 100;
     html += `<i class="hr" style="left:${x.toFixed(2)}%"></i>`;
-    if (x > 8 && x < 92) scale += `<span style="left:${x.toFixed(2)}%">${clockShort(h)}</span>`;
+    if (x > 14 && x < 92) scale +=`<span style="left:${x.toFixed(2)}%">${clockShort(h)}</span>`;
   }
   if (dur) html += `<div class="blk now" style="width:${pct(dur)}">${esc(draft.now.trim() || 'Now')}</div>`;
   if (draft.next.trim()) html += `<div class="blk next" style="left:${pct(dur)};width:${pct(nextMs || 10 * MIN)}">${esc(draft.next.trim())}</div>`;
@@ -770,8 +834,10 @@ function renderLog() {
   $('#todayBlock').hidden = !today.length;
   if (!today.length) return;
   const max = Math.max(...today.map(e => Math.max(e.planned, e.actual)));
+  // "planned" is always the original plan; time added or removed along the way is shown beside it.
+  const adjText = ms => { const m = Math.round((ms || 0) / MIN); return m ? ` <small class="muted">· ${m > 0 ? m + ' min added' : -m + ' min removed'}</small>` : ''; };
   $('#todayList').innerHTML = today.slice(-6).reverse().map(e => `
-    <li><span>${esc(e.name)}</span><span class="mono muted">${Math.round(e.planned / MIN)} → ${Math.max(1, Math.round(e.actual / MIN))} min</span>
+    <li><span>${esc(e.name)}${adjText(e.adjusted)}</span><span class="mono muted">${Math.round(e.planned / MIN)} → ${Math.max(1, Math.round(e.actual / MIN))} min</span>
       <span class="bars"><i class="a" style="width:${(e.actual / max * 100).toFixed(1)}%"></i><i class="p" style="width:${(e.planned / max * 100).toFixed(1)}%"></i></span></li>`).join('');
   let c = '';
   if (today.length >= 3) {
@@ -806,7 +872,12 @@ $('#modeSeg').addEventListener('click', e => {
   if (draft.mode === 'until' && !draft.until) { const d = new Date(now() + 60 * MIN); d.setMinutes(Math.ceil(d.getMinutes() / 15) * 15 % 60, 0, 0); if (d.getTime() < now() + 30 * MIN) d.setHours(d.getHours() + 1); draft.until = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); }
   saveDraft(); renderSetup();
 });
-$('#untilTime').addEventListener('input', e => { draft.until = e.target.value; saveDraft(); renderPreview(); });
+$('#untilTime').addEventListener('input', e => { draft.until = e.target.value; draft.untilAt = null; saveDraft(); renderPreview(); });
+$('#untilTomorrow').addEventListener('click', () => {
+  const u = untilTarget(); if (!u || !u.passed) return;
+  const d = new Date(u.t); d.setDate(d.getDate() + 1);
+  draft.untilAt = d.getTime(); saveDraft(); renderPreview();
+});
 $('#saveFav').addEventListener('click', () => {
   const f = currentFavShape(); if (!f.now) f.now = 'Focus';
   const i = favs.findIndex(x => sameFav(x, f));
@@ -826,7 +897,7 @@ $('#favList').addEventListener('click', e => {
 $('#favList').addEventListener('keydown', e => { if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('[data-del]')) { e.preventDefault(); e.target.click(); } });
 $('#startBtn').addEventListener('click', () => {
   const dur = draftDur();
-  if (!dur) { toast('Pick an end time first'); return; }
+  if (!dur) { toast(draft.mode === 'until' && draft.until ? 'That time has passed. Pick another, or choose tomorrow.' : 'Pick an end time first'); return; }
   unlockAudio();
   T = newTimer(draft.now.trim() || 'Focus', draft.next.trim(), draft.nextMin, dur);
   saveT(); route();
@@ -847,7 +918,7 @@ function chooseStep(D) {
 }
 function buildTicks() {
   const D = T.dur, s0 = startClock(), step = chooseStep(D) * MIN;
-  const key = [Math.round(s0 / 15000), D, fieldH].join('|');
+  const key = [Math.round(s0 / 15000), D, fieldH, S.work].join('|');
   if (key === tickKey) return;
   tickKey = key;
   let html = '';
@@ -856,9 +927,9 @@ function buildTicks() {
   for (let t = firstTick; t < s0 + D - step * 0.35; t += step) {
     const y = (t - s0) / D * fieldH;
     if (y < 24) continue;
-    html += `<div class="tick" data-t="${t}" style="top:${y.toFixed(1)}px"><span>${clockShort(t)}</span></div>`;
+    html += `<div class="tick" data-t="${t}" data-y="${y.toFixed(1)}" style="top:${y.toFixed(1)}px"><span>${clockShort(t)}</span></div>`;
   }
-  html += `<div class="tick end" style="top:${(fieldH - 1).toFixed(1)}px"><span>ends ${clockShort(s0 + D)}</span></div>`;
+  html += `<div class="tick end" data-y="${fieldH - 1}" style="top:${(fieldH - 1).toFixed(1)}px"><span>${S.work ? '' : 'ends '}${clockShort(s0 + D)}</span></div>`;
   $('#ticks').innerHTML = html;
 }
 
@@ -880,9 +951,18 @@ function renderRun() {
   ['steady', 'approach', 'landing', 'ended'].forEach(s => run.classList.toggle(s, s === stage));
 
   const frac = D ? r / D : 0;
+  const hy = (1 - frac) * fieldH;
   $('#fill').style.transform = `scaleY(${frac.toFixed(5)})`;
-  $('#horizon').style.transform = `translateY(${((1 - frac) * fieldH).toFixed(1)}px)`;
+  $('#horizon').style.transform = `translateY(${hy.toFixed(1)}px)`;
   $('#horizon').hidden = ended;
+  // The horizon carries the current clock time, so "now" sits on the same scale as the ticks.
+  const mark = $('#nowMark');
+  mark.hidden = ended;
+  mark.style.transform = `translateY(${hy.toFixed(1)}px)`;
+  mark.classList.toggle('below', hy < 30);
+  mark.classList.toggle('hide', fieldH - hy < 26);
+  const nowLabel = (S.work ? '' : 'now ') + clockShort(now());
+  if (mark.firstChild.textContent !== nowLabel) mark.firstChild.textContent = nowLabel;
   const warmth = r > wd ? 0 : (1 - r / wd);
   $('#field').style.setProperty('--warmth', (warmth * 100).toFixed(1) + '%');
   run.style.setProperty('--arrive', (warmth * 100).toFixed(1) + '%');
@@ -894,16 +974,20 @@ function renderRun() {
   if (!ended) {
     buildTicks();
     const s0 = startClock();
-    $$('#ticks .tick[data-t]').forEach(el => el.classList.toggle('passed', +el.dataset.t <= s0 + e));
+    $$('#ticks .tick[data-t]').forEach(el => {
+      el.classList.toggle('passed', +el.dataset.t <= s0 + e);
+      el.classList.toggle('near', Math.abs(+el.dataset.y - hy) < 24);
+    });
   } else { $('#ticks').innerHTML = ''; tickKey = ''; }
 
-  // Text
+  // Text. Work mode reads as a clock, not a countdown: no "left", "time's up" or wind-down words.
+  const discreet = !!S.work;
   $('#runNow').textContent = nm(T.now, 'Current');
   const endT = startClock() + D;
   const nums = S.numbers;
-  $('#nums').hidden = nums === 'none';
+  $('#nums').hidden = nums === 'none' || discreet;
   if (ended) {
-    $('#numLeft').textContent = ov < MIN ? 'time’s up' : len(ov, 'floor') + ' past the end';
+    $('#numLeft').textContent = T.early ? 'finished' : ov < MIN ? 'time’s up' : len(ov, 'floor') + ' past the end';
     $('#numSub').textContent = 'ended ' + clock(T.endedAt);
   } else if (nums === 'full') {
     $('#numLeft').textContent = leftText(r);
@@ -913,11 +997,11 @@ function renderRun() {
     $('#numSub').textContent = '';
   }
   let c = '';
-  if (T.phase === 'paused') c = `Paused ${len(now() - T.pausedAt, 'floor').replace(/^0 min$/, 'just now')}. The end time moves with the pause.`;
+  if (T.phase === 'paused') c = discreet ? 'Paused' : `Paused ${len(now() - T.pausedAt, 'floor').replace(/^0 min$/, 'just now')}. The end time moves with the pause.`;
+  else if (discreet) c = '';
   else if (stage === 'approach') c = 'Wind-down. Look for a good place to stop.';
   else if (stage === 'landing') c = 'Wrap up the step you’re on.';
-  else if (stage === 'ended') c = '';
-  if (cueMsg && now() < cueMsgUntil && stage === 'steady') c = cueMsg;
+  if (!discreet && cueMsg && now() < cueMsgUntil && stage === 'steady') c = cueMsg;
   if ($('#cue').textContent !== c) $('#cue').textContent = c;
 
   $('#runningPanel').hidden = ended;
@@ -925,30 +1009,41 @@ function renderRun() {
   if (!ended) {
     $('#pauseBtn').textContent = T.phase === 'paused' ? 'Resume' : 'Pause';
     $('#nextEyebrow').innerHTML = 'Next' + (T.next ? ' · at ' + clockShort(endT) : '') +
-      (S.numbers === 'full' && (stage === 'approach' || stage === 'landing') ? ` <span class="lens">· ${r < MIN ? Math.ceil(r / SEC) + ' s' : Math.ceil(r / MIN) + ' min'}</span>` : '');
+      (S.numbers === 'full' && !discreet && (stage === 'approach' || stage === 'landing') ? ` <span class="lens">· ${r < MIN ? Math.ceil(r / SEC) + ' s' : Math.ceil(r / MIN) + ' min'}</span>` : '');
     const nn = $('#runNext');
     nn.textContent = T.next ? nm(T.next, 'Next') : 'Not set. Tap to add.';
     nn.classList.toggle('unset', !T.next);
   } else renderEnded();
 }
 
-/* ended panel */
-let endChoice = null;
+/* ended panel: staged so the moment of transition offers one obvious action.
+   With a next activity, that is "Start <next>"; with nothing next, it is "Done". */
+let endChoice = null, endKey = null;
+const endUi = { more: false, len: false, other: false };
 function renderEnded() {
+  if (endKey !== T.endedAt) { endKey = T.endedAt; endChoice = null; Object.assign(endUi, { more: false, len: false, other: false }); $('#endedNextInput').value = ''; }
   const ov = overtime();
   $('#endedWhat').textContent = `${nm(T.now, 'Current')} · ${T.early ? 'finished' : 'ended'} ${clockShort(T.endedAt)}`;
-  $('#overText').textContent = S.numbers === 'none' && ov >= MIN ? len(ov, 'floor') + ' past the end' : '';
-  const hasNext = !!T.next;
+  $('#overText').textContent = S.numbers === 'none' && !S.work && ov >= MIN ? len(ov, 'floor') + ' past the end' : '';
+  const hasNext = !!T.next, starting = hasNext || endUi.other;
+  const inp = $('#endedNextInput');
+  $('#endedNextEyebrow').textContent = starting ? 'Up next' : 'Nothing planned next';
   $('#endedNextName').hidden = !hasNext;
   $('#endedNextName').textContent = hasNext ? nm(T.next, 'Next') : '';
-  const inp = $('#endedNextInput');
-  if (inp.hidden !== hasNext) inp.hidden = hasNext;
+  inp.hidden = hasNext || !endUi.other;
   if (endChoice == null) endChoice = T.nextMin || 15;
+  $('#lenBtn').hidden = !starting;
+  $('#lenBtn').setAttribute('aria-expanded', endUi.len);
+  $('#endChips').hidden = !starting || !endUi.len;
   const chips = $('#endChips');
   const want = NEXT_CHIPS.map(m => `<button type="button" class="chip" data-emin="${m}" aria-pressed="${endChoice === m}" aria-label="${m} minutes">${m}</button>`).join('');
   if (chips.innerHTML !== want) chips.innerHTML = want;
-  const label = 'Start ' + (hasNext ? nm(T.next, 'next') : (inp.value.trim() || 'next')) + ' · ' + endChoice + ' min';
+  const label = starting ? 'Start ' + (hasNext ? nm(T.next, 'next') : (inp.value.trim() || 'next')) + ' · ' + endChoice + ' min' : 'Done';
   if ($('#startNextBtn').textContent !== label) $('#startNextBtn').textContent = label;
+  $('#moreBtn').setAttribute('aria-expanded', endUi.more);
+  $('#endedMore').hidden = !endUi.more;
+  $('#otherBtn').hidden = starting;
+  $('#finishBtn').hidden = !starting;
   const st = steps();
   const stHtml = st.map((s, i) => `<li><label><input type="checkbox" data-step="${i}" ${T.stepsDone.includes(i) ? 'checked' : ''}><span>${esc(s)}</span></label></li>`).join('');
   if ($('#steps').dataset.k !== stHtml) { $('#steps').innerHTML = stHtml; $('#steps').dataset.k = stHtml; }
@@ -960,8 +1055,14 @@ function renderEnded() {
   $('#noteBtn2').textContent = fresh ? 'Edit note' : 'Leave a note';
   $('#resumeBtn').hidden = !T.early;
 }
-$('#endChips').addEventListener('click', e => { const c = e.target.closest('[data-emin]'); if (!c) return; endChoice = +c.dataset.emin; renderEnded(); });
+$('#endChips').addEventListener('click', e => { const c = e.target.closest('[data-emin]'); if (!c) return; endChoice = +c.dataset.emin; endUi.len = false; renderEnded(); });
 $('#endedNextInput').addEventListener('input', renderEnded);
+$('#lenBtn').addEventListener('click', () => { endUi.len = !endUi.len; renderEnded(); });
+$('#moreBtn').addEventListener('click', () => { endUi.more = !endUi.more; renderEnded(); });
+$('#otherBtn').addEventListener('click', () => {
+  Object.assign(endUi, { other: true, more: false }); renderEnded();
+  $('#endedNextInput').focus();
+});
 $('#steps').addEventListener('change', e => {
   const i = +e.target.dataset.step; if (isNaN(i)) return;
   T.stepsDone = e.target.checked ? [...new Set([...T.stepsDone, i])] : T.stepsDone.filter(x => x !== i);
@@ -973,17 +1074,23 @@ function logCurrent() {
   const t = now();
   let actual = t - T.firstStart - (T.pausedTotal || 0) - (T.pausedAt != null ? t - T.pausedAt : 0) - (T.resetMs || 0);
   if (T.endedAt && t - T.endedAt > 3 * 60 * MIN) actual = T.endedAt - T.firstStart - (T.pausedTotal || 0); // left open for hours
-  log.push({ name: T.now, planned: T.planned, actual: Math.max(0, actual), at: t });
+  log.push({ name: T.now, planned: T.planned, adjusted: T.adjustMs || 0, actual: Math.max(0, actual), at: t });
   const weekAgo = t - 7 * 24 * 60 * MIN;
   log = log.filter(e => e.at > weekAgo);
   store.set('log', log);
 }
+// Logs the session and returns to a clean, default setup.
+function finishSession() {
+  logCurrent();
+  T = null; resetDraft(); saveT(); route();
+}
 $('#startNextBtn').addEventListener('click', () => {
+  if (!T.next && !endUi.other) { finishSession(); return; }
   unlockAudio();
   const name = T.next || $('#endedNextInput').value.trim() || 'Focus';
   logCurrent();
   T = newTimer(name, '', null, endChoice * MIN);
-  endChoice = null; $('#endedNextInput').value = '';
+  $('#endedNextInput').value = '';
   saveT(); route();
 });
 $('#endedPanel').addEventListener('click', e => {
@@ -991,21 +1098,29 @@ $('#endedPanel').addEventListener('click', e => {
   unlockAudio();
   const m = +b.dataset.extra;
   // Extra time is its own short segment, so it fills the screen and is easy to see.
-  Object.assign(T, { phase: 'running', startAt: now(), dur: m * MIN, pausedAt: null, pausedMs: 0, endedAt: null, early: null, resetMs: 0,
-    now: T.now, cues: { heads: true, last: false, checkins: 1e9, over: 0 } });
+  Object.assign(T, { phase: 'running', startAt: now(), dur: m * MIN, pausedAt: null, pausedMs: 0, endedAt: null, early: null,
+    pausedTotal: T.pausedTotal + (T.resetMs || 0), resetMs: 0, adjustMs: (T.adjustMs || 0) + m * MIN, cues: { heads: true, last: false, checkins: 1e9, over: 0 } });
   saveT(); route();
 });
-$('#finishBtn').addEventListener('click', () => {
-  logCurrent();
-  Object.assign(draft, { now: T.next || '', next: '', nextMin: null });
-  saveDraft();
-  T = null; endChoice = null; saveT(); route();
-});
-$('#resumeBtn').addEventListener('click', () => {
-  if (!T.early) return;
-  Object.assign(T, T.early, { phase: 'running', endedAt: null, early: null });
+$('#finishBtn').addEventListener('click', finishSession);
+// Back to the timer after finishing early. The end time stays pinned to the wall clock, unless the
+// timer was paused, in which case the pause simply continues. A reset pause taken meanwhile is moved
+// into pausedTotal so it neither counts as work nor shortens the next overtime.
+function resumeEarly() {
+  if (!T || !T.early) return;
+  const { wasPaused, ...snap } = T.early;
+  const endedAt = T.endedAt;
+  Object.assign(T, snap, { phase: wasPaused ? 'paused' : 'running', pausedAt: wasPaused ? endedAt : null, endedAt: null, early: null,
+    pausedTotal: T.pausedTotal + (T.resetMs || 0), resetMs: 0 });
+  if (remaining() <= 0) {
+    // Its end time has already passed: don't bring it back only to end it again with a bell.
+    Object.assign(T, { phase: 'ended', endedAt, early: null, cues: Object.assign(T.cues, { heads: true, last: true }) });
+    saveT(); route(); toast('Its end time has already passed.');
+    return;
+  }
   saveT(); route();
-});
+}
+$('#resumeBtn').addEventListener('click', resumeEarly);
 $('#resetBtn').addEventListener('click', () => {
   T.phase = 'reset'; T.reset = { startAt: now(), dur: S.resetSecs * SEC };
   saveT(); route();
@@ -1019,19 +1134,46 @@ function togglePause() {
   else { const p = now() - T.pausedAt; T.pausedMs += p; T.pausedTotal += p; T.pausedAt = null; T.phase = 'running'; }
   tickKey = ''; saveT(); renderRun();
 }
-$('#plus5').addEventListener('click', () => {
-  T.dur += 5 * MIN; T.planned += 5 * MIN;
-  const r = remaining();
-  if (r > windDown(T.dur)) T.cues.heads = false;
-  if (r > landing(T.dur)) T.cues.last = false;
-  tickKey = ''; saveT(); renderRun(); toast('Added 5 minutes. Ends ' + clock(startClock() + T.dur));
+// Add or remove time while running or paused. The plan in the history log is left alone;
+// the change is tracked in adjustMs instead.
+$('#runningPanel').addEventListener('click', e => {
+  const b = e.target.closest('[data-adj]'); if (!b) return;
+  adjustTime(+b.dataset.adj * MIN);
 });
-$('#doneBtn').addEventListener('click', () => {
-  const t = now();
-  if (T.pausedAt != null) { const p = t - T.pausedAt; T.pausedMs += p; T.pausedTotal += p; T.pausedAt = null; }
-  T.early = { startAt: T.startAt, dur: T.dur, pausedMs: T.pausedMs, cues: clone(T.cues) };
-  T.phase = 'ended'; T.endedAt = t; T.cues.over = 0; endChoice = null;
+function adjustTime(ms) {
+  if (!T || (T.phase !== 'running' && T.phase !== 'paused')) return;
+  if (remaining() + ms <= 0) {
+    // Removing more than is left ends the timer now, quietly (no bell: you chose this), and it can be undone.
+    finishNow();
+    toast('Ended now.', { label: 'Undo', fn: resumeEarly });
+    return;
+  }
+  T.dur += ms; T.adjustMs = (T.adjustMs || 0) + ms;
+  // Cues follow the new position: moments that are ahead again are re-armed, and moments that
+  // removing time jumped past are marked as done without playing, so nothing piles up.
+  const r = remaining();
+  T.cues.heads = r <= windDown(T.dur);
+  T.cues.last = r <= landing(T.dur);
+  const m = Math.abs(ms) / MIN;
+  tickKey = ''; saveT(); renderRun();
+  toast(`${ms > 0 ? 'Added' : 'Removed'} ${m} min. Ends ${clock(startClock() + T.dur)}`);
+}
+function finishNow() {
+  const t = now(), wasPaused = T.pausedAt != null;
+  if (wasPaused) { const p = t - T.pausedAt; T.pausedMs += p; T.pausedTotal += p; T.pausedAt = null; }
+  T.early = { startAt: T.startAt, dur: T.dur, pausedMs: T.pausedMs, cues: clone(T.cues), wasPaused };
+  T.phase = 'ended'; T.endedAt = t; T.cues.over = 0;
   saveT(); renderRun();
+}
+$('#doneBtn').addEventListener('click', finishNow);
+// Stop: abandon the timer. One tap, nothing is logged, back to a clean setup. Undo covers a slip.
+$('#stopBtn').addEventListener('click', () => {
+  const prevT = T, prevDraft = clone(draft);
+  T = null; resetDraft(); saveT(); route();
+  toast('Stopped. Nothing was saved.', { label: 'Undo', fn: () => {
+    if (T) return;
+    T = prevT; draft = prevDraft; saveDraft(); saveT(); route();
+  } });
 });
 $('#runNow').addEventListener('click', () => { if (S.work && S.workHideNames) { peekUntil = now() + 5 * SEC; renderRun(); setTimeout(renderRun, 5100); } });
 $('#nextCard').addEventListener('click', () => {
@@ -1104,7 +1246,7 @@ function tick() {
       }
     }
     if (r <= 0) {
-      T.phase = 'ended'; T.endedAt = t + r; T.cues.over = 0; endChoice = null; saveT();
+      T.phase = 'ended'; T.endedAt = t + r; T.cues.over = 0; saveT();
       if (fresh(-r)) cue('end', `Time’s up for ${nm(T.now, 'this')}.${nextName ? ' Next: ' + nextName + '.' : ''}`,
         `Time's up.${nextName ? ' Next is ' + nextName + '.' : ''}`);
     }
@@ -1134,9 +1276,9 @@ function updateTitle() {
   if (T && (T.phase === 'running' || T.phase === 'paused')) {
     const r = Math.max(0, remaining());
     const m = Math.max(1, Math.ceil(r / MIN));
-    title = `${m}m${T.phase === 'paused' ? ' (paused)' : ''} · ${hideNames() ? 'VizTime' : T.now}`;
+    if (!S.work) title = `${m}m${T.phase === 'paused' ? ' (paused)' : ''} · ${T.now}`;
     level = r / T.dur; warm = r <= windDown(T.dur);
-  } else if (T && (T.phase === 'ended' || T.phase === 'reset')) { title = 'Time to switch · VizTime'; level = 0; warm = true; }
+  } else if (T && (T.phase === 'ended' || T.phase === 'reset')) { if (!S.work) title = 'Time to switch · VizTime'; level = 0; warm = true; }
   if (document.title !== title) document.title = title;
   const key = level == null ? 'idle' : Math.round(level * 16) + (warm ? 'w' : 'c');
   if (key === lastFav) return;
@@ -1221,10 +1363,15 @@ $$('dialog').forEach(d => d.addEventListener('click', e => { if (e.target === d)
 
 /* toast */
 let toastT;
-function toast(msg) {
+function toast(msg, act) {
   let el = $('.toast'); if (!el) { el = document.createElement('div'); el.className = 'toast'; el.setAttribute('role', 'status'); document.body.appendChild(el); }
   el.textContent = msg; el.hidden = false;
-  clearTimeout(toastT); toastT = setTimeout(() => { el.hidden = true; }, 2600);
+  if (act) {
+    const b = document.createElement('button'); b.type = 'button'; b.textContent = act.label;
+    b.addEventListener('click', () => { el.hidden = true; act.fn(); });
+    el.appendChild(b);
+  }
+  clearTimeout(toastT); toastT = setTimeout(() => { el.hidden = true; }, act ? 7000 : 2600);
 }
 
 /* keyboard */
