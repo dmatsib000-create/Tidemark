@@ -408,7 +408,7 @@ Every button below is a native `<button type="button">` (or `type="submit"` in a
 
 ### Face switch — `.dot`
 
-**Description.** Work mode's choice of clock face: three 44px buttons, each drawing an 8px circle.
+**Description.** The choice of face in Work and Full modes: 44px buttons, each drawing an 8px circle. Work shows Level, Sun and Planner (the Disc dot is hidden, since a shrinking disc reads as a timer); Full adds Disc last, so the first three dots sit in the same places in both modes. Each mode remembers its own choice (`settings.face`, `settings.fullFace`, looked up through `faceSetting()` in draw.js). Simple has no switch and always shows the disc. In Full the dots sit under the time figures; in phone landscape they left-align with the other controls.
 
 | State | Visual |
 |---|---|
@@ -417,7 +417,7 @@ Every button below is a native `<button type="button">` (or `type="submit"` in a
 | Selected (`aria-pressed="true"`) | Filled ink |
 | Focus | 2px `--ochre-ink` outline |
 
-**Accessibility.** `role="group"` labeled "Clock style"; each dot has an `aria-label` naming the face (Level, Sun, Planner) and `aria-pressed`.
+**Accessibility.** `role="group"` labeled "Clock style" in Work and "Picture" in Full; each dot has an `aria-label` naming the face (Disc, Level, Sun, Planner) and `aria-pressed`.
 
 ```html
 <button type="button" class="dot" data-face="sun" aria-label="Sun" aria-pressed="false"></button>
@@ -483,7 +483,7 @@ Every button below is a native `<button type="button">` (or `type="submit"` in a
 
 ### Faces — `canvas.face`
 
-**Description.** The time picture, drawn by [js/faces.js](js/faces.js): `disc` (Full, Simple), `level`, `sun`, `planner` (Work). Each takes a model and the palette, so one drawing serves the page, the floating window and the video.
+**Description.** The time picture, drawn by [js/faces.js](js/faces.js): `disc` (Full, Simple), `level`, `sun`, `planner` (Work, and offered in Full). Level and Sun draw ink clock hands in Work, where they are the disguise, and soft hands in Full (`hands: 'soft'` in the model: `--ink` at 70% opacity, 70% width, never under 1.5px), so they don't compete with the time left. Soft hands measure 4.0:1 over the wash in light mode and 3.6:1 in dark. The hands and hub are one filled shape, so translucent ink doesn't pool darker where they cross. Each takes a model and the palette, so one drawing serves the page, the floating window and the video.
 
 | Mode | Role | Behavior |
 |---|---|---|
