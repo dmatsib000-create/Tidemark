@@ -61,4 +61,14 @@ python -m http.server 8000
 
 Then open http://localhost:8000.
 
+## Tests
+
+The timer model, saved data and the offline file list have tests that use Node's built-in runner, so there is nothing to install. With Node 20 or later:
+
+```bash
+node --test
+```
+
+They also run on every pull request. When adding a file the app needs offline, list it in `SHELL` in `sw.js` and bump `CACHE`; the tests fail if a script or font is missing from the list.
+
 Fonts: Newsreader and IBM Plex Mono, SIL Open Font License, stored in `fonts/`.

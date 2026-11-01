@@ -1,0 +1,9 @@
+{
+  "name": "viztime",
+  "private": true,
+  "description": "Not needed to run the app; only lets `npm test` run the tests in tests/.",
+  "type": "module",
+  "scripts": {
+    "test": "node --test"
+  }
+}
