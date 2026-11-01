@@ -2,6 +2,8 @@
 
 A calm visual timer for time blindness and transitions. Plain static files that install to a phone home screen and work offline. The look ("Afternoon paper") is described in [design-direction.md](design-direction.md) and documented as built in [design-system.md](design-system.md); the requirements are in [build-prompt.md](build-prompt.md).
 
+New to VizTime, or not technical? Start with the [plain-language guide](docs/guide.md), with pictures of every screen.
+
 ## Three modes
 
 - **Full.** What this time is for, what comes next, and an ochre wash on paper whose area is the time left. A dotted ring shows where the warning stage begins, so the end is visible from the start. Supporting numbers: time left and the end clock time. Pause, −5, −1, +1, +5, Finish now, Stop. Presets start in one tap.
