@@ -661,7 +661,7 @@ function updateTitle(now) {
 let pal = palette();
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { pal = palette(); });
 
-let warmth = 0, zoom = 0, lastFrame = 0;
+let warmth = 0, zoom = 0, lastFrame = 0, lastStep = performance.now();
 
 function targets(now) {
   if (!session) return { w: 0, z: 0 };
@@ -697,13 +697,12 @@ function paint(canvas, name, m) {
   drawFace(ctx, r.width, r.height, name, m, pal);
 }
 
-function frame(t) {
-  requestAnimationFrame(frame);
-  if (!frame.force && t - lastFrame < 80) return;
-  const dt = Math.min(1, (t - lastFrame) / 1000);
-  lastFrame = t;
-  frame.force = false;
-
+// Moves the warm light and the planner zoom toward their targets. Both the main
+// page and the floating window call it, so it measures real elapsed time.
+function step() {
+  const t = performance.now();
+  const dt = Math.min(1, Math.max(0, (t - lastStep) / 1000));
+  lastStep = t;
   const now = Date.now();
   const tg = targets(now);
   if (reducedMotion.matches) {
@@ -720,13 +719,38 @@ function frame(t) {
     floatDoc.documentElement.style.setProperty('--warmth', warmth.toFixed(4));
     floatDoc.documentElement.style.setProperty('--light-gain', gain);
   }
+}
 
-  if (!session || session.finishedAt) return;
-  const m = faceModel(now);
-  if (!document.hidden && body.dataset.screen === 'run') paint($('face'), faceName(), m);
-  if (floatDoc) paint(floatDoc.getElementById('pip-face'), faceName(), m);
+function frame(t) {
+  requestAnimationFrame(frame);
+  if (!frame.force && t - lastFrame < 80) return;
+  lastFrame = t;
+  frame.force = false;
+  step();
+  if (!session || session.finishedAt || document.hidden || body.dataset.screen !== 'run') return;
+  paint($('face'), faceName(), faceModel(Date.now()));
 }
 requestAnimationFrame(frame);
+
+// The floating window draws on its own animation frames. The main tab's frames
+// stop whenever that tab is in the background, which is exactly when the
+// floating window is in use; relying on them left a stale, stretched picture.
+let lastFloatFrame = 0;
+function floatFrame(t) {
+  if (!floatWin) return;
+  floatWin.requestAnimationFrame(floatFrame);
+  if (t - lastFloatFrame < 80) return;
+  lastFloatFrame = t;
+  step();
+  paintFloat();
+  // Background tabs may run timers only once a minute; keep the text and cues current.
+  if (Date.now() - lastTick >= 1000) tick();
+}
+
+function paintFloat() {
+  if (!floatDoc || !session || session.finishedAt) return;
+  paint(floatDoc.getElementById('pip-face'), faceName(), faceModel(Date.now()));
+}
 
 // The picture-in-picture video keeps drawing on a timer, since animation
 // frames stop when the page is in the background.
@@ -771,6 +795,9 @@ async function openFloat() {
       floatDoc = floatWin.document;
       buildFloat(floatDoc);
       renderFloatText(Date.now());
+      floatWin.addEventListener('resize', paintFloat);
+      lastFloatFrame = 0; // each window's frame clock starts from zero
+      floatWin.requestAnimationFrame(floatFrame);
     } else if (canFloatVideo()) {
       paintVideo();
       videoTimer = setInterval(paintVideo, 500);
@@ -799,7 +826,7 @@ function buildFloat(doc) {
     <div class="light" aria-hidden="true"></div>
     <p class="pip-title" id="pip-title"></p>
     <p class="pip-next" id="pip-next"></p>
-    <canvas class="pip-face" id="pip-face" role="img"></canvas>
+    <div class="pip-face-wrap"><canvas class="pip-face" id="pip-face" role="img"></canvas></div>
     <p class="pip-fig mono" id="pip-fig"></p>
     <div class="pip-row" id="pip-row">
       <button type="button" class="ctl mono" data-padj="-5" aria-label="Take 5 minutes off">−5</button>
