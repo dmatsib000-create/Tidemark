@@ -626,12 +626,16 @@ async function notify(cue) {
 // meanwhile is settled silently. A desktop tab in the background still ticks
 // about once a minute, so its cues play, at most a minute late.
 const FROZEN_GAP = 65_000;
-let lastTick = Date.now();
+// Animation frames can stay stopped after an iPhone browser app returns from
+// the background, until the screen is touched. Past this gap the tick paints.
+const PAINT_STALL = 1500;
+let lastTick = Date.now(), lastPaint = Date.now();
 
 function tick() {
   const now = Date.now();
   const frozen = now - lastTick > FROZEN_GAP;
   lastTick = now;
+  if (!document.hidden && now - lastPaint > PAINT_STALL) drawMain();
   $('bar-date').textContent = dateFmt.format(now);
   $('w-time').textContent = $('s-clock').textContent = fmtClock(now);
   if (body.dataset.screen !== 'run') { labelChips(now); if (mode === 'work') labelMain(now); }
@@ -722,16 +726,34 @@ function step() {
   }
 }
 
+let frameId = 0;
 function frame(t) {
-  requestAnimationFrame(frame);
+  frameId = requestAnimationFrame(frame);
   if (!frame.force && t - lastFrame < 80) return;
   lastFrame = t;
   frame.force = false;
+  drawMain();
+  // Timers can stall while frames run; keep the text and cues current.
+  if (Date.now() - lastTick >= 1000) tick();
+}
+frameId = requestAnimationFrame(frame);
+
+function drawMain() {
+  lastPaint = Date.now();
   step();
   if (!session || session.finishedAt || document.hidden || body.dataset.screen !== 'run') return;
   paint($('face'), faceName(), faceModel(Date.now()));
 }
-requestAnimationFrame(frame);
+
+// Coming back to the page: bring everything up to date at once, and restart
+// the frame loop in case the browser left it stopped.
+function wake() {
+  if (document.hidden) return;
+  tick();
+  drawMain();
+  cancelAnimationFrame(frameId);
+  frameId = requestAnimationFrame(frame);
+}
 
 // The floating window draws on its own animation frames. The main tab's frames
 // stop whenever that tab is in the background, which is exactly when the
@@ -915,7 +937,13 @@ async function syncWake() {
   wakeBusy = false;
 }
 
-document.addEventListener('visibilitychange', () => { tick(); syncWake(); frame.force = true; });
+document.addEventListener('visibilitychange', () => {
+  syncWake();
+  frame.force = true;
+  if (document.hidden) tick(); else wake();
+});
+addEventListener('pageshow', wake);
+addEventListener('focus', wake);
 // Audio needs a tap to start, including after a reload with a session running.
 document.addEventListener('pointerdown', unlockAudio, { passive: true });
 
