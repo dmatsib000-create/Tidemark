@@ -49,13 +49,13 @@
     <p class="work-time setup-clock" id="s-clock" aria-hidden="true"></p>
     <form id="setup-form" autocomplete="off" novalidate>
       <label class="field field-title">
-        <span class="label mono"><span class="only-full">What this time is for</span><span class="only-work">Now</span></span>
+        <span class="label mono"><span class="only-full">What this time is for</span><span class="only-work">Now</span> <span class="soft">(optional)</span></span>
         <input class="serif-input big" id="f-title" name="title" maxlength="80" enterkeyhint="next">
       </label>
       <div class="ribbon" id="f-ribbon" hidden><span class="label mono">Where you left off</span><span id="f-ribbon-text"></span></div>
 
       <label class="field">
-        <span class="label mono"><span class="only-full">What comes next</span><span class="only-work">Next</span></span>
+        <span class="label mono"><span class="only-full">What comes next</span><span class="only-work">Next</span> <span class="soft">(optional)</span></span>
         <input class="serif-input italic" id="f-next" name="next" maxlength="80" enterkeyhint="next">
       </label>
       <label class="field field-step" id="f-step-wrap">
@@ -208,7 +208,7 @@
 
     <form class="leave-note" id="leave-note" hidden novalidate>
       <label class="field">
-        <span class="label mono"><span class="only-full">Where are you leaving off?</span><span class="only-work">Note</span></span>
+        <span class="label mono"><span class="only-full">Where are you leaving off?</span><span class="only-work">Note</span> <span class="soft">(optional)</span></span>
         <input class="plain-input" id="ln-text" maxlength="140" enterkeyhint="done">
       </label>
       <p class="hint mono" id="ln-saved" aria-live="polite"></p>
@@ -244,7 +244,7 @@
 
     <form class="leave-note" id="l-note" novalidate>
       <label class="field">
-        <span class="label mono" id="l-note-label"></span>
+        <span class="label mono"><span id="l-note-label"></span> <span class="soft">(optional)</span></span>
         <input class="plain-input" id="l-note-text" maxlength="140" enterkeyhint="done">
       </label>
       <p class="hint mono" id="l-note-saved" aria-live="polite"></p>
