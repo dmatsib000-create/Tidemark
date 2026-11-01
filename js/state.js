@@ -26,6 +26,10 @@ export const clone = o => JSON.parse(JSON.stringify(o));
 const DEFAULTS = {
   defaultMode: 'full', face: 'planner', fullFace: 'disc', bundle: 'balanced', ...clone(BUNDLES.balanced),
   volume: 0.6, flash: false, wake: true, notify: false, rememberLengths: false,
+  // Minutes before the end; none chosen means one automatic warning.
+  warnStages: [5, 1],
+  // The most extra time (minutes) "More time" gives one activity; null is no limit.
+  extraCapMin: null,
 };
 const stored = load('settings', {});
 export const settings = { ...clone(DEFAULTS), ...stored, cues: { ...clone(DEFAULTS.cues), ...(stored.cues || {}) } };

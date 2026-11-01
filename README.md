@@ -30,10 +30,12 @@ Switch modes with **Full · Work · Simple** at the top of the screen, or **Alt+
 
 ## The handoff
 
+- **Warnings come in stages** you choose in **Menu → Comfort** (tap the minutes: 30, 15, 10, 5, 2, 1; 5 and 1 to start with). Each stage plays the warning cue you set there. The warm light and the next card begin at the second-to-last stage (with one stage, at that one), never before halfway; earlier stages are heads-up cues only. Stages not shorter than the session are skipped, and with none chosen there is one automatic warning. **Warning before the end** on the setup form sets a single warning for one session. A stage that passed while the app was closed is never played late.
 - The whole page warms slightly through the warning stage, like late-afternoon light, and settles at the finish. That light is the main cue in every mode.
 - In Full mode the next activity gets its own card in the warning stage. It fills and grows as the end approaches and shows the first small step and your last note for it.
-- The note about where you left off is offered during the warning stage (and on the finish screen). It reappears as a ribbon bookmark the next time you start that activity.
-- The finish screen puts the next activity first with one main button, such as "Start Lunch · 25 min", and other lengths below it. Turn on **Menu → Activities → Remember how long each activity usually runs** and that button suggests the length you last used for that activity. Extra time (+2, +5, +10) starts its own short, full-size segment.
+- The note about where you left off is offered during the warning stage (and on the finish screen). Your recent notes are there as one-tap chips. It reappears as a ribbon bookmark the next time you start that activity.
+- **Come back to this** adds a return slot for the activity to today's plan: after the next item, at the end of today, or at a time you choose (which works like an event). The note goes with the slot and shows as the ribbon when the slot comes up and when it starts. An activity has one return slot; choosing again moves it, with Undo.
+- The finish screen puts the next activity first with one main button, such as "Start Lunch · 25 min", and other lengths below it. Turn on **Menu → Activities → Remember how long each activity usually runs** and that button suggests the length you last used for that activity. Extra time (+2, +5, +10; in Work mode the end times they give) starts its own short, full-size segment. **Menu → Activities → Most extra time per activity** sets a cap on that extra time. The choices shrink to what fits, including the exact remainder, and once it is used the finish screen says so plainly ("That is all the extra time you set for Writing."). Minutes added with +1 or +5 while running don't count.
 - **Until** sets a session by when the next thing starts, minus time to get there.
 
 ## Stop, finish, reset
@@ -45,7 +47,7 @@ Switch modes with **Full · Work · Simple** at the top of the screen, or **Alt+
 
 ## Comfort
 
-**Quiet**, **Balanced** and **Noticeable** set everything at once. Under "Adjust each cue": a tone and a spoken line per moment (halfway, warning, finish), volume, light strength, a slow breathing light, three slow flashes, keeping the screen awake, and system notifications on a computer. Tones are soft bells with a slow attack. Work mode never speaks or notifies about anything except "Session finished."
+**Quiet**, **Balanced** and **Noticeable** set everything at once. Under "Adjust each cue": a tone and a spoken line per moment (halfway, each warning, finish), volume, light strength, a slow breathing light, three slow flashes, keeping the screen awake, and system notifications on a computer. Tones are soft bells with a slow attack. Work mode never speaks or notifies about anything except "Session finished."
 
 Sessions are stored as timestamps inside the day plan, so a running session survives closing and reopening the app. A cue whose moment passed while the app was closed is never played late.
 

@@ -80,10 +80,18 @@ export function labelChips(now) {
   [...$('u-chips').children].forEach(asTime);
   [...$('f-chips').children].forEach(asMinutes);
   [...$('l-chips').children].forEach(mode === 'work' ? asTime : asMinutes);
+  // More time reads "+5 min", or in Work mode the end time it gives.
+  for (const b of document.querySelectorAll('[data-extend]')) {
+    const min = +b.dataset.extend;
+    b.textContent = mode === 'work' ? fmtShort(now + min * MIN) : `+${min} min`;
+    b.setAttribute('aria-label', mode === 'work' ? `Until ${fmtClock(now + min * MIN)}` : `${min} more minutes`);
+  }
 }
 
-export function showRibbon(wrapId, textId, title) {
-  const note = getNote(title);
+// `own` is a note carried by a plan item (a return slot), shown in place of
+// the activity's last note.
+export function showRibbon(wrapId, textId, title, own) {
+  const note = own || getNote(title);
   $(wrapId).hidden = !note;
   if (note) $(textId).textContent = note.text;
 }
@@ -116,11 +124,11 @@ function readForm() {
     if (totalMs < MIN) return { error: 'That time has passed or is too close. Choose a later time.' };
     totalMs = Math.round(totalMs / 1000) * 1000;
   }
+  // "usual" leaves the warnings to Menu; a single time overrides them once.
   const w = $('f-warn').value;
-  let warnMs = w === 'auto' ? undefined : +w * MIN;
-  if (warnMs && warnMs >= totalMs) warnMs = totalMs / 2;
   return {
-    title: $('f-title').value, next: $('f-next').value, step: $('f-step').value, totalMs, warnMs,
+    title: $('f-title').value, next: $('f-next').value, step: $('f-step').value, totalMs,
+    warnStages: w === 'auto' ? undefined : [+w * MIN],
   };
 }
 
@@ -145,7 +153,7 @@ function renderPresets() {
     start.append(name, len);
     start.addEventListener('click', () => startSession({
       title: p.title, next: p.next, step: p.step, totalMs: p.minutes * MIN,
-      warnMs: p.warn === 'auto' ? undefined : Math.min(+p.warn * MIN, (p.minutes * MIN) / 2),
+      warnStages: p.warn === 'auto' ? undefined : [+p.warn * MIN],
     }));
     const del = document.createElement('button');
     del.type = 'button';

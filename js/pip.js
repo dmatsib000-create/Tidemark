@@ -87,7 +87,7 @@ export function buildFloat(doc) {
     </div>`;
   // The handoff buttons do exactly what the main finish screen's buttons do.
   doc.getElementById('pip-main').addEventListener('click', () => $('l-main').click());
-  doc.getElementById('pip-more').addEventListener('click', () => document.querySelector('[data-extend="5"]').click());
+  doc.getElementById('pip-more').addEventListener('click', () => floatExtend()?.click());
   doc.getElementById('pip-done').addEventListener('click', () => $('l-done').click());
   doc.getElementById('pip-pause').addEventListener('click', () => $('pause-btn').click());
   for (const b of doc.querySelectorAll('[data-padj]')) {
@@ -110,6 +110,11 @@ export function buildFloat(doc) {
 
 let floatRevealUntil = 0;
 
+function floatExtend() {
+  const shown = [...document.querySelectorAll('[data-extend]')].filter(b => !b.hidden);
+  return shown.find(b => b.dataset.extend === '5') || shown[shown.length - 1] || null;
+}
+
 export function renderFloatText(now) {
   if (!floatDoc || !session) return;
   const work = mode === 'work';
@@ -127,6 +132,11 @@ export function renderFloatText(now) {
   g('pip-row').hidden = work || finished;
   // At the finish the window offers the same handoff as the main screen.
   g('pip-end').hidden = !finished;
+  // The window's one More time button mirrors the finish screen's: 5 minutes,
+  // or the most the cap still allows, worded the same way.
+  const more = floatExtend();
+  g('pip-more').hidden = !more;
+  if (more) g('pip-more').textContent = more.textContent;
   const canStart = !!(finished && session.next && mode !== 'simple');
   g('pip-main').hidden = !canStart;
   if (canStart) g('pip-main').textContent = $('l-main').textContent;

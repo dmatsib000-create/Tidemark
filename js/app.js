@@ -9,6 +9,7 @@
 // pip.js      the floating window's content and the picture-in-picture video
 // menu.js     the menu sheet and the mode switch
 // planscreen.js  the plan screen: now, next, later, and adding to the day
+// bookmark.js the where-I-left-off chips and return slots at a transition
 //
 // engine.js (the timer) and plan.js (the day plan) are pure: no page, and
 // `now` is always a parameter, so the tests can run them.
@@ -24,6 +25,7 @@ import './session.js';
 import './pip.js';
 import './menu.js';
 import './planscreen.js';
+import './bookmark.js';
 
 resetForm();
 render();

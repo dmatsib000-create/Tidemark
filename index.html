@@ -107,7 +107,7 @@
       <label class="inline-field field">
         <span class="label mono"><span class="only-full">Warning before the end</span><span class="only-work">Lead-in</span></span>
         <select class="select" id="f-warn">
-          <option value="auto">automatic</option><option value="2">2 min</option><option value="5">5 min</option><option value="10">10 min</option>
+          <option value="auto">usual</option><option value="2">2 min</option><option value="5">5 min</option><option value="10">10 min</option>
         </select>
       </label>
 
@@ -214,6 +214,7 @@
         <input class="line-input" id="ln-text" maxlength="140" enterkeyhint="done">
       </label>
       <p class="hint mono" id="ln-saved" aria-live="polite"></p>
+      <div data-bookmark="ln-text"></div>
     </form>
 
   </section>
@@ -251,10 +252,12 @@
         <input class="line-input" id="l-note-text" maxlength="140" enterkeyhint="done">
       </label>
       <p class="hint mono" id="l-note-saved" aria-live="polite"></p>
+      <div data-bookmark="l-note-text"></div>
     </form>
 
     <div class="landing-more">
       <span class="label mono" id="l-more-label"></span>
+      <p class="hint" id="l-capped" hidden></p>
       <button type="button" class="ctl mono" data-extend="2"></button>
       <button type="button" class="ctl mono" data-extend="5"></button>
       <button type="button" class="ctl mono" data-extend="10"></button>
@@ -331,13 +334,23 @@
         <button type="button" class="seg-btn" data-bundle="noticeable" aria-pressed="false">Noticeable</button>
       </div>
       <p class="hint" id="m-bundle-hint"></p>
+      <p class="label mono m-stages-label" id="m-stages-label">Warnings, minutes before the end</p>
+      <div class="chips" id="m-stages" role="group" aria-labelledby="m-stages-label">
+        <button type="button" class="chip" data-stage="30" aria-pressed="false">30</button>
+        <button type="button" class="chip" data-stage="15" aria-pressed="false">15</button>
+        <button type="button" class="chip" data-stage="10" aria-pressed="false">10</button>
+        <button type="button" class="chip" data-stage="5" aria-pressed="false">5</button>
+        <button type="button" class="chip" data-stage="2" aria-pressed="false">2</button>
+        <button type="button" class="chip" data-stage="1" aria-pressed="false">1</button>
+      </div>
+      <p class="hint" id="m-stages-hint"></p>
       <details class="details">
         <summary class="mono">Adjust each cue</summary>
         <table class="cue-table">
           <thead><tr><th></th><th class="mono">Tone</th><th class="mono">Voice</th></tr></thead>
           <tbody>
             <tr><th class="mono" scope="row">Halfway</th><td><input type="checkbox" data-cue="half.sound" aria-label="Tone at halfway"></td><td><input type="checkbox" data-cue="half.speak" aria-label="Voice at halfway"></td></tr>
-            <tr><th class="mono" scope="row">Warning</th><td><input type="checkbox" data-cue="warn.sound" aria-label="Tone at warning"></td><td><input type="checkbox" data-cue="warn.speak" aria-label="Voice at warning"></td></tr>
+            <tr><th class="mono" scope="row">Warnings</th><td><input type="checkbox" data-cue="warn.sound" aria-label="Tone at each warning"></td><td><input type="checkbox" data-cue="warn.speak" aria-label="Voice at each warning"></td></tr>
             <tr><th class="mono" scope="row">Finish</th><td><input type="checkbox" data-cue="finish.sound" aria-label="Tone at finish"></td><td><input type="checkbox" data-cue="finish.speak" aria-label="Voice at finish"></td></tr>
           </tbody>
         </table>
@@ -357,6 +370,12 @@
       <label class="check"><input type="checkbox" id="m-remember"> <span>Remember how long each activity usually runs</span></label>
       <p class="hint">When on, the finish screen suggests the length you last used for the next activity. Nothing else is recorded.</p>
       <button type="button" class="text-btn mono" id="m-forget">Forget saved lengths</button>
+      <label class="inline-field m-cap"><span class="mono">Most extra time per activity</span>
+        <select class="select" id="m-cap">
+          <option value="">no limit</option><option value="5">5 min</option><option value="10">10 min</option>
+          <option value="15">15 min</option><option value="30">30 min</option><option value="60">60 min</option>
+        </select></label>
+      <p class="hint">Counts “More time” on the finish screen. Minutes added while a session runs don’t count.</p>
     </section>
 
     <section class="sheet-section" id="m-float-section">
@@ -365,6 +384,24 @@
     </section>
   </form>
 </dialog>
+
+<!-- The bookmark at a transition, copied into both note forms by bookmark.js -->
+<template id="bk-tpl">
+  <div class="bookmark">
+    <div class="chips note-chips" data-bk="chips" role="group" aria-label="Recent notes"></div>
+    <p class="label mono bk-label">Come back to this <span class="soft">(optional)</span></p>
+    <div class="bk-where" role="group" aria-label="When to come back">
+      <button type="button" class="ctl mono" data-where="next" aria-pressed="false">After the next item</button>
+      <button type="button" class="ctl mono" data-where="end" aria-pressed="false">At the end of today</button>
+      <button type="button" class="ctl mono" data-where="at" aria-pressed="false">At a time…</button>
+    </div>
+    <div class="inline-field bk-at" data-bk="at" hidden>
+      <input class="box-input time" type="time" aria-label="Come back at">
+      <button type="button" class="ctl mono" data-bk="add">Add</button>
+    </div>
+    <p class="hint mono" data-bk="status" aria-live="polite"></p>
+  </div>
+</template>
 
 <div class="toast" id="toast" role="status" hidden><span id="toast-text"></span><button type="button" class="text-btn mono" id="toast-undo">Undo</button></div>
 <p class="sr-only" id="live" aria-live="polite"></p>

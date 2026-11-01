@@ -16,6 +16,10 @@ const { MIN } = E;
 
 /* ---------- Session lifecycle ---------- */
 
+// The person's usual warnings, from Menu, in ms.
+const usualStages = () => settings.warnStages.map(m => m * MIN);
+export const extraCapMs = () => (settings.extraCapMin ? settings.extraCapMin * MIN : undefined);
+
 // Per-activity lengths are kept only when the person turns this on in Menu.
 export const suggestedMinutes = title => (settings.rememberLengths && load('lengths', {})[noteKey(title)]) || 25;
 
@@ -40,7 +44,7 @@ export function startSession(opts) {
   unlockAudio();
   rememberLength(opts);
   $('toast').hidden = true;
-  if (P.startNow(plan, opts, Date.now())) started();
+  if (P.startNow(plan, { ...opts, warnStages: opts.warnStages ?? usualStages() }, Date.now())) started();
 }
 
 // Starts an item from the plan; `minutes` is a length chosen at the handoff.
@@ -49,7 +53,7 @@ export function startPlanItem(id, minutes) {
   if (!item) return;
   unlockAudio();
   const totalMs = minutes ? minutes * MIN : undefined;
-  if (P.startItem(plan, id, Date.now(), { totalMs, fallbackMs: suggestedMinutes(item.title) * MIN })) {
+  if (P.startItem(plan, id, Date.now(), { totalMs, warnStages: usualStages(), fallbackMs: suggestedMinutes(item.title) * MIN })) {
     rememberLength({ title: item.title, totalMs: item.run.totalMs });
     $('toast').hidden = true;
     started();
@@ -59,7 +63,8 @@ export function startPlanItem(id, minutes) {
 // More time on what just finished: a short new segment of the same activity.
 export function extendSession(minutes) {
   $('toast').hidden = true;
-  if (P.extend(plan, minutes * MIN, Date.now())) started();
+  if (P.extend(plan, minutes * MIN, Date.now(), { capMs: extraCapMs(), warnStages: usualStages() })) started();
+  else { render(); toast('That is more than the extra time you set.'); }
 }
 
 // Stopping keeps the time spent as part of the day; Undo puts the run back.

@@ -19,7 +19,7 @@ test('a new session ends at start plus length and trims its words', () => {
   assert.equal(s.endAt, T0 + 25 * MIN);
   assert.equal(s.title, 'Notes');
   assert.equal(s.next, 'Lunch');
-  assert.equal(s.autoWarn, true);
+  assert.deepEqual(s.warnSrc, []);
   assert.equal(E.remaining(s, T0 + 10 * MIN), 15 * MIN);
 });
 
@@ -134,4 +134,63 @@ test('an end time just after midnight counts as tonight, not this morning', () =
 
 test('an end time earlier today stays in the past', () => {
   assert.ok(E.untilMs('13:10', 0, T0) < 0);
+});
+
+test('stages shorter than the session are kept; the light starts at the last-but-one', () => {
+  const r = E.resolveStages([MIN, 15 * MIN, 5 * MIN, 5 * MIN], 25 * MIN);
+  assert.deepEqual(r.stages, [15 * MIN, 5 * MIN, MIN]);
+  assert.equal(r.warnMs, 5 * MIN);
+  // A stage not shorter than the session is skipped.
+  assert.deepEqual(E.resolveStages([30 * MIN, 5 * MIN], 20 * MIN), { stages: [5 * MIN], warnMs: 5 * MIN });
+  // No stages asked for, or none that fit: one automatic warning.
+  assert.deepEqual(E.resolveStages([], 25 * MIN), { stages: [E.autoWarning(25 * MIN)], warnMs: E.autoWarning(25 * MIN) });
+  assert.deepEqual(E.resolveStages([5 * MIN], 4 * MIN).stages, [E.autoWarning(4 * MIN)]);
+});
+
+test('the warm light never starts before halfway', () => {
+  const r = E.resolveStages([5 * MIN, MIN], 6 * MIN);
+  assert.equal(r.warnMs, 3 * MIN);
+  assert.deepEqual(r.stages, [3 * MIN, MIN]);
+});
+
+test('each stage plays once, in order, and the light follows the last-but-one', () => {
+  const s = E.createSession({ totalMs: 30 * MIN, warnStages: [15 * MIN, 5 * MIN, MIN] }, T0);
+  assert.equal(s.warnMs, 5 * MIN);
+  assert.deepEqual(E.dueCues(s, T0 + 15 * MIN), ['warn']); // halfway and the 15 minute stage together
+  assert.equal(E.stage(s, T0 + 20 * MIN), 'running');
+  assert.deepEqual(E.dueCues(s, T0 + 25 * MIN), ['warn']);
+  assert.equal(E.stage(s, T0 + 25 * MIN), 'warning');
+  assert.deepEqual(E.dueCues(s, T0 + 26 * MIN), []);
+  assert.deepEqual(E.dueCues(s, T0 + 29 * MIN), ['warn']);
+  assert.deepEqual(E.dueCues(s, T0 + 30 * MIN), ['finish']);
+});
+
+test('a stage passed while the app was closed is never played late', () => {
+  const s = E.createSession({ totalMs: 30 * MIN, warnStages: [15 * MIN, 5 * MIN, MIN] }, T0);
+  E.settle(s, T0 + 26 * MIN);
+  assert.deepEqual(E.dueCues(s, T0 + 26 * MIN), []);
+  assert.deepEqual(E.dueCues(s, T0 + 29 * MIN), ['warn']);
+});
+
+test('adding time brings back the stages it moves into the future', () => {
+  const s = E.createSession({ totalMs: 10 * MIN, warnStages: [15 * MIN, 5 * MIN, MIN] }, T0);
+  assert.deepEqual(s.stages, [5 * MIN, MIN]); // 15 doesn't fit in 10
+  E.dueCues(s, T0 + 6 * MIN); // the 5 minute stage plays
+  E.adjust(s, 20 * MIN, T0 + 6 * MIN); // now 30 minutes long, 24 left
+  assert.deepEqual(s.stages, [15 * MIN, 5 * MIN, MIN]);
+  assert.equal(s.warnMs, 5 * MIN);
+  assert.deepEqual(E.dueCues(s, T0 + 15 * MIN), ['warn']);
+});
+
+test('a session saved with one warning keeps working', () => {
+  const saved = more => ({ id: 'x', title: '', next: '', step: '', kind: 'main', totalMs: 20 * MIN, warnMs: 5 * MIN, autoWarn: false,
+    endAt: T0 + 20 * MIN, pausedAt: null, finishedAt: null, fired: { half: true, warn: false, finish: false }, ...more });
+  const old = saved();
+  assert.deepEqual(E.dueCues(old, T0 + 15 * MIN), ['warn']);
+  assert.deepEqual(old.stages, [5 * MIN]);
+  assert.deepEqual(E.dueCues(old, T0 + 16 * MIN), []);
+  const auto = saved({ autoWarn: true, warnMs: E.autoWarning(20 * MIN), fired: { half: true, warn: true, finish: false } });
+  E.settle(auto, T0 + 19 * MIN);
+  assert.deepEqual(E.dueCues(auto, T0 + 19 * MIN), []);
+  assert.deepEqual(auto.warnSrc, []);
 });

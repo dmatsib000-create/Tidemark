@@ -47,7 +47,7 @@ Tests cover the timer model ([js/engine.js](js/engine.js)), the day plan ([js/pl
 
 **Offline file list.** A new file the app needs goes in `SHELL` in [sw.js](sw.js), and `CACHE` gets bumped. The tests fail if a script or font is missing. The worker fetches network-first, so editing an existing file needs no bump.
 
-**Sessions are timestamps.** A session is plain data with `endAt`, `pausedAt` and `finishedAt`, so it survives closing the app. A cue whose moment passed while the app was closed is never played late (`settle` in engine.js). Keep timer logic in engine.js, pure and testable, with `now` as a parameter.
+**Sessions are timestamps.** A session is plain data with `endAt`, `pausedAt` and `finishedAt`, so it survives closing the app. A cue whose moment passed while the app was closed is never played late (`settle` in engine.js). Cues come from `cuePoints` (halfway, each warning stage, finish); `warnMs` is the stage where the warm light starts, so add new cues there, not in the drawing code. Keep timer logic in engine.js, pure and testable, with `now` as a parameter.
 
 **The day plan owns the session.** The saved data is the plan (`tidemark:plan`, logic in [js/plan.js](js/plan.js), pure like engine.js). Each started item holds its session as `run`; `session` in state.js is the current item's run. Change the plan only through plan.js functions followed by `persist()`, which also refreshes the running session's "then" line from the plan. Never store `next` anywhere else.
 

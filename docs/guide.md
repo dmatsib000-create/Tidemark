@@ -74,14 +74,17 @@ You can close Tidemark or switch off your phone and come back later. It picks up
 
 <img src="images/full-warning.png" alt="Three minutes left: the disc is small and a card for Lunch fills the lower screen" width="260" align="right">
 
-A few minutes before the end (about 15% of the session, between 2 and 10 minutes), Tidemark moves into its **getting close** stage:
+Tidemark warns you before the end in stages you choose. To start with, there is one at 5 minutes and one at 1 minute. Change them in **Menu → Comfort → Warnings** by tapping the minutes you want (30, 15, 10, 5, 2, 1). With 15, 5 and 1, you get a gentle heads-up at 15 minutes, the **getting close** stage begins at 5, and a last cue plays at 1.
+
+When the getting close stage begins (the second-to-last warning you chose):
 
 - The whole screen warms slightly. This is the main signal, and you can notice it out of the corner of your eye.
 - A card for what comes next appears and slowly fills as the end approaches, with the first small step on it.
-- You're offered a box for a quick note about where you're leaving off, while you still remember.
-- If you've turned on a sound, a soft bell plays.
+- You're offered a box for a quick note about where you're leaving off, while you still remember. Your recent notes appear as buttons, so one tap can fill it.
+- Under it, **Come back to this** puts the activity back in today's plan for later: **After the next item**, **At the end of today**, or **At a time…**. When that time comes, your note is waiting on the screen.
+- If you've turned on a sound, a soft bell plays at each warning.
 
-You can choose how long this stage lasts with **Warning before the end** when setting up.
+To use a single, different warning for one session, choose it under **Warning before the end** when setting up.
 
 <br clear="right">
 
@@ -92,8 +95,8 @@ You can choose how long this stage lasts with **Warning before the end** when se
 The finish screen puts **what's next** first:
 
 - One large button starts it straight away, for example **Start Lunch · 25 min**. Other lengths are underneath.
-- The note box is here too, in case you didn't write one earlier.
-- **More time** (+2, +5, +10 min) gives you a short new session to wrap up, shown at full size rather than as a tiny extension.
+- The note box is here too, with **Come back to this**, in case you didn't use them earlier.
+- **More time** (+2, +5, +10 min) gives you a short new session to wrap up, shown at full size rather than as a tiny extension. If you like a limit, set **Menu → Activities → Most extra time per activity**. The buttons then offer only what's left, and when it's all used the screen simply says so.
 - **Done** returns to a blank setup, or to your plan if more is planned.
 
 Nothing here tells you that you were late or stopped early. Stopping early and running over are both normal.
@@ -144,7 +147,7 @@ Open **Menu → Comfort**. Three one-tap choices set everything at once:
 | **Balanced** (the starting choice) | A soft bell when the "getting close" stage begins and at the end. Normal warming. |
 | **Noticeable** | A bell at halfway too, a spoken reminder at the warning and the end, stronger warming, and a slow "breathing" light at the finish. |
 
-**Adjust each cue** lets you set each one yourself: a bell or a spoken line at halfway, at the warning and at the finish, plus volume, how strong the warm light is, three slow flashes, and whether the screen stays awake. The bells are soft and fade in slowly; there is never a harsh beep.
+**Warnings** sets when the warnings come (see "Getting close to the end"). **Adjust each cue** lets you set each one yourself: a bell or a spoken line at halfway, at each warning and at the finish, plus volume, how strong the warm light is, three slow flashes, and whether the screen stays awake. The bells are soft and fade in slowly; there is never a harsh beep.
 
 In Work mode, Tidemark never speaks or sends notices about anything except "Session finished."
 

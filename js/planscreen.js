@@ -50,7 +50,7 @@ function row(item, r, { first, last, canStart, now }) {
   const what = el('span', 'plan-what');
   what.append(el('span', item.kind === 'break' ? 'plan-title italic' : 'plan-title', titleOf(item)));
   // An untitled break is already called "Break".
-  const kind = item.extOf ? 'More time' : item.title ? KIND_LABEL[item.kind] : '';
+  const kind = item.extOf ? 'More time' : item.returnOf ? 'Return' : item.title ? KIND_LABEL[item.kind] : '';
   if (kind) what.append(' ', el('span', 'label mono plan-kind', kind));
   if (r.state !== 'done' && item.plannedMs) what.append(' ', el('span', 'mono plan-len', lenText(item.plannedMs)));
   li.append(el('span', 'mono plan-when', whenText(r)), what);

@@ -34,3 +34,10 @@ export function setNote(title, text) {
   else delete notes[k];
   save('notes', notes);
 }
+
+// The latest different notes, newest first, offered as one-tap chips.
+export function recentNotes(limit = 3, except = '') {
+  const seen = new Set([except.trim()]);
+  return Object.values(load('notes', {})).sort((a, b) => b.at - a.at)
+    .map(n => n.text).filter(t => !seen.has(t) && seen.add(t)).slice(0, limit);
+}
