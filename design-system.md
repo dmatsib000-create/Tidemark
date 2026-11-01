@@ -24,10 +24,10 @@ All findings were fixed on 2026-11-01, on the `design-system-doc` branch, except
 |---|---|
 | Next card off-screen in the warning | Moved above the controls in index.html. At 1024×768 it now shows in full; the controls start just below it. |
 | PiP video warmth | `palette()` reads `--light-alpha` and `--light-blend`; `paintWarmth` uses them with the matching canvas blend mode. |
-| Reduced motion and finish cues | Decided: keep them, gentler. Under reduced motion, breathing slows to 12s and the flashes become three soft 4s swells (peak 0.35). |
+| Reduced motion and finish cues | Decided: keep them, gentler. Under reduced motion, breathing slows to 12s and the flashes become three soft 4s swells (peak 0.35). Breathing now starts when the flashes end rather than at a fixed 5s. |
 | Mode switch margin | `.seg.mode-switch` now beats `.seg`; the switch and Menu share a center line. |
 | 320px adjust row | `−1`/`+1` hide below 360px. |
-| Finish screen chips | Three per row below 420px. |
+| Finish screen chips | Three per row at 440px and below (covers the 428–430px iPhones). Setup chips narrowed to `--tap` (44px) so six fit with room to spare at 360px. |
 | Type tokens | `--type-title`, `--type-next`, `--type-body`, `--type-label`, `--type-figure` added and used. The shipped title and next sizes were kept and design-direction.md updated to match. One-off sizes stay hand-tuned. |
 | Fonts in JS | `SERIF` and `MONO` exported from faces.js with the CSS stacks; `paintVideo` uses `SERIF`. |
 | Motion and size tokens | `--dur-press`, `--dur-fade` (was `--quick`), `--tap`, `--measure`; literals replaced. |
@@ -278,7 +278,7 @@ Selected: `--paper-raised` fill, `--ink` text, 1px ink underline (inset shadow).
 
 #### Chip — `.chip` and `.big-chip`
 
-Quick minute choices. `.chip` (48 × 44, mono 16px) toggles with `aria-pressed`; hover fills raised; selected gets an ink border, raised fill and weight 500. On the finish screen they sit three to a row below 420px. `.big-chip` (Simple mode, 104px tall, 44px serif numeral with a mono "min" under it) starts the timer directly, so it has no selected state; already raised, its hover firms the border to ink.
+Quick minute choices. `.chip` (44 × 44, mono 16px) toggles with `aria-pressed`; hover fills raised; selected gets an ink border, raised fill and weight 500. On the finish screen they sit three to a row at 440px and below. `.big-chip` (Simple mode, 104px tall, 44px serif numeral with a mono "min" under it) starts the timer directly, so it has no selected state; already raised, its hover firms the border to ink.
 
 #### Line input — `.line-input`
 

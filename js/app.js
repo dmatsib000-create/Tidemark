@@ -378,7 +378,10 @@ function onFinished(cued = false) {
     light.addEventListener('animationend', () => light.classList.remove('flash'), { once: true });
   }
   if (settings.breathe) {
-    setTimeout(() => light.classList.add('breathe'), settings.flash ? 5000 : 0);
+    // Breathing follows the flashes, however long reduced motion makes them.
+    const start = () => light.classList.add('breathe');
+    if (settings.flash) light.addEventListener('animationend', start, { once: true });
+    else start();
     setTimeout(() => light.classList.remove('breathe'), 60_000);
   }
 }
