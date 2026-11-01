@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#EFEAE0" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1E1C19" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="VizTime">
+<meta name="description" content="A calm visual timer for time blindness and transitions.">
+<title>VizTime</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="preload" href="fonts/newsreader-roman.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/plex-mono-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body data-mode="full" data-screen="setup">
+
+<!-- The low sun: a page-wide wash whose strength is set from the session stage. -->
+<div class="light" id="light" aria-hidden="true"></div>
+
+<header class="bar">
+  <p class="bar-date mono" id="bar-date"></p>
+  <div class="bar-tools">
+    <button class="text-btn mono" id="float-btn" type="button" hidden>Float</button>
+    <button class="text-btn mono" id="menu-btn" type="button" aria-haspopup="dialog">Menu</button>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- ===== Setup: full and work modes ===== -->
+  <section class="screen setup" id="setup" aria-labelledby="setup-heading">
+    <h1 class="sr-only" id="setup-heading">Set up</h1>
+    <form id="setup-form" autocomplete="off" novalidate>
+      <label class="field field-title">
+        <span class="label mono"><span class="only-full">What this time is for</span><span class="only-work">Now</span></span>
+        <input class="serif-input big" id="f-title" name="title" maxlength="80" placeholder="Chart review" enterkeyhint="next">
+      </label>
+      <div class="ribbon" id="f-ribbon" hidden><span class="label mono">Where you left off</span><span id="f-ribbon-text"></span></div>
+
+      <label class="field">
+        <span class="label mono"><span class="only-full">What comes next</span><span class="only-work">Next</span></span>
+        <input class="serif-input italic" id="f-next" name="next" maxlength="80" placeholder="Clinic" enterkeyhint="next">
+      </label>
+      <label class="field field-step" id="f-step-wrap">
+        <span class="label mono">First small step for next <span class="soft">(optional)</span></span>
+        <input class="plain-input" id="f-step" name="step" maxlength="100" placeholder="Open the clinic list">
+      </label>
+
+      <fieldset class="field">
+        <legend class="label mono">Length</legend>
+        <div class="seg" role="radiogroup" aria-label="How to set the length">
+          <button type="button" class="seg-btn" role="radio" data-by="for" aria-checked="true">For</button>
+          <button type="button" class="seg-btn" role="radio" data-by="until" aria-checked="false">Until</button>
+        </div>
+        <div class="by-for" id="by-for">
+          <div class="chips" id="f-chips" role="radiogroup" aria-label="Minutes">
+            <button type="button" class="chip" role="radio" data-min="5">5</button>
+            <button type="button" class="chip" role="radio" data-min="10">10</button>
+            <button type="button" class="chip" role="radio" data-min="15">15</button>
+            <button type="button" class="chip" role="radio" data-min="25">25</button>
+            <button type="button" class="chip" role="radio" data-min="45">45</button>
+            <button type="button" class="chip" role="radio" data-min="60">60</button>
+          </div>
+          <label class="inline-field"><span class="mono">or exactly</span>
+            <input class="num-input" id="f-minutes" inputmode="numeric" pattern="[0-9]*" maxlength="3" placeholder="25" aria-label="Exact minutes">
+            <span class="mono">min</span></label>
+        </div>
+        <div class="by-until" id="by-until" hidden>
+          <label class="inline-field"><span class="mono">next starts at</span>
+            <input class="num-input time" id="f-until" type="time" aria-label="When the next thing starts"></label>
+          <label class="inline-field"><span class="mono">getting there takes</span>
+            <select class="select" id="f-buffer" aria-label="Buffer minutes">
+              <option value="0">no time</option><option value="2">2 min</option><option value="5">5 min</option>
+              <option value="10">10 min</option><option value="15">15 min</option>
+            </select></label>
+          <p class="hint mono" id="f-until-hint"></p>
+        </div>
+      </fieldset>
+
+      <label class="inline-field field">
+        <span class="label mono"><span class="only-full">Warning before the end</span><span class="only-work">Lead-in</span></span>
+        <select class="select" id="f-warn">
+          <option value="auto">automatic</option><option value="2">2 min</option><option value="5">5 min</option><option value="10">10 min</option>
+        </select>
+      </label>
+
+      <p class="error mono" id="f-error" role="alert"></p>
+
+      <div class="form-actions">
+        <button class="primary" type="submit" id="f-start">Start</button>
+        <button class="text-btn mono" type="button" id="f-save">Save as preset</button>
+        <button class="text-btn mono" type="button" id="f-clear">Clear</button>
+      </div>
+    </form>
+
+    <section class="presets" aria-labelledby="presets-heading">
+      <h2 class="label mono" id="presets-heading">Presets</h2>
+      <ul class="preset-list" id="preset-list"></ul>
+      <p class="hint" id="presets-empty">Fill in the form and choose “Save as preset” to start it in one tap next time.</p>
+    </section>
+  </section>
+
+  <!-- ===== Setup: simple mode ===== -->
+  <section class="screen setup-simple" id="setup-simple" aria-label="Start a timer">
+    <div class="big-chips" id="s-chips">
+      <button type="button" class="big-chip" data-min="5">5<span class="mono">min</span></button>
+      <button type="button" class="big-chip" data-min="10">10<span class="mono">min</span></button>
+      <button type="button" class="big-chip" data-min="15">15<span class="mono">min</span></button>
+      <button type="button" class="big-chip" data-min="25">25<span class="mono">min</span></button>
+      <button type="button" class="big-chip" data-min="45">45<span class="mono">min</span></button>
+      <button type="button" class="big-chip" data-min="60">60<span class="mono">min</span></button>
+    </div>
+    <form class="simple-exact" id="s-form" novalidate>
+      <label class="inline-field"><span class="mono">or exactly</span>
+        <input class="num-input" id="s-minutes" inputmode="numeric" pattern="[0-9]*" maxlength="3" placeholder="20" aria-label="Exact minutes">
+        <span class="mono">min</span></label>
+      <button class="primary" type="submit">Start</button>
+    </form>
+    <p class="error mono" id="s-error" role="alert"></p>
+  </section>
+
+  <!-- ===== Running: all modes ===== -->
+  <section class="screen run" id="run" aria-label="Session">
+    <div class="run-text">
+      <p class="label mono run-kind" id="r-kind"></p>
+      <h1 class="run-title" id="r-title"></h1>
+      <p class="run-next" id="r-next-line"><span class="label mono">then</span> <span class="italic" id="r-next"></span></p>
+      <div class="ribbon" id="r-ribbon" hidden><span class="label mono">Where you left off</span><span id="r-ribbon-text"></span></div>
+    </div>
+
+    <!-- Work mode: a desk clock and today's schedule -->
+    <div class="work-head">
+      <p class="work-time" id="w-time"></p>
+      <ul class="schedule" id="w-schedule">
+        <li class="sched-row is-now"><span class="mono sched-when" id="w-now-when"></span><span class="sched-what" id="w-now-what"></span></li>
+        <li class="sched-row" id="w-next-row"><span class="mono sched-when" id="w-next-when"></span><span class="sched-what italic" id="w-next-what"></span></li>
+      </ul>
+    </div>
+
+    <div class="face-wrap">
+      <canvas class="face" id="face" role="img" aria-label="Time picture"></canvas>
+      <p class="reveal mono" id="reveal" aria-live="off"></p>
+    </div>
+
+    <div class="faces-switch" id="faces-switch" role="radiogroup" aria-label="Clock style">
+      <button type="button" class="dot" role="radio" data-face="level" aria-label="Level"></button>
+      <button type="button" class="dot" role="radio" data-face="sun" aria-label="Sun"></button>
+      <button type="button" class="dot" role="radio" data-face="planner" aria-label="Planner"></button>
+    </div>
+
+    <p class="figures mono" id="r-figures"></p>
+
+    <!-- Full mode: the next activity takes the stage during the warning -->
+    <div class="next-card" id="next-card" hidden>
+      <div class="next-fill" id="next-fill"></div>
+      <div class="next-inner">
+        <p class="label mono">Next</p>
+        <p class="next-title" id="nc-title"></p>
+        <p class="next-step" id="nc-step"></p>
+        <p class="next-note" id="nc-note"></p>
+      </div>
+    </div>
+
+    <form class="leave-note" id="leave-note" hidden novalidate>
+      <label class="field">
+        <span class="label mono"><span class="only-full">Where are you leaving off?</span><span class="only-work">Note</span></span>
+        <input class="plain-input" id="ln-text" maxlength="140" placeholder="Halfway through the Smith letter" enterkeyhint="done">
+      </label>
+      <p class="hint mono" id="ln-saved" aria-live="polite"></p>
+    </form>
+
+    <div class="work-tools">
+      <button class="text-btn mono" type="button" id="w-note-btn">Note</button>
+      <button class="text-btn mono" type="button" id="w-edit-btn" aria-expanded="false" aria-controls="controls">Edit</button>
+    </div>
+
+    <nav class="controls" id="controls" aria-label="Session controls">
+      <div class="adjust">
+        <button type="button" class="ctl mono adj-wide" data-adj="-5" aria-label="Take 5 minutes off">−5</button>
+        <button type="button" class="ctl mono adj-fine" data-adj="-1" aria-label="Take 1 minute off">−1</button>
+        <button type="button" class="ctl mono ctl-pause" id="pause-btn">Pause</button>
+        <button type="button" class="ctl mono adj-fine" data-adj="1" aria-label="Add 1 minute">+1</button>
+        <button type="button" class="ctl mono adj-wide" data-adj="5" aria-label="Add 5 minutes">+5</button>
+      </div>
+      <div class="ends">
+        <button type="button" class="text-btn mono" id="finish-btn">Finish now</button>
+        <button type="button" class="text-btn mono stop" id="stop-btn"><span class="only-simple">Reset</span><span class="not-simple">Stop</span></button>
+      </div>
+    </nav>
+  </section>
+
+  <!-- ===== Landing: the handoff ===== -->
+  <section class="screen landing" id="landing" aria-labelledby="l-title">
+    <p class="label mono" id="l-label"></p>
+    <h1 class="landing-title" id="l-title"></h1>
+    <p class="landing-step" id="l-step"></p>
+    <div class="ribbon" id="l-ribbon" hidden><span class="label mono">Where you left off</span><span id="l-ribbon-text"></span></div>
+
+    <div class="landing-start" id="l-start">
+      <p class="label mono" id="l-start-label"></p>
+      <div class="chips" id="l-chips">
+        <button type="button" class="chip" data-min="10">10</button>
+        <button type="button" class="chip" data-min="15">15</button>
+        <button type="button" class="chip" data-min="25">25</button>
+        <button type="button" class="chip" data-min="45">45</button>
+        <button type="button" class="chip" data-min="60">60</button>
+      </div>
+      <form class="inline-field" id="l-form" novalidate>
+        <span class="mono">or</span>
+        <input class="num-input" id="l-minutes" inputmode="numeric" pattern="[0-9]*" maxlength="3" placeholder="30" aria-label="Exact minutes">
+        <span class="mono">min</span>
+        <button class="primary small" type="submit">Start</button>
+      </form>
+    </div>
+
+    <form class="leave-note" id="l-note" novalidate>
+      <label class="field">
+        <span class="label mono" id="l-note-label"></span>
+        <input class="plain-input" id="l-note-text" maxlength="140" placeholder="Halfway through the Smith letter" enterkeyhint="done">
+      </label>
+      <p class="hint mono" id="l-note-saved" aria-live="polite"></p>
+    </form>
+
+    <div class="landing-more">
+      <span class="label mono" id="l-more-label"></span>
+      <button type="button" class="ctl mono" data-extend="2"></button>
+      <button type="button" class="ctl mono" data-extend="5"></button>
+      <button type="button" class="ctl mono" data-extend="10"></button>
+    </div>
+
+    <button type="button" class="text-btn mono done-btn" id="l-done">Done</button>
+  </section>
+</main>
+
+<!-- ===== Menu ===== -->
+<dialog class="sheet" id="sheet" aria-labelledby="sheet-heading">
+  <form method="dialog" class="sheet-inner">
+    <div class="sheet-head">
+      <h2 id="sheet-heading">Menu</h2>
+      <button class="text-btn mono" value="close" aria-label="Close menu">Close</button>
+    </div>
+
+    <section class="sheet-section">
+      <h3 class="label mono">Mode for now</h3>
+      <div class="seg" id="m-mode" role="radiogroup" aria-label="Mode for now">
+        <button type="button" class="seg-btn" role="radio" data-mode="full">Full</button>
+        <button type="button" class="seg-btn" role="radio" data-mode="work">Work</button>
+        <button type="button" class="seg-btn" role="radio" data-mode="simple">Simple</button>
+      </div>
+      <label class="inline-field"><span class="mono">Open in</span>
+        <select class="select" id="m-default">
+          <option value="full">Full</option><option value="work">Work</option><option value="simple">Simple</option>
+        </select></label>
+      <p class="hint">Changing the mode never touches a running session.</p>
+    </section>
+
+    <section class="sheet-section">
+      <h3 class="label mono">Comfort</h3>
+      <div class="seg" id="m-bundle" role="radiogroup" aria-label="Comfort bundle">
+        <button type="button" class="seg-btn" role="radio" data-bundle="quiet">Quiet</button>
+        <button type="button" class="seg-btn" role="radio" data-bundle="balanced">Balanced</button>
+        <button type="button" class="seg-btn" role="radio" data-bundle="noticeable">Noticeable</button>
+      </div>
+      <p class="hint" id="m-bundle-hint"></p>
+      <details class="details">
+        <summary class="mono">Adjust each cue</summary>
+        <table class="cue-table">
+          <thead><tr><th></th><th class="mono">Tone</th><th class="mono">Voice</th></tr></thead>
+          <tbody>
+            <tr><th class="mono" scope="row">Halfway</th><td><input type="checkbox" data-cue="half.sound" aria-label="Tone at halfway"></td><td><input type="checkbox" data-cue="half.speak" aria-label="Voice at halfway"></td></tr>
+            <tr><th class="mono" scope="row">Warning</th><td><input type="checkbox" data-cue="warn.sound" aria-label="Tone at warning"></td><td><input type="checkbox" data-cue="warn.speak" aria-label="Voice at warning"></td></tr>
+            <tr><th class="mono" scope="row">Finish</th><td><input type="checkbox" data-cue="finish.sound" aria-label="Tone at finish"></td><td><input type="checkbox" data-cue="finish.speak" aria-label="Voice at finish"></td></tr>
+          </tbody>
+        </table>
+        <label class="inline-field"><span class="mono">Volume</span><input type="range" id="m-volume" min="0" max="1" step="0.05"><button type="button" class="text-btn mono" id="m-test">Try it</button></label>
+        <label class="inline-field"><span class="mono">Warm light</span>
+          <select class="select" id="m-warmth"><option value="subtle">subtle</option><option value="normal">normal</option><option value="strong">strong</option></select></label>
+        <label class="check"><input type="checkbox" id="m-breathe"> <span>Slow breathing light at the finish</span></label>
+        <label class="check"><input type="checkbox" id="m-flash"> <span>Three slow flashes at the finish</span></label>
+        <label class="check"><input type="checkbox" id="m-wake"> <span>Keep the screen awake while running</span></label>
+        <label class="check" id="m-notify-wrap"><input type="checkbox" id="m-notify"> <span>System notification at the warning and finish (computer)</span></label>
+        <p class="hint">Voice and notifications stay neutral in Work mode: they never say “timer” or count down.</p>
+      </details>
+    </section>
+
+    <section class="sheet-section" id="m-float-section">
+      <h3 class="label mono">Floating view</h3>
+      <p class="hint" id="m-float-hint"></p>
+    </section>
+  </form>
+</dialog>
+
+<div class="toast" id="toast" role="status" hidden><span id="toast-text"></span><button type="button" class="text-btn mono" id="toast-undo">Undo</button></div>
+<p class="sr-only" id="live" aria-live="polite"></p>
+<canvas id="video-canvas" width="360" height="360" hidden></canvas>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
