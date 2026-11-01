@@ -13,7 +13,7 @@ A calm visual timer for time blindness and transitions. Plain static files that 
   Setting up looks like adding an entry to the day: the desk clock sits on top, it opens on **Until**, with end-time buttons ("2:15", "2:30") and a "next starts at" time. **For** (minutes) is one tap away; typed minutes there are confirmed only as an end time. Full and Simple open on For.
 - **Simple.** Six large lengths or exact minutes. While running: the picture, Pause, −5, +5, Reset.
 
-Switch modes from **Menu** at any time without touching a running session. **Open in** sets the mode the app starts in.
+Switch modes with **Full · Work · Simple** at the top of the screen, or **Alt+1**, **Alt+2**, **Alt+3** on a keyboard, at any time without touching a running session. **Menu → Open in** sets the mode the app starts in.
 
 ## The handoff
 

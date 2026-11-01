@@ -25,7 +25,15 @@
 <div class="light" id="light" aria-hidden="true"></div>
 
 <header class="bar">
-  <p class="bar-date mono" id="bar-date"></p>
+  <div class="bar-left">
+    <!-- One tap to change mode from anywhere; Alt+1/2/3 on a keyboard -->
+    <div class="seg mode-switch" id="mode-switch" role="group" aria-label="Mode">
+      <button type="button" class="seg-btn" data-mode="full" aria-pressed="false" aria-keyshortcuts="Alt+1">Full</button>
+      <button type="button" class="seg-btn" data-mode="work" aria-pressed="false" aria-keyshortcuts="Alt+2">Work</button>
+      <button type="button" class="seg-btn" data-mode="simple" aria-pressed="false" aria-keyshortcuts="Alt+3">Simple</button>
+    </div>
+    <p class="bar-date mono" id="bar-date"></p>
+  </div>
   <div class="bar-tools">
     <button class="text-btn mono" id="float-btn" type="button" hidden>Float</button>
     <button class="text-btn mono" id="menu-btn" type="button" aria-haspopup="dialog">Menu</button>
@@ -262,17 +270,12 @@
     </div>
 
     <section class="sheet-section">
-      <h3 class="label mono">Mode for now</h3>
-      <div class="seg" id="m-mode" role="group" aria-label="Mode for now">
-        <button type="button" class="seg-btn" data-mode="full" aria-pressed="false">Full</button>
-        <button type="button" class="seg-btn" data-mode="work" aria-pressed="false">Work</button>
-        <button type="button" class="seg-btn" data-mode="simple" aria-pressed="false">Simple</button>
-      </div>
+      <h3 class="label mono">Mode</h3>
       <label class="inline-field"><span class="mono">Open in</span>
         <select class="select" id="m-default">
           <option value="full">Full</option><option value="work">Work</option><option value="simple">Simple</option>
         </select></label>
-      <p class="hint">Changing the mode never touches a running session.</p>
+      <p class="hint">Switch modes with Full, Work and Simple at the top, or Alt+1, Alt+2 and Alt+3 on a keyboard. Changing the mode never touches a running session.</p>
     </section>
 
     <section class="sheet-section">

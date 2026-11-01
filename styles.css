@@ -117,7 +117,12 @@ button { cursor: pointer; -webkit-user-select: none; user-select: none; touch-ac
   max-width: 640px; margin: 0 auto var(--s5);
   min-height: 44px;
 }
+.bar-left { display: flex; align-items: center; gap: var(--s4); min-width: 0; }
 .bar-date { font-size: 12px; color: var(--ink-soft); margin: 0; }
+.mode-switch { margin: 0; }
+.mode-switch .seg-btn { padding: 0 var(--s3); font-size: 12px; }
+/* On a phone the switch takes the date's place. */
+@media (max-width: 560px) { .bar-date { display: none; } }
 .bar-tools { display: flex; gap: var(--s4); }
 
 main { max-width: 640px; margin: 0 auto; }

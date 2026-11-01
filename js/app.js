@@ -85,6 +85,7 @@ function render() {
   shownScreen = screen;
   body.dataset.mode = mode;
   body.dataset.screen = screen;
+  for (const b of document.querySelectorAll('#mode-switch [data-mode]')) b.setAttribute('aria-pressed', String(b.dataset.mode === mode));
   if (screen !== 'run') body.classList.remove('edit-open', 'note-open');
   renderSetup();
   if (session && !session.finishedAt) renderRun();
@@ -876,7 +877,6 @@ function toast(text, undo) {
 /* ---------- Menu ---------- */
 
 function renderMenu() {
-  for (const b of document.querySelectorAll('#m-mode [data-mode]')) b.setAttribute('aria-pressed', String(b.dataset.mode === mode));
   $('m-default').value = settings.defaultMode;
   settings.bundle = matchBundle();
   for (const b of document.querySelectorAll('[data-bundle]')) b.setAttribute('aria-pressed', String(b.dataset.bundle === settings.bundle));
@@ -904,16 +904,32 @@ function renderMenu() {
 $('menu-btn').addEventListener('click', () => { renderMenu(); $('sheet').showModal(); });
 $('sheet').addEventListener('click', e => { if (e.target === $('sheet')) $('sheet').close(); });
 
-for (const b of document.querySelectorAll('#m-mode [data-mode]')) {
-  b.addEventListener('click', () => {
-    mode = b.dataset.mode;
-    if (!session) form.by = defaultBy();
-    renderMenu();
-    render();
-    frame.force = true;
-    if (floatDoc) buildFloat(floatDoc);
-  });
+const MODE_NAMES = { full: 'Full', work: 'Work', simple: 'Simple' };
+
+function setMode(next, { announceIt = false } = {}) {
+  if (next === mode) return;
+  mode = next;
+  if (!session) form.by = defaultBy();
+  render();
+  frame.force = true;
+  if (floatDoc) buildFloat(floatDoc);
+  // The pressed button says which mode is on; a shortcut has no button in
+  // focus, so it is announced instead.
+  if (announceIt) announce(`${MODE_NAMES[mode]} mode`);
 }
+
+for (const b of document.querySelectorAll('#mode-switch [data-mode]')) {
+  b.addEventListener('click', () => setMode(b.dataset.mode));
+}
+
+// Alt+1, Alt+2, Alt+3. A modifier keeps typing from ever switching modes, and
+// e.code works on keyboards where Alt changes the character.
+const MODE_KEYS = { Digit1: 'full', Digit2: 'work', Digit3: 'simple', Numpad1: 'full', Numpad2: 'work', Numpad3: 'simple' };
+document.addEventListener('keydown', e => {
+  if (!e.altKey || e.ctrlKey || e.metaKey || e.shiftKey || !MODE_KEYS[e.code]) return;
+  e.preventDefault();
+  setMode(MODE_KEYS[e.code], { announceIt: true });
+});
 $('m-default').addEventListener('change', () => { settings.defaultMode = $('m-default').value; saveSettings(); });
 for (const b of document.querySelectorAll('[data-bundle]')) {
   b.addEventListener('click', () => {
