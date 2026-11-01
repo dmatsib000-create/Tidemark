@@ -1,61 +1,64 @@
 # VizTime
 
-A calm visual timer for time blindness and transitions. Built as a single-page web app that installs to a phone home screen and works offline.
+A calm visual timer for time blindness and transitions. Plain static files that install to a phone home screen and work offline. The look ("Afternoon paper") is described in [design-direction.md](design-direction.md); the requirements are in [build-prompt.md](build-prompt.md).
 
-## The idea: a horizon that sinks toward what's next
+## Three modes
 
-The running screen is one wide field. Its filled level is the time left, so you read it the way you read a glass of water, without doing arithmetic. Lines across the field are pinned to real clock times (2:20, 2:30, 2:40), and the horizon carries the current time, so the level always relates to the clock on the wall.
+- **Full.** What this time is for, what comes next, and an ochre wash on paper whose area is the time left. A dotted ring shows where the warning stage begins, so the end is visible from the start. Supporting numbers: time left and the end clock time. Pause, −5, −1, +1, +5, Finish now, Stop. Presets start in one tap.
+- **Work.** Reads as an ordinary desk clock and schedule: a large clock time, a "now" entry and a "next" entry. The time is shown only as a picture, with three faces to flip between (the dots under it):
+  - **Planner**: a day-planner page. The session is an appointment block on a real clock grid with a "now" line moving through it; the wash below the line is the time left. In the last stretch the page eases into a closer view of the end of the block and the next entry, which warms. A bystander sees a calendar.
+  - **Level**: a clock whose dial holds a sinking ochre level, with a small mark where the warning begins.
+  - **Sun**: a clock with a low sun arcing to the horizon and sinking at the end.
+  Tapping the picture shows the time left for four seconds. Controls hide behind **Edit**. The tab title is "Day". It finishes with "Session finished."
+  Setting up looks like adding an entry to the day: the desk clock sits on top, it opens on **Until**, with end-time buttons ("2:15", "2:30") and a "next starts at" time. **For** (minutes) is one tap away; typed minutes there are confirmed only as an end time. Full and Simple open on For.
+- **Simple.** Six large lengths or exact minutes. While running: the picture, Pause, −5, +5, Reset.
 
-The next activity sits on the floor of the field. Time drains toward it.
+Switch modes with **Full · Work · Simple** at the top of the screen, or **Alt+1**, **Alt+2**, **Alt+3** on a keyboard, at any time without touching a running session. **Menu → Open in** sets the mode the app starts in.
 
-- **Wind-down zone.** The bottom band (about 15% of the timer by default, 2 to 10 min) is visible from the start, so the ending never comes as a surprise. When the level reaches it, the fill warms gradually like dusk, a soft cue plays, and the screen suggests finding a good place to stop.
-- **Landing lens.** During the wind-down, the "Next" card fills from left to right. Your final minutes get their own full-width scale, even when they are a thin sliver of a long timer.
-- **Final minute.** Says "Wrap up the step you're on." Optional chime.
-- **Time's up.** Two soft bell notes with a slow attack: no beep, no flashing. The screen becomes a handoff with one obvious action: **Start** the next activity, or **Done** if nothing is next. Everything else (your handoff routine, **+2 / +5 min**, a **reset pause**, a note, going back) is one tap away under **More**.
-- **Overtime** is shown calmly as a striped band and a "past the end" count, with optional reminders that never get louder.
+## The handoff
 
-## Controls while running
+- The whole page warms slightly through the warning stage, like late-afternoon light, and settles at the finish. That light is the main cue in every mode.
+- In Full mode the next activity gets its own card in the warning stage. It fills and grows as the end approaches and shows the first small step and your last note for it.
+- The note about where you left off is offered during the warning stage (and on the finish screen). It reappears as a ribbon bookmark the next time you start that activity.
+- The finish screen puts the next activity first with one main button, such as "Start Lunch · 25 min", and other lengths below it. Turn on **Menu → Activities → Remember how long each activity usually runs** and that button suggests the length you last used for that activity. Extra time (+2, +5, +10) starts its own short, full-size segment.
+- **Until** sets a session by when the next thing starts, minus time to get there.
 
-- **−5 / −1 / Pause / +1 / +5.** Change the time while running or paused. Removing time that skips past a cue marks it as done silently, so nothing piles up. Removing more time than is left ends the timer quietly, and you can undo it.
-- **Finish now** ends early and goes to the handoff. It counts in today's history.
-- **Stop** abandons the timer: one tap, nothing is logged, back to a clean setup. An Undo appears for a few seconds in case it was a slip.
+## Stop, finish, reset
 
-## Things that help with transitions
+- **Stop** discards the session and returns to a clean setup. Undo is offered for ten seconds.
+- **Finish now** ends early and goes to the handoff.
+- Taking time off is as easy as adding it. Taking off more than is left finishes quietly; cues it skips past don't play.
+- Setup is always clean after a session. Nothing is pre-filled.
 
-- **Leave a note.** One line about where you left off. It reappears the next time you start that activity, which makes stopping cheaper.
-- **Handoff steps.** A short routine of your own (save work, close tabs, stand up) shown at every changeover.
-- **Until a clock time.** "Until 3:00" for the time before a meeting or appointment. If that time has already passed today, the app asks whether you meant tomorrow.
-- **Day strip.** On the setup screen, the block (and what follows it) is placed on a strip of your next couple of hours.
-- **Planned vs. actual.** A small log of today's sessions and how long they really took, to help calibrate estimates. "Planned" is always what you planned at the start; time added or removed along the way is noted beside it. Informational only; no streaks or scores.
-- **Check-ins.** Off by default. Turn them on in Settings for a quiet "30 min in" while you're absorbed.
-- **Saved timers** start empty. Tap the star to keep one you use often.
+## Comfort
 
-## Comfort and control
+**Quiet**, **Balanced** and **Noticeable** set everything at once. Under "Adjust each cue": a tone and a spoken line per moment (halfway, warning, finish), volume, light strength, a slow breathing light, three slow flashes, keeping the screen awake, and system notifications on a computer. Tones are soft bells with a slow attack. Work mode never speaks or notifies about anything except "Session finished."
 
-- **Quiet / Balanced / Noticeable** presets, plus individual control of chimes (per moment), volume, spoken announcements, vibration (Android), motion, number display (hidden / end time / full), wind-down length, overtime reminders and theme.
-- **Work mode.** Reads as a clock, not a countdown, so nobody across the desk feels timed: no "min left", "time's up" or wind-down words, only the level and clock times. Dimmer colors, silent by default, controls that fade back, and activity names hidden as "Current" / "Next" (tap to peek). The browser tab title stays "VizTime", and the tab icon shows a tiny live level.
-- Respects the system "reduce motion" setting.
+Sessions are stored as timestamps, so a running session survives closing and reopening the app. A cue whose moment passed while the app was closed is never played late.
 
-## Persistence
+## Floating view
 
-Timers are stored as timestamps, so a running timer continues correctly if you close and reopen the page. Cues missed while the page was closed are not played retroactively, so you never get a burst of sound on reopen. Settings, saved timers, notes and history stay in the browser on this device (`localStorage`).
+- **Chrome, Edge or Vivaldi on a computer:** **Float** opens a small always-on-top window with the picture and −5, Pause, +5. Its layout follows the window's shape: side by side when wide, picture-first when small. At the finish it offers the same handoff as the main screen (Start the next activity, +5 min, Done). In Work mode it shows only the picture and the next entry, and the picture reveals the time left on a tap or Enter.
+- **iPhone and Safari:** **Float** shows the picture as a picture-in-picture video above other apps. It can't be tapped, and iOS may freeze it while VizTime is in the background. This is experimental.
 
-## Install on your phone
+## Limits on iPhone
 
-The app is static files (`index.html`, `sw.js`, `manifest.webmanifest`, `icons/`), so it can be hosted anywhere over HTTPS. With GitHub Pages:
+A home-screen web app is suspended when it isn't on screen or the phone locks, so it can't sound a cue then. Keep the screen awake (on by default while a session runs) and leave VizTime open. Sound only works after a tap, the silent switch mutes it, and web apps can't vibrate. Notifications aren't available without a server.
 
-1. Repository **Settings → Pages → Build and deployment**: Source "Deploy from a branch", choose the branch and `/ (root)`.
-2. Open the published URL on your phone.
-3. iPhone: Safari → Share → **Add to Home Screen**. Android: Chrome menu → **Install app**.
+## Install
 
-## Limits worth knowing
+Static files at the repository root: `index.html`, `styles.css`, `js/`, `fonts/`, `icons/`, `manifest.webmanifest`, `sw.js`.
 
-- Web pages can't reliably sound alerts once a phone locks the screen or suspends the page. "Keep screen awake" is on by default while a timer runs. Keep the app open in the foreground for audible cues.
-- On iPhone, the ring/silent switch mutes web audio, and vibration isn't available to web pages.
+1. GitHub repository **Settings → Pages → Build and deployment**: Source "Deploy from a branch", choose the branch and `/ (root)`.
+2. Open the published address on your phone.
+3. iPhone: Safari → Share → **Add to Home Screen**.
 
 ## Local preview
 
+```bash
+python -m http.server 8000
 ```
-python3 -m http.server 8000
-```
-then open http://localhost:8000.
+
+Then open http://localhost:8000.
+
+Fonts: Newsreader and IBM Plex Mono, SIL Open Font License, stored in `fonts/`.
