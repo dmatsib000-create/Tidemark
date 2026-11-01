@@ -3,7 +3,7 @@
 import * as E from './engine.js';
 import { load, save, getNote, setNote, noteKey } from './store.js';
 import { unlockAudio, chime, speak } from './sound.js';
-import { palette, drawFace, paintWarmth } from './faces.js';
+import { palette, drawFace, paintWarmth, SERIF } from './faces.js';
 import { canFloatWindow, canFloatVideo, openFloatWindow, openFloatVideo } from './float.js';
 
 const $ = id => document.getElementById(id);
@@ -86,7 +86,7 @@ function render() {
   body.dataset.mode = mode;
   body.dataset.screen = screen;
   for (const b of document.querySelectorAll('#mode-switch [data-mode]')) b.setAttribute('aria-pressed', String(b.dataset.mode === mode));
-  if (screen !== 'run') body.classList.remove('edit-open', 'note-open');
+  if (screen !== 'run') body.classList.remove('is-edit-open', 'is-note-open');
   renderSetup();
   if (session && !session.finishedAt) renderRun();
   if (session && session.finishedAt) renderLanding();
@@ -378,7 +378,10 @@ function onFinished(cued = false) {
     light.addEventListener('animationend', () => light.classList.remove('flash'), { once: true });
   }
   if (settings.breathe) {
-    setTimeout(() => light.classList.add('breathe'), settings.flash ? 5000 : 0);
+    // Breathing follows the flashes, however long reduced motion makes them.
+    const start = () => light.classList.add('breathe');
+    if (settings.flash) light.addEventListener('animationend', start, { once: true });
+    else start();
     setTimeout(() => light.classList.remove('breathe'), 60_000);
   }
 }
@@ -537,11 +540,11 @@ wireNote('l-note-text', 'l-note-saved');
 /* ---------- Work mode tools ---------- */
 
 $('w-edit-btn').addEventListener('click', () => {
-  const open = body.classList.toggle('edit-open');
+  const open = body.classList.toggle('is-edit-open');
   $('w-edit-btn').setAttribute('aria-expanded', String(open));
 });
 $('w-note-btn').addEventListener('click', () => {
-  if (body.classList.toggle('note-open')) $('ln-text').focus();
+  if (body.classList.toggle('is-note-open')) $('ln-text').focus();
 });
 for (const d of document.querySelectorAll('[data-face]')) {
   d.addEventListener('click', () => { settings.face = d.dataset.face; saveSettings(); render(); });
@@ -562,9 +565,9 @@ function reveal() {
   if (mode !== 'work' || !session) return;
   $('reveal').textContent = '';
   setTimeout(() => { $('reveal').textContent = fmtLeft(E.remaining(session)); }, 50);
-  $('reveal').classList.add('on');
+  $('reveal').classList.add('is-on');
   clearTimeout(revealTimer);
-  revealTimer = setTimeout(() => $('reveal').classList.remove('on'), 4000);
+  revealTimer = setTimeout(() => $('reveal').classList.remove('is-on'), 4000);
 }
 $('face').addEventListener('click', reveal);
 $('face').addEventListener('keydown', e => {
@@ -791,14 +794,14 @@ function paintVideo() {
     drawFace(ctx, W - 40, H - 74, faceName(), m, pal);
     ctx.restore();
     ctx.fillStyle = pal.ink;
-    ctx.font = 'italic 400 24px Newsreader, Georgia, serif';
+    ctx.font = `italic 400 24px ${SERIF}`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'alphabetic';
     const line = session.next ? `then ${session.next}` : (session.title || '');
     ctx.fillText(line, W / 2, H - 22, W - 40);
   } else {
     ctx.fillStyle = pal.ink;
-    ctx.font = '400 30px Newsreader, Georgia, serif';
+    ctx.font = `400 30px ${SERIF}`;
     ctx.textAlign = 'center';
     ctx.fillText(mode === 'work' ? 'Session finished.' : (session?.next || 'Finished'), W / 2, H / 2);
   }
