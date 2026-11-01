@@ -1,8 +1,8 @@
 # VizTime design system
 
-The reference for what is built: tokens, components and patterns as they exist in [styles.css](styles.css), [index.html](index.html), [js/app.js](js/app.js) and [js/faces.js](js/faces.js). [design-direction.md](design-direction.md) holds the intent behind them ("Afternoon paper"): the philosophy, the session states, the surfaces and the copy voice.
+The reference for what is built: tokens, components and patterns as they exist in [styles.css](styles.css), [index.html](index.html), the modules in [js/](js/) (listed at the top of [js/app.js](js/app.js)), with the pictures in [js/faces.js](js/faces.js). [design-direction.md](design-direction.md) holds the intent behind them ("Afternoon paper"): the philosophy, the session states, the surfaces and the copy voice.
 
-No build step and no framework: components are plain HTML elements with CSS classes, and state lives in attributes (`aria-pressed`, `hidden`, `data-mode`, `data-screen`) that app.js sets. The code examples below are the markup to copy.
+No build step and no framework: components are plain HTML elements with CSS classes, and state lives in attributes (`aria-pressed`, `hidden`, `data-mode`, `data-screen`) that the scripts set. The code examples below are the markup to copy.
 
 ## Principles
 
@@ -88,7 +88,7 @@ Weights: 400 everywhere; 500 only for the selected chip and `<strong>` in figure
 
 ### Focus
 
-Global: `2px solid var(--ochre-ink)`, offset 2px, `:focus-visible` only. Text buttons swap to a 2px ochre-ink underline. Line inputs show a 2px ochre-ink bottom rule (1px border plus 1px shadow). Headings that receive programmatic focus (`tabindex="-1"`) show nothing; app.js moves focus to each screen's heading when the screen changes.
+Global: `2px solid var(--ochre-ink)`, offset 2px, `:focus-visible` only. Text buttons swap to a 2px ochre-ink underline. Line inputs show a 2px ochre-ink bottom rule (1px border plus 1px shadow). Headings that receive programmatic focus (`tabindex="-1"`) show nothing; screens.js moves focus to each screen's heading when the screen changes.
 
 ---
 
@@ -194,7 +194,7 @@ Every button below is a native `<button type="button">` (or `type="submit"` in a
 |---|---|---|
 | Unselected | `--ink-soft` text | — |
 | Hover | `--ink` text | — |
-| Selected (`aria-pressed="true"`) | `--paper-raised` fill, `--ink` text, 1px ink underline | Choosing another clears it (app.js) |
+| Selected (`aria-pressed="true"`) | `--paper-raised` fill, `--ink` text, 1px ink underline | Choosing another clears it (the scripts) |
 | Focus | 2px `--ochre-ink` outline | — |
 
 **Accessibility.**
@@ -232,7 +232,7 @@ Every button below is a native `<button type="button">` (or `type="submit"` in a
 | Active | Moves down 1px | — |
 | Focus | 2px `--ochre-ink` outline | — |
 
-**Accessibility.** Setup chips are toggles in a `role="group"` ("Minutes", "End times"). app.js gives each a full name: "25 minutes", or "Until 9:30 AM" in Until mode, so the bare number is never read alone. Chips that start a timer are plain buttons with no pressed state.
+**Accessibility.** Setup chips are toggles in a `role="group"` ("Minutes", "End times"). setup.js gives each a full name: "25 minutes", or "Until 9:30 AM" in Until mode, so the bare number is never read alone. Chips that start a timer are plain buttons with no pressed state.
 
 | ✅ Do | ❌ Don't |
 |---|---|
@@ -352,7 +352,7 @@ Every button below is a native `<button type="button">` (or `type="submit"` in a
 
 ### Preset row — `.preset-list li`
 
-**Description.** One saved session in the ruled preset list: a start button with name, next activity and length, and a remove button. Built by app.js. When any presets exist they move above the setup form (`.has-items`), except in Work mode.
+**Description.** One saved session in the ruled preset list: a start button with name, next activity and length, and a remove button. Built by setup.js. When any presets exist they move above the setup form (`.has-items`), except in Work mode.
 
 | State | Visual | Behavior |
 |---|---|---|
