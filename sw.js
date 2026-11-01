@@ -1,5 +1,5 @@
 // VizTime service worker: the whole app is cached on first visit so it works offline.
-const CACHE = 'viztime-paper-2';
+const CACHE = 'viztime-paper-3';
 const SHELL = [
   './', './index.html', './styles.css', './manifest.webmanifest',
   './js/app.js', './js/engine.js', './js/store.js', './js/sound.js', './js/faces.js', './js/float.js',
