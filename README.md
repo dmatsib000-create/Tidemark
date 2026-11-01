@@ -1,6 +1,6 @@
 # VizTime
 
-A calm visual timer for time blindness and transitions. Plain static files that install to a phone home screen and work offline. The look ("Afternoon paper") is described in [design-direction.md](design-direction.md); the requirements are in [build-prompt.md](build-prompt.md).
+A calm visual timer for time blindness and transitions. Plain static files that install to a phone home screen and work offline. The look ("Afternoon paper") is described in [design-direction.md](design-direction.md) and documented as built in [design-system.md](design-system.md); the requirements are in [build-prompt.md](build-prompt.md).
 
 ## Three modes
 
